@@ -22,6 +22,7 @@ function ProjectCard({
       href={project.link}
       target="_blank"
       rel="noopener noreferrer"
+      aria-label={`${project.title} — open repository`}
       initial={{ opacity: 0, y: 18 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
@@ -42,12 +43,18 @@ function ProjectCard({
           src={project.image}
           alt={`${project.title} preview`}
           loading="lazy"
+          decoding="async"
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-        <span className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1 text-[11px] font-mono uppercase tracking-[0.16em] text-white backdrop-blur">
+        <span className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.16em] text-white backdrop-blur">
           {project.year}
         </span>
+        {project.featured && (
+          <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--accent)] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--accent-fg)] shadow-lg shadow-black/20">
+            Featured
+          </span>
+        )}
       </div>
 
       <div
@@ -82,7 +89,7 @@ function ProjectCard({
             {project.tags.map((tag) => (
               <li
                 key={tag}
-                className="rounded-full border border-[var(--border)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--fg-muted)]"
+                className="rounded-full border border-[var(--border)] bg-[var(--bg-sunken)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--fg-muted)]"
               >
                 {tag}
               </li>

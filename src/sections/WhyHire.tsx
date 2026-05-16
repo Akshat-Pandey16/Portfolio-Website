@@ -33,13 +33,13 @@ export function WhyHire() {
   return (
     <Section
       id="why-hire"
-      eyebrow="Why hire me"
+      eyebrow="How I work"
       title={
         <>
-          The <em className="italic text-[var(--accent)]">short</em> pitch.
+          Four habits I bring to the <em className="italic text-[var(--accent)]">work.</em>
         </>
       }
-      description="If you are looking for someone who can move between backend, frontend and the parts in-between without losing the plot, here are four reasons we might get along."
+      description="If you are looking for someone who can move between backend, frontend and the parts in-between without losing the plot — here is how I tend to operate."
       container="wide"
     >
       <ol className="grid gap-5 sm:grid-cols-2">

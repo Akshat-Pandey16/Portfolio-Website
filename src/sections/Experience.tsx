@@ -1,4 +1,4 @@
-import { FiArrowUpRight, FiGithub } from 'react-icons/fi';
+import { FiArrowUpRight, FiCheck, FiGithub } from 'react-icons/fi';
 import { motion } from 'motion/react';
 import { Section } from '../components/Section';
 import { EXPERIENCES } from '../lib/data';
@@ -16,7 +16,7 @@ export function Experience() {
       description="Two internships, two very different problem spaces, both of which sharpened how I ship."
       container="wide"
     >
-      <ol className="space-y-6 sm:space-y-8">
+      <ol className="relative space-y-6 sm:space-y-8">
         {EXPERIENCES.map((exp, index) => (
           <motion.li
             key={exp.organization}
@@ -25,14 +25,17 @@ export function Experience() {
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.45, ease: 'easeOut', delay: index * 0.05 }}
           >
-            <article className="surface group grid gap-6 rounded-3xl p-7 transition-all duration-300 hover:border-accent-400 hover:shadow-xl hover:shadow-accent-500/5 sm:p-9 lg:grid-cols-[200px_1fr]">
+            <article className="surface group grid gap-6 rounded-3xl p-7 transition-all duration-300 hover:border-accent-400 hover:shadow-xl hover:shadow-accent-500/5 sm:p-9 lg:grid-cols-[220px_1fr]">
               <div className="flex items-start gap-4 lg:flex-col lg:items-start">
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[var(--border)] bg-white/80 dark:bg-white/95">
                   <img
                     src={exp.logo}
-                    alt=""
+                    alt={`${exp.organization} logo`}
+                    width={64}
+                    height={64}
                     className="h-full w-full object-contain p-2"
                     loading="lazy"
+                    decoding="async"
                   />
                 </div>
                 <div className="lg:mt-2">
@@ -64,7 +67,23 @@ export function Experience() {
                   {exp.description}
                 </p>
 
-                <ul className="mt-5 flex flex-wrap gap-2">
+                {exp.highlights.length > 0 && (
+                  <ul className="mt-5 space-y-2.5">
+                    {exp.highlights.map((highlight) => (
+                      <li
+                        key={highlight}
+                        className="flex gap-3 text-sm leading-relaxed text-[var(--fg-muted)] sm:text-base"
+                      >
+                        <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_oklch,var(--accent)_18%,transparent)] text-[var(--accent)]">
+                          <FiCheck className="h-2.5 w-2.5" strokeWidth={3} />
+                        </span>
+                        <span>{highlight}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                <ul className="mt-6 flex flex-wrap gap-2">
                   {exp.stack.map((tech) => (
                     <li
                       key={tech}

@@ -1,19 +1,23 @@
-import SAIL from '../assets/internships/SAIL.png';
-import DRDO from '../assets/internships/DRDO.png';
-import Sb from '../assets/projects/SB.png';
-import Mh from '../assets/projects/MH.png';
-import Ht from '../assets/projects/HT.png';
-import Hc from '../assets/projects/HC.png';
-import Fc from '../assets/projects/FC.png';
-import cpp from '../assets/skills/cpp.png';
-import python from '../assets/skills/python.png';
-import linux from '../assets/skills/linux.png';
-import flutter from '../assets/skills/flutter.png';
-import sql from '../assets/skills/sql.png';
-import react from '../assets/skills/react.png';
-import fastapi from '../assets/skills/fastapi.png';
-import django from '../assets/skills/django.png';
-import gcp from '../assets/skills/gcp.png';
+import type { IconType } from 'react-icons';
+import {
+  SiPython,
+  SiFastapi,
+  SiDjango,
+  SiReact,
+  SiPostgresql,
+  SiRedis,
+  SiRabbitmq,
+  SiNginx,
+  SiLinux,
+} from 'react-icons/si';
+import { FaAws } from 'react-icons/fa';
+import SAIL from '../assets/internships/SAIL.webp';
+import DRDO from '../assets/internships/DRDO.webp';
+import Sb from '../assets/projects/SB.webp';
+import Mh from '../assets/projects/MH.webp';
+import Ht from '../assets/projects/HT.webp';
+import Hc from '../assets/projects/HC.webp';
+import Fc from '../assets/projects/FC.webp';
 
 export type NavSection = {
   id: string;
@@ -25,7 +29,7 @@ export const NAV_SECTIONS: NavSection[] = [
   { id: 'experience', label: 'Experience' },
   { id: 'projects', label: 'Projects' },
   { id: 'skills', label: 'Skills' },
-  { id: 'why-hire', label: 'Why hire me' },
+  { id: 'why-hire', label: 'How I work' },
   { id: 'contact', label: 'Contact' },
 ];
 
@@ -34,6 +38,7 @@ export type Experience = {
   role: string;
   period: string;
   description: string;
+  highlights: string[];
   stack: string[];
   logo: string;
   link?: string;
@@ -45,7 +50,12 @@ export const EXPERIENCES: Experience[] = [
     role: 'Flutter Developer Intern',
     period: '2023',
     description:
-      'Led development of a cross-platform mobile application that streamlined maintenance workflows. Built the Flutter client and a Node.js API on top of OracleDB, collaborating with engineers across teams.',
+      'Led development of a cross-platform mobile application that streamlined maintenance workflows across plant operations.',
+    highlights: [
+      'Shipped the Flutter client end-to-end against an in-house Node.js API.',
+      'Modelled the data layer on top of an existing OracleDB without breaking legacy systems.',
+      'Coordinated with engineers across teams to scope and validate the build.',
+    ],
     stack: ['Flutter', 'Node.js', 'OracleDB'],
     logo: SAIL,
     link: 'https://github.com/Akshat-Pandey16/MES-SAIL',
@@ -55,7 +65,11 @@ export const EXPERIENCES: Experience[] = [
     role: 'Research & Development Intern',
     period: '2022',
     description:
-      'Worked with terrain data using QGIS and Python to detect ridges and spurs from DEM data, improving the speed of geospatial analysis for downstream research.',
+      'Worked on terrain analysis pipelines to accelerate ridge and spur detection for downstream geospatial research.',
+    highlights: [
+      'Built Python tooling around QGIS to automate DEM (Digital Elevation Model) processing.',
+      'Translated researcher intent into reproducible scripts the team could run unattended.',
+    ],
     stack: ['Python', 'QGIS', 'Geospatial'],
     logo: DRDO,
   },
@@ -122,7 +136,7 @@ export const PROJECTS: Project[] = [
 
 export type Skill = {
   name: string;
-  icon: string;
+  Icon: IconType;
 };
 
 export type SkillGroup = {
@@ -133,30 +147,31 @@ export type SkillGroup = {
 
 export const SKILL_GROUPS: SkillGroup[] = [
   {
-    label: 'Languages',
+    label: 'Languages & frameworks',
     caption: 'The keyboard end of the day-to-day.',
     skills: [
-      { name: 'Python', icon: python },
-      { name: 'C / C++', icon: cpp },
-      { name: 'SQL', icon: sql },
+      { name: 'Python', Icon: SiPython },
+      { name: 'FastAPI', Icon: SiFastapi },
+      { name: 'Django', Icon: SiDjango },
+      { name: 'React', Icon: SiReact },
     ],
   },
   {
-    label: 'Backend & frameworks',
-    caption: 'Where most of my time gets spent.',
+    label: 'Data & messaging',
+    caption: 'Where the system actually keeps its memory.',
     skills: [
-      { name: 'FastAPI', icon: fastapi },
-      { name: 'Django', icon: django },
-      { name: 'React', icon: react },
-      { name: 'Flutter', icon: flutter },
+      { name: 'PostgreSQL', Icon: SiPostgresql },
+      { name: 'Redis', Icon: SiRedis },
+      { name: 'RabbitMQ', Icon: SiRabbitmq },
     ],
   },
   {
     label: 'Platforms',
     caption: 'The boxes the code actually runs on.',
     skills: [
-      { name: 'Linux & Bash', icon: linux },
-      { name: 'Google Cloud', icon: gcp },
+      { name: 'AWS', Icon: FaAws },
+      { name: 'Linux & Bash', Icon: SiLinux },
+      { name: 'Nginx', Icon: SiNginx },
     ],
   },
 ];
@@ -189,3 +204,7 @@ export const CONTACT_LINKS: ContactLink[] = [
     icon: 'email',
   },
 ];
+
+export const EMAIL = 'akshat16pandey@gmail.com';
+export const RESUME_URL =
+  'https://drive.google.com/file/d/1AB5wbR75BfJ3VMbgNqaa94Rv9sGOf53-/view?usp=drivesdk';

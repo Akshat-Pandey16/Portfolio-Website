@@ -1,8 +1,7 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { FiArrowDown, FiArrowUpRight, FiDownload, FiGithub, FiLinkedin } from 'react-icons/fi';
-
-const RESUME_URL =
-  'https://drive.google.com/file/d/1AB5wbR75BfJ3VMbgNqaa94Rv9sGOf53-/view?usp=drivesdk';
+import { FiArrowDown, FiArrowUpRight, FiCommand, FiDownload, FiGithub, FiLinkedin } from 'react-icons/fi';
+import { EMAIL, RESUME_URL } from '../lib/data';
 
 const SCROLL_TO = (id: string) => () => {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -15,7 +14,29 @@ const META = [
   { label: 'Status', value: 'Open to work' },
 ];
 
+const ROTATING_FOCUS = [
+  'FastAPI services that don\'t lie to clients',
+  'Postgres schemas that age gracefully',
+  'tiny CLIs that save a colleague an hour',
+  'Redis-backed queues with sane retries',
+];
+
+function openCommandPalette() {
+  window.dispatchEvent(new CustomEvent('palette:open'));
+}
+
 export function Hero() {
+  const [focus, setFocus] = useState(0);
+
+  useEffect(() => {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+    const id = window.setInterval(() => {
+      setFocus((i) => (i + 1) % ROTATING_FOCUS.length);
+    }, 3200);
+    return () => window.clearInterval(id);
+  }, []);
+
   return (
     <section
       id="hero"
@@ -44,9 +65,16 @@ export function Hero() {
             </span>
             Available for new opportunities · 2026
           </span>
-          <span className="font-mono text-xs uppercase tracking-[0.24em] text-[var(--fg-subtle)]">
-            Portfolio · v2
-          </span>
+          <button
+            type="button"
+            onClick={openCommandPalette}
+            aria-label="Open command palette"
+            className="group hidden items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--bg-elev)] px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--fg-subtle)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)] sm:inline-flex"
+          >
+            <FiCommand className="h-3.5 w-3.5" />
+            Press <kbd className="rounded border border-[var(--border)] bg-[var(--bg)] px-1 py-px text-[10px] tracking-normal">⌘K</kbd>
+            <span className="text-[var(--fg-subtle)] group-hover:text-[var(--accent)]">to jump</span>
+          </button>
         </motion.div>
 
         <motion.h1
@@ -73,7 +101,26 @@ export function Hero() {
               calls for it.
             </p>
 
-            <div className="mt-9 flex flex-wrap items-center gap-3">
+            <div
+              aria-live="polite"
+              className="mt-6 flex h-7 items-center gap-2 font-mono text-xs text-[var(--fg-subtle)] sm:text-sm"
+            >
+              <span className="text-[var(--accent)]">$</span>
+              <span className="text-[var(--fg-muted)]">currently into</span>
+              <motion.span
+                key={focus}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                className="text-[var(--fg)]"
+              >
+                {ROTATING_FOCUS[focus]}
+              </motion.span>
+              <span className="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse bg-[var(--accent)]/70" aria-hidden />
+            </div>
+
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <button
                 type="button"
                 onClick={SCROLL_TO('contact')}
@@ -111,6 +158,17 @@ export function Hero() {
                 <FiLinkedin className="h-4 w-4" />
               </a>
             </div>
+
+            <p className="mt-4 font-mono text-[11px] text-[var(--fg-subtle)]">
+              Or just email{' '}
+              <a
+                href={`mailto:${EMAIL}`}
+                className="text-[var(--fg-muted)] underline decoration-[var(--border-strong)] decoration-dotted underline-offset-4 hover:text-[var(--accent)]"
+              >
+                {EMAIL}
+              </a>
+              .
+            </p>
           </motion.div>
 
           <motion.dl

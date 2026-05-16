@@ -1,3 +1,4 @@
+import { CommandPalette } from './components/CommandPalette';
 import { CustomCursor } from './components/CustomCursor';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
@@ -19,6 +20,7 @@ export function App() {
         Skip to content
       </a>
       <CustomCursor />
+      <CommandPalette />
       <Navbar />
       <main>
         <Hero />

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="AP">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fcde6e"/>
+      <stop offset="100%" stop-color="#e9b418"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.32"/>
+      <stop offset="55%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" ry="14" fill="url(#g)"/>
+  <rect width="64" height="64" rx="14" ry="14" fill="url(#sheen)"/>
+  <text x="50%" y="50%" dy="0.34em" text-anchor="middle"
+        font-family="Inter, 'Helvetica Neue', system-ui, -apple-system, Arial, sans-serif"
+        font-weight="800" font-size="34" letter-spacing="-1.6"
+        fill="#1a1505">AP</text>
+  <circle cx="50" cy="50" r="3" fill="#1a1505"/>
+</svg>

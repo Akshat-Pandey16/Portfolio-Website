@@ -35,21 +35,16 @@ export function Skills() {
             <p className="mt-1 text-sm text-[var(--fg-muted)]">{group.caption}</p>
 
             <ul className="mt-6 grid flex-1 grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
-              {group.skills.map((skill) => (
+              {group.skills.map(({ name, Icon }) => (
                 <li
-                  key={skill.name}
+                  key={name}
                   className="surface-sunken group flex flex-col items-center justify-center gap-2 rounded-2xl p-4 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--border-strong)]"
                 >
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--bg-elev)] p-1.5 transition-transform duration-200 group-hover:scale-110">
-                    <img
-                      src={skill.icon}
-                      alt=""
-                      className="h-full w-full object-contain"
-                      loading="lazy"
-                    />
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--bg-elev)] text-[var(--fg)] transition-all duration-200 group-hover:scale-110 group-hover:text-[var(--accent)]">
+                    <Icon className="h-5 w-5" aria-hidden />
                   </span>
                   <span className="text-xs font-medium text-[var(--fg)] sm:text-sm">
-                    {skill.name}
+                    {name}
                   </span>
                 </li>
               ))}

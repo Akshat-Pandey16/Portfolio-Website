@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FiMenu, FiX } from 'react-icons/fi';
+import { FiCommand, FiMenu, FiX } from 'react-icons/fi';
 import { AnimatePresence, motion } from 'motion/react';
 import { NAV_SECTIONS } from '../lib/data';
 import { useActiveSection } from '../hooks/useActiveSection';
@@ -90,6 +90,19 @@ export function Navbar() {
         </ul>
 
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('palette:open'))}
+            aria-label="Open command palette"
+            title="Command palette (⌘K)"
+            className="hidden items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--bg-elev)] px-3 py-2 text-xs font-medium text-[var(--fg-muted)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--accent)] md:inline-flex"
+          >
+            <FiCommand className="h-3.5 w-3.5" />
+            <span className="hidden lg:inline">Quick nav</span>
+            <kbd className="rounded border border-[var(--border)] bg-[var(--bg)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--fg-subtle)]">
+              ⌘K
+            </kbd>
+          </button>
           <ThemeToggle />
           <button
             type="button"
