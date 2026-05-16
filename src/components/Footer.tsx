@@ -33,7 +33,7 @@ export function Footer() {
 
         <div className="flex flex-col items-start justify-between gap-4 border-t border-[var(--border)] pt-6 sm:flex-row sm:items-center">
           <p className="text-xs text-[var(--fg-muted)]">
-            © {new Date().getFullYear()} Akshat Pandey · Built with React, Vite, and a soft spot for Tailwind.
+            © {new Date().getFullYear()} Akshat Pandey · Hand-written, then rewritten. If you scrolled this far, we should probably talk.
           </p>
           <ul className="flex items-center gap-2">
             {SOCIALS.map(({ href, label, Icon }) => (

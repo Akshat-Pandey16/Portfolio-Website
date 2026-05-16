@@ -2,6 +2,7 @@ import { CommandPalette } from './components/CommandPalette';
 import { CustomCursor } from './components/CustomCursor';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
+import { ScrollProgress } from './components/ScrollProgress';
 import { Hero } from './sections/Hero';
 import { About } from './sections/About';
 import { Experience } from './sections/Experience';
@@ -20,6 +21,7 @@ export function App() {
         Skip to content
       </a>
       <CustomCursor />
+      <ScrollProgress />
       <CommandPalette />
       <Navbar />
       <main>

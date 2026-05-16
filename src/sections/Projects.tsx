@@ -4,6 +4,7 @@ import type { Project } from '../lib/data';
 import { Section } from '../components/Section';
 import { PROJECTS } from '../lib/data';
 import { cn } from '../lib/cn';
+import { spotlightMove } from '../lib/spotlight';
 
 const featured = PROJECTS.find((p) => p.featured) ?? PROJECTS[0];
 const rest = PROJECTS.filter((p) => p !== featured);
@@ -27,8 +28,9 @@ function ProjectCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.45, ease: 'easeOut', delay: index * 0.04 }}
+      onPointerMove={spotlightMove}
       className={cn(
-        'group surface relative flex h-full flex-col overflow-hidden rounded-3xl transition-all duration-300',
+        'group surface spotlight relative flex h-full flex-col overflow-hidden rounded-3xl transition-all duration-300',
         'hover:-translate-y-1 hover:border-[var(--border-strong)] hover:shadow-xl hover:shadow-black/5',
         variant === 'feature' && 'lg:row-span-2',
       )}

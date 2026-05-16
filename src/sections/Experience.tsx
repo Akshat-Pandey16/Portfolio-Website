@@ -2,6 +2,7 @@ import { FiArrowUpRight, FiCheck, FiGithub } from 'react-icons/fi';
 import { motion } from 'motion/react';
 import { Section } from '../components/Section';
 import { EXPERIENCES } from '../lib/data';
+import { spotlightMove } from '../lib/spotlight';
 
 export function Experience() {
   return (
@@ -25,7 +26,10 @@ export function Experience() {
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.45, ease: 'easeOut', delay: index * 0.05 }}
           >
-            <article className="surface group grid gap-6 rounded-3xl p-7 transition-all duration-300 hover:border-accent-400 hover:shadow-xl hover:shadow-accent-500/5 sm:p-9 lg:grid-cols-[220px_1fr]">
+            <article
+              onPointerMove={spotlightMove}
+              className="surface spotlight group grid gap-6 rounded-3xl p-7 transition-all duration-300 hover:border-accent-400 hover:shadow-xl hover:shadow-accent-500/5 sm:p-9 lg:grid-cols-[220px_1fr]"
+            >
               <div className="flex items-start gap-4 lg:flex-col lg:items-start">
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[var(--border)] bg-white/80 dark:bg-white/95">
                   <img

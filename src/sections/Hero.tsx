@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { FiArrowDown, FiArrowUpRight, FiCommand, FiDownload, FiGithub, FiLinkedin } from 'react-icons/fi';
 import { EMAIL, RESUME_URL } from '../lib/data';
+import { MagneticButton } from '../components/MagneticButton';
 
 const SCROLL_TO = (id: string) => () => {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -121,14 +122,14 @@ export function Hero() {
             </div>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <button
+              <MagneticButton
                 type="button"
                 onClick={SCROLL_TO('contact')}
-                className="group inline-flex items-center gap-2 rounded-full bg-[var(--accent)] px-7 py-3.5 text-sm font-semibold text-[var(--accent-fg)] shadow-lg shadow-[var(--accent)]/20 transition-all duration-200 hover:opacity-95 hover:shadow-[var(--accent)]/30"
+                className="group inline-flex items-center gap-2 rounded-full bg-[var(--accent)] px-7 py-3.5 text-sm font-semibold text-[var(--accent-fg)] shadow-lg shadow-[var(--accent)]/20 transition-shadow duration-200 hover:shadow-[var(--accent)]/40"
               >
                 Get in touch
                 <FiArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </button>
+              </MagneticButton>
               <a
                 href={RESUME_URL}
                 target="_blank"

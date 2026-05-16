@@ -233,6 +233,35 @@
   color: var(--fg-subtle);
 }
 
+@utility spotlight {
+  position: relative;
+}
+
+.spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 240ms ease;
+  background: radial-gradient(
+    320px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in oklch, var(--accent) 16%, transparent),
+    transparent 60%
+  );
+}
+
+.spotlight:hover::before {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spotlight::before {
+    display: none;
+  }
+}
+
 @utility chip {
   display: inline-flex;
   align-items: center;

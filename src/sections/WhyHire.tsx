@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { FiCode, FiLayers, FiUsers, FiZap } from 'react-icons/fi';
 import { Section } from '../components/Section';
+import { spotlightMove } from '../lib/spotlight';
 
 const REASONS = [
   {
@@ -50,7 +51,8 @@ export function WhyHire() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.4, ease: 'easeOut', delay: index * 0.05 }}
-            className="surface group relative flex gap-5 overflow-hidden rounded-3xl p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--border-strong)]"
+            onPointerMove={spotlightMove}
+            className="surface spotlight group relative flex gap-5 overflow-hidden rounded-3xl p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--border-strong)]"
           >
             <span
               aria-hidden
