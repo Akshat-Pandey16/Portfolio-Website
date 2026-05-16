@@ -1,32 +1,47 @@
-[![Netlify Status](https://api.netlify.com/api/v1/badges/90eccd10-ca75-493d-8856-a4ec065621aa/deploy-status)](https://app.netlify.com/sites/akshat16pandey/deploys)
+# Akshat Pandey — Portfolio
 
-# React + TypeScript + Vite
+Single-page portfolio site built with React 19, Vite 7, TypeScript 5 and Tailwind CSS 4.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Stack
 
-Currently, two official plugins are available:
+- **React 19** + **Vite 7** (SWC fast refresh)
+- **TypeScript 5.9** with strict + verbatim module syntax
+- **Tailwind CSS 4** (CSS-first `@theme` config) via `@tailwindcss/vite`
+- **Motion** (Framer Motion successor) for micro-animations
+- **ESLint 9** flat config with `typescript-eslint` + React Hooks + React Refresh
+- **pnpm** for package management
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Project layout
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+```
+src/
+├── App.tsx                # Composes sections and chrome
+├── main.tsx               # Entry, ThemeProvider, createRoot
+├── index.css              # Tailwind v4 + design tokens + fonts
+├── components/            # Reusable UI: Navbar, Footer, Section, ThemeToggle
+├── hooks/                 # ThemeProvider, useTheme, useActiveSection
+├── lib/                   # cn helper, content/data
+├── sections/              # Hero, About, Experience, Projects, Skills, WhyHire, Contact
+└── assets/                # Fonts and section imagery
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+## Scripts
+
+| Command          | Description                              |
+| ---------------- | ---------------------------------------- |
+| `pnpm dev`       | Start the Vite dev server with HMR       |
+| `pnpm build`     | Type-check then build for production     |
+| `pnpm preview`   | Preview the production bundle locally    |
+| `pnpm lint`      | Run ESLint                                |
+| `pnpm typecheck` | Run `tsc -b` without emitting             |
+
+A `Makefile` is included as a convenience wrapper — `make help` lists every target.
+
+## Theming
+
+Theme tokens live in `src/index.css` under the `@theme` block. The dark variant
+flips a small set of CSS custom properties on `html.dark`, so every component
+picks up the right palette without conditional class names.
+
+`ThemeProvider` persists the choice in `localStorage` and respects
+`prefers-color-scheme` until the user makes an explicit selection.

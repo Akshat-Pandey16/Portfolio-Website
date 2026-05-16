@@ -1,86 +1,274 @@
-/* src/index.css */
+@import 'tailwindcss';
 
-/* Importing Tailwind CSS */
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@custom-variant dark (&:where(.dark, .dark *));
 
-/* Define a custom font name for your project */
-@font-face {
-    font-family: 'eleven';
-    src: url('./assets/fonts/eleven.TTF') format('truetype'),
+@theme {
+  --font-sans:
+    'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-display: var(--font-sans);
+  --font-mono:
+    'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SF Mono',
+    'Menlo', 'Consolas', monospace;
+
+  --text-display-xs: clamp(2rem, 3.6vw, 2.75rem);
+  --text-display-sm: clamp(2.5rem, 5vw, 3.75rem);
+  --text-display-md: clamp(3rem, 6.5vw, 5rem);
+  --text-display-lg: clamp(3.5rem, 9vw, 7.5rem);
+  --text-display-xl: clamp(4rem, 12vw, 10rem);
+
+  --color-ink-50: oklch(98% 0.005 80);
+  --color-ink-100: oklch(95% 0.008 80);
+  --color-ink-200: oklch(89% 0.012 80);
+  --color-ink-300: oklch(78% 0.015 80);
+  --color-ink-400: oklch(60% 0.015 80);
+  --color-ink-500: oklch(45% 0.015 80);
+  --color-ink-600: oklch(34% 0.012 80);
+  --color-ink-700: oklch(24% 0.010 80);
+  --color-ink-800: oklch(16% 0.008 80);
+  --color-ink-900: oklch(10% 0.006 80);
+  --color-ink-950: oklch(6% 0.005 80);
+
+  --color-accent-50: oklch(96% 0.04 55);
+  --color-accent-100: oklch(92% 0.08 55);
+  --color-accent-200: oklch(86% 0.13 55);
+  --color-accent-300: oklch(80% 0.16 55);
+  --color-accent-400: oklch(73% 0.18 55);
+  --color-accent-500: oklch(67% 0.19 55);
+  --color-accent-600: oklch(60% 0.20 55);
+  --color-accent-700: oklch(50% 0.18 55);
+  --color-accent-800: oklch(40% 0.15 55);
+  --color-accent-900: oklch(30% 0.10 55);
 }
 
-   @font-face {
-       font-family: 'barlo';
-       src: url('./assets/fonts/barlo.ttf') format('truetype'),
-   }
+@layer base {
+  :root {
+    --bg: oklch(97.5% 0.008 80);
+    --bg-elev: oklch(99% 0.004 80);
+    --bg-sunken: oklch(94% 0.012 80);
+    --fg: var(--color-ink-900);
+    --fg-muted: var(--color-ink-500);
+    --fg-subtle: var(--color-ink-400);
+    --border: oklch(0% 0 0 / 0.08);
+    --border-strong: oklch(0% 0 0 / 0.14);
+    --accent: var(--color-accent-600);
+    --accent-fg: oklch(99% 0 0);
+    --ring: var(--color-accent-500);
+    --scrollbar-track: var(--bg-sunken);
+    --scrollbar-thumb: var(--color-ink-300);
+  }
 
-   @font-face {
-       font-family: 'barlob';
-       src: url('./assets/fonts/barlob.ttf') format('truetype'),
-   }
+  .dark {
+    --bg: oklch(11% 0.006 80);
+    --bg-elev: oklch(15% 0.008 80);
+    --bg-sunken: oklch(8% 0.005 80);
+    --fg: var(--color-ink-50);
+    --fg-muted: var(--color-ink-300);
+    --fg-subtle: var(--color-ink-400);
+    --border: oklch(100% 0 0 / 0.08);
+    --border-strong: oklch(100% 0 0 / 0.16);
+    --accent: var(--color-accent-500);
+    --accent-fg: var(--color-ink-950);
+    --ring: var(--color-accent-400);
+    --scrollbar-track: var(--bg);
+    --scrollbar-thumb: oklch(30% 0.010 80);
+  }
 
-   @font-face {
-         font-family: 'barlosb';
-         src: url('./assets/fonts/barlosb.ttf') format('truetype'),
-    
-   }
-   @font-face {
-    font-family: 'barlom';
-    src: url('./assets/fonts/barlom.ttf') format('truetype'),
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
 
-}
-/* Apply the custom font to a specific class (e.g., .title) */
-.title {
-    font-family: 'eleven';
-}
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
 
-/* styles.css or App.css */
-body {
+  body {
     margin: 0;
     padding: 0;
-}
-
-/* Apply the custom font to the title within the body */
-body {
-    font-family: 'barlom';
-}
-
-.b{
-       font-family: 'barlob';
-}
-
-.sb {
-    font-family: 'barlosb';
-}
-
-
-body {
-    user-select: none;
-    --scrollbar-track-color: #ffffff;
-    --scrollbar-thumb-color: #93ffc3;
-  }
-  
-  body.dark {
-    --scrollbar-track-color: #434343;
-    --scrollbar-thumb-color: #47f98e;
-  }
-  
-  body::-webkit-scrollbar {
-    width: 10px;
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-feature-settings: 'ss01', 'ss03', 'cv11', 'cv02';
+    font-optical-sizing: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 300ms ease, color 300ms ease;
+    min-height: 100dvh;
+    text-wrap: pretty;
+    letter-spacing: -0.011em;
   }
 
-  body::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb-color);
+  h1, h2, h3, h4, h5 {
+    text-wrap: balance;
+    letter-spacing: -0.035em;
+    font-weight: 700;
+  }
+
+  button, [role="button"], a[href], summary, label[for], input[type="checkbox"], input[type="radio"], select {
+    cursor: pointer;
+  }
+
+  button:disabled, [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
     border-radius: 6px;
   }
 
-  body::-webkit-scrollbar-thumb:hover {
-    background-color: #25fbb3;
+  *::-webkit-scrollbar { width: 8px; height: 8px; }
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transition: background-color 200ms ease;
   }
-  
-  body::-webkit-scrollbar-track {
-    background-color: var(--scrollbar-track-color);
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent);
   }
-  
+  *::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+  *::-webkit-scrollbar-corner { background: transparent; }
+  * {
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+    scrollbar-width: thin;
+  }
+}
+
+/* Custom cursor follower */
+@media (hover: hover) and (pointer: fine) {
+  html, body, a, button, [role="button"] {
+    cursor: none;
+  }
+
+  .cursor-dot,
+  .cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate3d(-50%, -50%, 0);
+    will-change: transform, width, height, opacity;
+  }
+
+  .cursor-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background-color: var(--accent);
+    transition: width 180ms ease, height 180ms ease, opacity 200ms ease;
+    mix-blend-mode: difference;
+  }
+
+  .cursor-ring {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    border: 1.5px solid var(--accent);
+    opacity: 0.5;
+    transition:
+      width 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      height 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 220ms ease,
+      border-color 220ms ease;
+  }
+
+  .cursor-hover .cursor-dot {
+    width: 0;
+    height: 0;
+    opacity: 0;
+  }
+
+  .cursor-hover .cursor-ring {
+    width: 48px;
+    height: 48px;
+    background-color: color-mix(in oklch, var(--accent) 12%, transparent);
+    opacity: 0.9;
+  }
+
+  .cursor-pressed .cursor-ring {
+    width: 24px;
+    height: 24px;
+  }
+
+  .cursor-hidden .cursor-dot,
+  .cursor-hidden .cursor-ring {
+    opacity: 0;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .cursor-dot,
+  .cursor-ring {
+    display: none;
+  }
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+
+@utility font-display-italic {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: -0.03em;
+}
+
+@utility font-mono {
+  font-family: var(--font-mono);
+  font-feature-settings: 'liga' off, 'calt' off;
+  letter-spacing: -0.01em;
+}
+
+@utility hi {
+  color: var(--accent);
+  font-style: normal;
+}
+
+@utility surface {
+  background-color: var(--bg-elev);
+  border: 1px solid var(--border);
+}
+
+@utility surface-sunken {
+  background-color: var(--bg-sunken);
+  border: 1px solid var(--border);
+}
+
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+}
+
+@utility chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background-color: var(--bg-elev);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--fg-muted);
+}
+

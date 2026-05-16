@@ -1,29 +1,18 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
+import { App } from './App';
+import { ThemeProvider } from './hooks/ThemeProvider';
 import './index.css';
-import Home from './pages/Home';
-import About from './pages/About';
-import Internships from './pages/Internships';
-import Projects from './pages/Projects';
-import Skills from './pages/Skills';
-import Hire from './pages/Hire';
-import Contact from './pages/Contact';
-import { DarkModeProvider } from './components/DarkMode';
 
-const App: React.FC = () => {
-  return (
-    <React.StrictMode>
-      <DarkModeProvider>
-      <Home />
-      <About />
-      <Internships />
-      <Projects />
-      <Skills />
-      <Hire />
-      <Contact />
-      </DarkModeProvider>
-    </React.StrictMode>
-  );
-};
+const rootElement = document.getElementById('root');
+if (!rootElement) throw new Error('Missing #root element in index.html');
 
-ReactDOM.render(<App />, document.getElementById('root'));
+createRoot(rootElement).render(
+  <StrictMode>
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
+  </StrictMode>,
+);
