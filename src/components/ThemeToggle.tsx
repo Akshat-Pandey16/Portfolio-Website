@@ -12,7 +12,7 @@ export function ThemeToggle({ className }: Props) {
   return (
     <button
       type="button"
-      onClick={toggleTheme}
+      onClick={(e) => toggleTheme({ clientX: e.clientX, clientY: e.clientY })}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       aria-pressed={isDark}
       className={cn(
@@ -24,13 +24,13 @@ export function ThemeToggle({ className }: Props) {
     >
       <FiSun
         className={cn(
-          'absolute h-5 w-5 transition-all duration-300',
+          'absolute h-5 w-5 transition-all duration-500',
           isDark ? '-rotate-90 scale-0 opacity-0' : 'rotate-0 scale-100 opacity-100',
         )}
       />
       <FiMoon
         className={cn(
-          'h-5 w-5 transition-all duration-300',
+          'h-5 w-5 transition-all duration-500',
           isDark ? 'rotate-0 scale-100 opacity-100' : 'rotate-90 scale-0 opacity-0',
         )}
       />

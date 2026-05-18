@@ -1,10 +1,18 @@
+import { useRef } from 'react';
 import { FiArrowUpRight, FiCheck, FiGithub } from 'react-icons/fi';
-import { motion } from 'motion/react';
+import { motion, useScroll, useTransform } from 'motion/react';
 import { Section } from '../components/Section';
 import { EXPERIENCES } from '../lib/data';
 import { spotlightMove } from '../lib/spotlight';
 
 export function Experience() {
+  const listRef = useRef<HTMLOListElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: listRef,
+    offset: ['start 80%', 'end 35%'],
+  });
+  const lineScale = useTransform(scrollYProgress, [0, 1], [0, 1]);
+
   return (
     <Section
       id="experience"
@@ -17,7 +25,17 @@ export function Experience() {
       description="Two internships, two very different problem spaces, both of which sharpened how I ship."
       container="wide"
     >
-      <ol className="relative space-y-6 sm:space-y-8">
+      <ol ref={listRef} className="relative space-y-6 sm:space-y-8 lg:pl-12">
+        <span
+          aria-hidden
+          className="pointer-events-none absolute left-[19px] top-3 hidden h-[calc(100%-1.5rem)] w-px bg-[var(--border)] lg:block"
+        />
+        <motion.span
+          aria-hidden
+          style={{ scaleY: lineScale, transformOrigin: '50% 0%' }}
+          className="pointer-events-none absolute left-[19px] top-3 hidden h-[calc(100%-1.5rem)] w-px bg-gradient-to-b from-[var(--accent)] via-[var(--accent)] to-transparent lg:block"
+        />
+
         {EXPERIENCES.map((exp, index) => (
           <motion.li
             key={exp.organization}
@@ -25,13 +43,18 @@ export function Experience() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.45, ease: 'easeOut', delay: index * 0.05 }}
+            className="relative"
           >
+            <span
+              aria-hidden
+              className="absolute -left-[37px] top-7 hidden h-3 w-3 -translate-x-1/2 rounded-full border-2 border-[var(--accent)] bg-[var(--bg)] shadow-[0_0_0_4px_color-mix(in_oklch,var(--accent)_18%,transparent)] lg:block"
+            />
             <article
               onPointerMove={spotlightMove}
-              className="surface spotlight group grid gap-6 rounded-3xl p-7 transition-all duration-300 hover:border-accent-400 hover:shadow-xl hover:shadow-accent-500/5 sm:p-9 lg:grid-cols-[220px_1fr]"
+              className="surface spotlight group grid gap-6 rounded-3xl p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent-400 hover:shadow-xl hover:shadow-accent-500/5 sm:p-9 lg:grid-cols-[220px_1fr]"
             >
               <div className="flex items-start gap-4 lg:flex-col lg:items-start">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[var(--border)] bg-white/80 dark:bg-white/95">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[var(--border)] bg-white/80 transition-transform group-hover:rotate-3 dark:bg-white/95">
                   <img
                     src={exp.logo}
                     alt={`${exp.organization} logo`}
@@ -73,16 +96,20 @@ export function Experience() {
 
                 {exp.highlights.length > 0 && (
                   <ul className="mt-5 space-y-2.5">
-                    {exp.highlights.map((highlight) => (
-                      <li
+                    {exp.highlights.map((highlight, hi) => (
+                      <motion.li
                         key={highlight}
+                        initial={{ opacity: 0, x: -8 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, margin: '-40px' }}
+                        transition={{ duration: 0.35, delay: 0.1 + hi * 0.05 }}
                         className="flex gap-3 text-sm leading-relaxed text-[var(--fg-muted)] sm:text-base"
                       >
                         <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_oklch,var(--accent)_18%,transparent)] text-[var(--accent)]">
                           <FiCheck className="h-2.5 w-2.5" strokeWidth={3} />
                         </span>
                         <span>{highlight}</span>
-                      </li>
+                      </motion.li>
                     ))}
                   </ul>
                 )}
@@ -91,7 +118,7 @@ export function Experience() {
                   {exp.stack.map((tech) => (
                     <li
                       key={tech}
-                      className="rounded-full bg-accent-100 px-3 py-1 text-xs font-medium text-accent-700 dark:bg-accent-500/15 dark:text-accent-200"
+                      className="rounded-full bg-accent-100 px-3 py-1 text-xs font-medium text-accent-700 transition-transform hover:-translate-y-0.5 dark:bg-accent-500/15 dark:text-accent-200"
                     >
                       {tech}
                     </li>

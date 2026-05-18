@@ -5,7 +5,7 @@ export type Theme = 'light' | 'dark';
 export type ThemeContextValue = {
   theme: Theme;
   isDark: boolean;
-  toggleTheme: () => void;
+  toggleTheme: (event?: { clientX: number; clientY: number }) => void;
   setTheme: (next: Theme) => void;
 };
 

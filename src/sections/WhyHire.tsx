@@ -52,16 +52,24 @@ export function WhyHire() {
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.4, ease: 'easeOut', delay: index * 0.05 }}
             onPointerMove={spotlightMove}
-            className="surface spotlight group relative flex gap-5 overflow-hidden rounded-3xl p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--border-strong)]"
+            className="surface spotlight group relative flex gap-5 overflow-hidden rounded-3xl p-7 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--border-strong)] hover:shadow-xl hover:shadow-black/5"
           >
             <span
               aria-hidden
-              className="font-display absolute -right-3 -top-6 text-[7rem] leading-none text-[var(--fg)]/[0.04] transition-colors duration-300 group-hover:text-[var(--accent)]/15"
+              className="font-display absolute -right-3 -top-6 text-[7rem] leading-none text-[var(--fg)]/[0.04] transition-all duration-500 group-hover:translate-x-1 group-hover:text-[var(--accent)]/15"
             >
               0{index + 1}
             </span>
-            <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--bg)] text-[var(--accent)] transition-colors duration-300 group-hover:border-[var(--accent)] group-hover:bg-[var(--accent)] group-hover:text-[var(--accent-fg)]">
+            <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--bg)] text-[var(--accent)] transition-all duration-300 group-hover:rotate-6 group-hover:border-[var(--accent)] group-hover:bg-[var(--accent)] group-hover:text-[var(--accent-fg)]">
               <reason.Icon className="h-5 w-5" />
+              <span
+                aria-hidden
+                className="absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                style={{
+                  boxShadow:
+                    '0 0 0 4px color-mix(in oklch, var(--accent) 14%, transparent)',
+                }}
+              />
             </div>
             <div className="relative">
               <h3 className="font-display text-xl text-[var(--fg)] sm:text-2xl">

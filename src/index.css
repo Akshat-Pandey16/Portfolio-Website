@@ -29,30 +29,37 @@
   --color-ink-900: oklch(10% 0.006 80);
   --color-ink-950: oklch(6% 0.005 80);
 
-  --color-accent-50: oklch(97% 0.025 95);
-  --color-accent-100: oklch(94% 0.06 95);
-  --color-accent-200: oklch(89% 0.11 95);
-  --color-accent-300: oklch(85% 0.14 95);
-  --color-accent-400: oklch(82% 0.16 95);
-  --color-accent-500: oklch(76% 0.16 95);
-  --color-accent-600: oklch(68% 0.15 95);
-  --color-accent-700: oklch(58% 0.13 95);
-  --color-accent-800: oklch(46% 0.10 95);
-  --color-accent-900: oklch(34% 0.07 95);
+  /* Signature "high-noon" yellow — vibrant, lemon-warm, never muddy. */
+  --color-accent-50:  oklch(98% 0.035 102);
+  --color-accent-100: oklch(95% 0.08  102);
+  --color-accent-200: oklch(92% 0.13  102);
+  --color-accent-300: oklch(89% 0.17  102);
+  --color-accent-400: oklch(87% 0.19  102);
+  --color-accent-500: oklch(83% 0.195 102);
+  --color-accent-600: oklch(74% 0.185 100);
+  --color-accent-700: oklch(62% 0.155 98);
+  --color-accent-800: oklch(48% 0.115 96);
+  --color-accent-900: oklch(34% 0.075 94);
+
+  /* secondary accent — used sparingly for highlights and gradients */
+  --color-pop-400: oklch(76% 0.18 45);
+  --color-pop-500: oklch(70% 0.19 45);
 }
 
 @layer base {
   :root {
-    --bg: oklch(97.5% 0.008 80);
-    --bg-elev: oklch(99% 0.004 80);
-    --bg-sunken: oklch(94% 0.012 80);
+    --bg: oklch(97.5% 0.008 85);
+    --bg-elev: oklch(99% 0.004 85);
+    --bg-sunken: oklch(94% 0.012 85);
     --fg: var(--color-ink-900);
     --fg-muted: var(--color-ink-500);
     --fg-subtle: var(--color-ink-400);
     --border: oklch(0% 0 0 / 0.08);
     --border-strong: oklch(0% 0 0 / 0.14);
     --accent: var(--color-accent-500);
-    --accent-fg: var(--color-ink-950);
+    --accent-soft: color-mix(in oklch, var(--color-accent-500) 18%, transparent);
+    --accent-fg: oklch(20% 0.04 95);
+    --pop: var(--color-pop-500);
     --ring: var(--color-accent-600);
     --scrollbar-track: var(--bg-sunken);
     --scrollbar-thumb: var(--color-ink-300);
@@ -68,7 +75,9 @@
     --border: oklch(100% 0 0 / 0.08);
     --border-strong: oklch(100% 0 0 / 0.16);
     --accent: var(--color-accent-400);
-    --accent-fg: var(--color-ink-950);
+    --accent-soft: color-mix(in oklch, var(--color-accent-400) 22%, transparent);
+    --accent-fg: oklch(14% 0.03 95);
+    --pop: var(--color-pop-400);
     --ring: var(--color-accent-400);
     --scrollbar-track: var(--bg);
     --scrollbar-thumb: oklch(30% 0.010 80);
@@ -273,5 +282,83 @@
   font-size: 0.75rem;
   font-weight: 500;
   color: var(--fg-muted);
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes drift {
+  0%   { transform: translate3d(0, 0, 0); }
+  50%  { transform: translate3d(0, -8px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@utility shimmer-text {
+  background-image: linear-gradient(
+    90deg,
+    var(--fg) 0%,
+    var(--fg) 40%,
+    var(--accent) 50%,
+    var(--fg) 60%,
+    var(--fg) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+
+/* Fine noise texture overlay — subtle, fixed, blends across the page */
+.noise-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+.dark .noise-layer {
+  opacity: 0.06;
+  mix-blend-mode: soft-light;
+}
+
+/* View-Transitions API hook for theme toggle */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+  animation: theme-clip 480ms cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+@keyframes theme-clip {
+  from { clip-path: circle(0% at var(--theme-x, 50%) var(--theme-y, 50%)); }
+  to   { clip-path: circle(150% at var(--theme-x, 50%) var(--theme-y, 50%)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-new(root) { animation: none; }
+}
+
+/* Tilt cards must not have their own transition on transform — JS animates */
+.tilt {
+  transform-style: preserve-3d;
 }
 

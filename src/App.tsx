@@ -1,5 +1,6 @@
 import { CommandPalette } from './components/CommandPalette';
 import { CustomCursor } from './components/CustomCursor';
+import { EasterEgg } from './components/EasterEgg';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { ScrollProgress } from './components/ScrollProgress';
@@ -20,9 +21,11 @@ export function App() {
       >
         Skip to content
       </a>
+      <div className="noise-layer" aria-hidden />
       <CustomCursor />
       <ScrollProgress />
       <CommandPalette />
+      <EasterEgg />
       <Navbar />
       <main>
         <Hero />

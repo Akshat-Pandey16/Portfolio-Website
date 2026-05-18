@@ -11,6 +11,10 @@ function getInitialTheme(): Theme {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
+type ViewTransitionDocument = Document & {
+  startViewTransition?: (cb: () => void) => { finished: Promise<void> };
+};
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(getInitialTheme);
 
@@ -33,10 +37,28 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setTheme = useCallback((next: Theme) => setThemeState(next), []);
-  const toggleTheme = useCallback(
-    () => setThemeState((prev) => (prev === 'dark' ? 'light' : 'dark')),
-    [],
-  );
+  const toggleTheme = useCallback((event?: { clientX: number; clientY: number }) => {
+    const doc = document as ViewTransitionDocument;
+    const reduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const apply = () => setThemeState((prev) => (prev === 'dark' ? 'light' : 'dark'));
+
+    if (!doc.startViewTransition || reduced) {
+      apply();
+      return;
+    }
+    const root = document.documentElement;
+    if (event) {
+      root.style.setProperty('--theme-x', `${event.clientX}px`);
+      root.style.setProperty('--theme-y', `${event.clientY}px`);
+    } else {
+      root.style.setProperty('--theme-x', '50%');
+      root.style.setProperty('--theme-y', '50%');
+    }
+    doc.startViewTransition(apply);
+  }, []);
 
   const value = useMemo(
     () => ({ theme, isDark: theme === 'dark', toggleTheme, setTheme }),

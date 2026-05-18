@@ -137,6 +137,7 @@ export const PROJECTS: Project[] = [
 export type Skill = {
   name: string;
   Icon: IconType;
+  level: number;
 };
 
 export type SkillGroup = {
@@ -150,28 +151,28 @@ export const SKILL_GROUPS: SkillGroup[] = [
     label: 'Languages & frameworks',
     caption: 'The keyboard end of the day-to-day.',
     skills: [
-      { name: 'Python', Icon: SiPython },
-      { name: 'FastAPI', Icon: SiFastapi },
-      { name: 'Django', Icon: SiDjango },
-      { name: 'React', Icon: SiReact },
+      { name: 'Python', Icon: SiPython, level: 92 },
+      { name: 'FastAPI', Icon: SiFastapi, level: 88 },
+      { name: 'Django', Icon: SiDjango, level: 80 },
+      { name: 'React', Icon: SiReact, level: 72 },
     ],
   },
   {
     label: 'Data & messaging',
     caption: 'Where the system actually keeps its memory.',
     skills: [
-      { name: 'PostgreSQL', Icon: SiPostgresql },
-      { name: 'Redis', Icon: SiRedis },
-      { name: 'RabbitMQ', Icon: SiRabbitmq },
+      { name: 'PostgreSQL', Icon: SiPostgresql, level: 85 },
+      { name: 'Redis', Icon: SiRedis, level: 78 },
+      { name: 'RabbitMQ', Icon: SiRabbitmq, level: 70 },
     ],
   },
   {
     label: 'Platforms',
     caption: 'The boxes the code actually runs on.',
     skills: [
-      { name: 'AWS', Icon: FaAws },
-      { name: 'Linux & Bash', Icon: SiLinux },
-      { name: 'Nginx', Icon: SiNginx },
+      { name: 'AWS', Icon: FaAws, level: 72 },
+      { name: 'Linux & Bash', Icon: SiLinux, level: 86 },
+      { name: 'Nginx', Icon: SiNginx, level: 70 },
     ],
   },
 ];
