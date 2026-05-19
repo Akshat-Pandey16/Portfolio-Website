@@ -44,12 +44,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const apply = () => setThemeState((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    const root = document.documentElement;
 
     if (!doc.startViewTransition || reduced) {
+      root.classList.add('theme-switching');
       apply();
+      window.setTimeout(() => root.classList.remove('theme-switching'), 50);
       return;
     }
-    const root = document.documentElement;
     if (event) {
       root.style.setProperty('--theme-x', `${event.clientX}px`);
       root.style.setProperty('--theme-y', `${event.clientY}px`);
@@ -57,7 +59,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       root.style.setProperty('--theme-x', '50%');
       root.style.setProperty('--theme-y', '50%');
     }
-    doc.startViewTransition(apply);
+    root.classList.add('theme-switching');
+    const transition = doc.startViewTransition(apply);
+    transition.finished.finally(() => root.classList.remove('theme-switching'));
   }, []);
 
   const value = useMemo(

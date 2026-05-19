@@ -35,14 +35,25 @@ export function useTilt<T extends HTMLElement>({
       if (active || Math.abs(targetX - currentX) > 0.05 || Math.abs(targetY - currentY) > 0.05) {
         raf = requestAnimationFrame(apply);
       } else {
+        raf = 0;
         el.style.transform = '';
       }
     };
 
-    const onEnter = () => {
+    const startLoop = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(apply);
+    };
+
+    const onEnter = (event: PointerEvent) => {
       active = true;
       el.style.willChange = 'transform';
-      if (!raf) raf = requestAnimationFrame(apply);
+      const rect = el.getBoundingClientRect();
+      const px = (event.clientX - rect.left) / rect.width - 0.5;
+      const py = (event.clientY - rect.top) / rect.height - 0.5;
+      targetX = px * max * 2;
+      targetY = -py * max * 2;
+      startLoop();
     };
     const onMove = (event: PointerEvent) => {
       const rect = el.getBoundingClientRect();
@@ -52,12 +63,14 @@ export function useTilt<T extends HTMLElement>({
       targetY = -py * max * 2;
       el.style.setProperty('--mx', `${(px + 0.5) * 100}%`);
       el.style.setProperty('--my', `${(py + 0.5) * 100}%`);
+      if (active) startLoop();
     };
     const onLeave = () => {
       active = false;
       targetX = 0;
       targetY = 0;
       el.style.willChange = '';
+      startLoop();
     };
 
     el.addEventListener('pointerenter', onEnter);
@@ -68,7 +81,8 @@ export function useTilt<T extends HTMLElement>({
       el.removeEventListener('pointerenter', onEnter);
       el.removeEventListener('pointermove', onMove);
       el.removeEventListener('pointerleave', onLeave);
-      cancelAnimationFrame(raf);
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
       el.style.transform = '';
     };
   }, [max, scale, perspective]);

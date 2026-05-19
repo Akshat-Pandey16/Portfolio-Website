@@ -35,12 +35,17 @@ export function MagneticButton({
     const el = ref.current;
     if (!el) return;
 
-    const onMove = (event: PointerEvent) => {
+    let raf = 0;
+    let lastX = 0;
+    let lastY = 0;
+
+    const flush = () => {
+      raf = 0;
       const rect = el.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
-      const dx = event.clientX - cx;
-      const dy = event.clientY - cy;
+      const dx = lastX - cx;
+      const dy = lastY - cy;
       const dist = Math.hypot(dx, dy);
       if (dist < radius) {
         const k = (1 - dist / radius) * strength;
@@ -50,6 +55,12 @@ export function MagneticButton({
         x.set(0);
         y.set(0);
       }
+    };
+
+    const onMove = (event: PointerEvent) => {
+      lastX = event.clientX;
+      lastY = event.clientY;
+      if (!raf) raf = requestAnimationFrame(flush);
     };
 
     const onLeave = () => {
@@ -62,6 +73,7 @@ export function MagneticButton({
     return () => {
       window.removeEventListener('pointermove', onMove);
       document.removeEventListener('mouseleave', onLeave);
+      if (raf) cancelAnimationFrame(raf);
     };
   }, [radius, strength, x, y]);
 

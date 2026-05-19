@@ -3,7 +3,6 @@ import { motion, useMotionValue, useSpring } from 'motion/react';
 import {
   FiArrowDown,
   FiArrowUpRight,
-  FiClock,
   FiCommand,
   FiDownload,
   FiGithub,
@@ -125,15 +124,27 @@ export function Hero() {
     if (typeof window === 'undefined') return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-    const onMove = (event: PointerEvent) => {
+    let raf = 0;
+    let lastX = 0;
+    let lastY = 0;
+    const flush = () => {
+      raf = 0;
       const el = containerRef.current;
       if (!el) return;
       const rect = el.getBoundingClientRect();
-      mx.set(((event.clientX - rect.left) / rect.width) * 100);
-      my.set(((event.clientY - rect.top) / rect.height) * 100);
+      mx.set(((lastX - rect.left) / rect.width) * 100);
+      my.set(((lastY - rect.top) / rect.height) * 100);
+    };
+    const onMove = (event: PointerEvent) => {
+      lastX = event.clientX;
+      lastY = event.clientY;
+      if (!raf) raf = requestAnimationFrame(flush);
     };
     window.addEventListener('pointermove', onMove, { passive: true });
-    return () => window.removeEventListener('pointermove', onMove);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, [mx, my]);
 
   return (
@@ -171,71 +182,105 @@ export function Hero() {
             </span>
             Available for new opportunities · 2026
           </span>
-          <div className="flex items-center gap-2">
-            <span
-              className="hidden items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--bg-elev)] px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--fg-subtle)] sm:inline-flex"
-              title="Current time in Durg, India"
-            >
-              <FiClock className="h-3.5 w-3.5" />
-              <span aria-live="off" className="tabular-nums text-[var(--fg-muted)]">
-                {clock}
-              </span>
-              <span className="text-[var(--fg-subtle)]">IST</span>
-            </span>
-            <button
-              type="button"
-              onClick={openCommandPalette}
-              aria-label="Open command palette"
-              className="group hidden items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--bg-elev)] px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--fg-subtle)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)] sm:inline-flex"
-            >
-              <FiCommand className="h-3.5 w-3.5" />
-              <kbd className="rounded border border-[var(--border)] bg-[var(--bg)] px-1 py-px text-[10px] tracking-normal">
-                ⌘K
-              </kbd>
-              <span className="group-hover:text-[var(--accent)]">to jump</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={openCommandPalette}
+            aria-label="Open command palette"
+            className="group hidden items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--bg-elev)] px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--fg-subtle)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)] sm:inline-flex"
+          >
+            <FiCommand className="h-3.5 w-3.5" />
+            <kbd className="rounded border border-[var(--border)] bg-[var(--bg)] px-1 py-px text-[10px] tracking-normal">
+              ⌘K
+            </kbd>
+            <span className="group-hover:text-[var(--accent)]">to jump</span>
+          </button>
         </motion.div>
 
-        <h1
-          className="font-display mt-12 leading-[0.86] text-[var(--fg)]"
-          style={{ fontSize: 'var(--text-display-xl)', fontWeight: 800 }}
-          aria-label="Akshat Pandey"
-        >
-          {NAME_LINES.map((line, li) => (
-            <span key={li} className="block overflow-hidden">
-              <span className="inline-flex">
-                {line.map((char, ci) => (
-                  <motion.span
-                    key={`${li}-${ci}`}
-                    initial={{ y: '110%', opacity: 0 }}
-                    animate={{ y: '0%', opacity: 1 }}
-                    transition={{
-                      duration: 0.7,
-                      ease: [0.2, 0.8, 0.2, 1],
-                      delay: 0.1 + li * 0.06 + ci * 0.035,
-                    }}
-                    className="inline-block"
-                  >
-                    {char}
-                  </motion.span>
-                ))}
-                {li === 1 && (
-                  <motion.span
-                    initial={{ y: '110%', opacity: 0 }}
-                    animate={{ y: '0%', opacity: 1 }}
-                    transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1], delay: 0.55 }}
-                    className="inline-block text-[var(--accent)]"
-                  >
-                    .
-                  </motion.span>
-                )}
+        <div className="mt-12 flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
+          <h1
+            className="font-display leading-[0.92] text-[var(--fg)]"
+            style={{ fontSize: 'var(--text-display-xl)', fontWeight: 800 }}
+            aria-label="Akshat Pandey"
+          >
+            {NAME_LINES.map((line, li) => (
+              <span
+                key={li}
+                className="block"
+                style={{ clipPath: 'inset(-0.05em 0 -0.25em 0)' }}
+              >
+                <span className="inline-flex">
+                  {line.map((char, ci) => (
+                    <motion.span
+                      key={`${li}-${ci}`}
+                      initial={{ y: '110%', opacity: 0 }}
+                      animate={{ y: '0%', opacity: 1 }}
+                      transition={{
+                        duration: 0.7,
+                        ease: [0.2, 0.8, 0.2, 1],
+                        delay: 0.1 + li * 0.06 + ci * 0.035,
+                      }}
+                      className="inline-block"
+                    >
+                      {char}
+                    </motion.span>
+                  ))}
+                  {li === 1 && (
+                    <motion.span
+                      initial={{ y: '110%', opacity: 0 }}
+                      animate={{ y: '0%', opacity: 1 }}
+                      transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1], delay: 0.55 }}
+                      className="inline-block text-[var(--accent)]"
+                    >
+                      .
+                    </motion.span>
+                  )}
+                </span>
               </span>
-            </span>
-          ))}
-        </h1>
+            ))}
+          </h1>
 
-        <div className="mt-12 grid gap-12 lg:grid-cols-[1.5fr_1fr] lg:items-end">
+          <motion.aside
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, ease: 'easeOut', delay: 0.6 }}
+            aria-label="Profile card"
+            className="surface relative w-full max-w-sm shrink-0 self-stretch overflow-hidden rounded-2xl p-5 font-mono text-[12px] leading-relaxed text-[var(--fg-muted)] lg:max-w-xs lg:self-end"
+          >
+            <div className="mb-3 flex items-center justify-between border-b border-[var(--border)] pb-2.5 text-[10px] uppercase tracking-[0.22em] text-[var(--fg-subtle)]">
+              <span className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
+                portfolio.akshat
+              </span>
+              <span className="tabular-nums">v2026.05</span>
+            </div>
+            <div className="space-y-1.5">
+              <p>
+                <span className="text-[var(--accent)]">$</span>{' '}
+                <span className="text-[var(--fg-subtle)]">whoami</span>
+              </p>
+              <p className="text-[var(--fg)]">akshat-pandey</p>
+              <p className="pt-1">
+                <span className="text-[var(--accent)]">$</span>{' '}
+                <span className="text-[var(--fg-subtle)]">cat profile.txt</span>
+              </p>
+              {META.map((m) => (
+                <p key={m.label} className="flex gap-2">
+                  <span className="w-20 text-[var(--fg-subtle)]">{m.label.toLowerCase()}:</span>
+                  <span className="text-[var(--fg)]">{m.value}</span>
+                </p>
+              ))}
+            </div>
+            <div className="mt-3 flex items-center justify-between border-t border-[var(--border)] pt-2.5 text-[10px] uppercase tracking-[0.22em] text-[var(--fg-subtle)]">
+              <span className="tabular-nums">{clock} IST</span>
+              <span className="inline-flex items-center gap-1">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--accent)]" />
+                live
+              </span>
+            </div>
+          </motion.aside>
+        </div>
+
+        <div className="mt-12">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -314,22 +359,6 @@ export function Hero() {
               .
             </p>
           </motion.div>
-
-          <motion.dl
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: 'easeOut', delay: 0.65 }}
-            className="grid grid-cols-2 gap-x-6 gap-y-5 border-t border-[var(--border)] pt-8 lg:border-t-0 lg:pt-0"
-          >
-            {META.map((m) => (
-              <div key={m.label} className="group">
-                <dt className="eyebrow">{m.label}</dt>
-                <dd className="font-display mt-1.5 text-xl text-[var(--fg)] transition-colors group-hover:text-[var(--accent)]">
-                  {m.value}
-                </dd>
-              </div>
-            ))}
-          </motion.dl>
         </div>
 
         <motion.button

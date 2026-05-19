@@ -103,10 +103,22 @@
     font-optical-sizing: auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    transition: background-color 300ms ease, color 300ms ease;
     min-height: 100dvh;
     text-wrap: pretty;
     letter-spacing: -0.011em;
+  }
+
+  /* Kill every CSS transition while the theme is swapping so the only
+     animation the user sees is the View Transition clip-reveal. Without
+     this, dozens of `transition-colors` elements all animate simultaneously
+     and the swap drops to ~30fps. */
+  .theme-switching,
+  .theme-switching *,
+  .theme-switching *::before,
+  .theme-switching *::after {
+    transition: none !important;
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
   }
 
   h1, h2, h3, h4, h5 {
@@ -175,20 +187,19 @@
   }
 
   .custom-cursor-dot {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     border-radius: 999px;
-    background-color: var(--accent);
-    box-shadow: 0 0 12px color-mix(in oklch, var(--accent) 35%, transparent);
+    background-color: #ffffff;
+    mix-blend-mode: difference;
   }
 
   .custom-cursor-ring {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
     border-radius: 999px;
-    border: 1.25px solid var(--accent);
-    backdrop-filter: invert(8%);
-    -webkit-backdrop-filter: invert(8%);
+    border: 1.5px solid #ffffff;
+    mix-blend-mode: difference;
   }
 }
 
