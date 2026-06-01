@@ -16,17 +16,17 @@ const SCROLL_TO = (id: string) => () => {
 };
 
 const META = [
-  { label: 'Role', value: 'Backend engineer' },
-  { label: 'Based', value: 'Durg, India' },
-  { label: 'Studying', value: 'CSE · BIT Durg' },
-  { label: 'Status', value: 'Open to work' },
+  { label: 'Role', value: 'Backend developer' },
+  { label: 'At', value: 'Intozi Tech' },
+  { label: 'Based', value: 'Gurugram, India' },
+  { label: 'Status', value: 'Open to opportunities' },
 ];
 
 const ROTATING_FOCUS = [
-  "FastAPI services that don't lie to clients",
+  'Django services that stream live camera feeds',
+  'Celery pipelines that keep AI work off the request path',
   'Postgres schemas that age gracefully',
-  'tiny CLIs that save a colleague an hour',
-  'Redis-backed queues with sane retries',
+  'MLOps that runs from dataset to deployment',
 ];
 
 const NAME_LINES = [
@@ -251,7 +251,7 @@ export function Hero() {
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
                 portfolio.akshat
               </span>
-              <span className="tabular-nums">v2026.05</span>
+              <span className="tabular-nums">v2026.06</span>
             </div>
             <div className="space-y-1.5">
               <p>

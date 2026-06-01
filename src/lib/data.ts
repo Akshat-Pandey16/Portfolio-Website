@@ -1,23 +1,24 @@
 import type { IconType } from 'react-icons';
 import {
   SiPython,
+  SiGnubash,
   SiFastapi,
   SiDjango,
-  SiReact,
   SiPostgresql,
   SiRedis,
   SiRabbitmq,
+  SiCelery,
+  SiDocker,
   SiNginx,
   SiLinux,
+  SiGit,
 } from 'react-icons/si';
 import { FaAws } from 'react-icons/fa';
-import SAIL from '../assets/internships/SAIL.webp';
-import DRDO from '../assets/internships/DRDO.webp';
+import Pa from '../assets/projects/Papyrus.svg';
 import Sb from '../assets/projects/SB.webp';
 import Mh from '../assets/projects/MH.webp';
 import Ht from '../assets/projects/HT.webp';
 import Hc from '../assets/projects/HC.webp';
-import Fc from '../assets/projects/FC.webp';
 
 export type NavSection = {
   id: string;
@@ -37,41 +38,28 @@ export type Experience = {
   organization: string;
   role: string;
   period: string;
+  location?: string;
   description: string;
   highlights: string[];
   stack: string[];
-  logo: string;
+  logo?: string;
   link?: string;
 };
 
 export const EXPERIENCES: Experience[] = [
   {
-    organization: 'Steel Authority of India Limited',
-    role: 'Flutter Developer Intern',
-    period: '2023',
+    organization: 'Intozi Tech',
+    role: 'Backend Developer',
+    period: 'Jun 2024 — Present',
+    location: 'Gurugram, India',
     description:
-      'Led development of a cross-platform mobile application that streamlined maintenance workflows across plant operations.',
+      'Lead backend at a computer-vision and video-analytics product company — owning the Python services across its products, including the core analytics product, Ikshana, and coordinating frontend and feature delivery inside a small team.',
     highlights: [
-      'Shipped the Flutter client end-to-end against an in-house Node.js API.',
-      'Modelled the data layer on top of an existing OracleDB without breaking legacy systems.',
-      'Coordinated with engineers across teams to scope and validate the build.',
+      'Building the backend for a client-facing Video Management System — Django services with MediaMTX wired in for RTSP/WebRTC streaming, so live camera feeds and AI analytics surface in the app in real time.',
+      'Architected the data and async layers — PostgreSQL, Redis, RabbitMQ and Celery — to push video-processing jobs and AI workloads off the request path for responsive, scalable services.',
+      'Built an internal MLOps pipeline (Django + React) covering dataset upload, auto-labeling, human verification and training/retraining, with a path to client-facing deployment.',
     ],
-    stack: ['Flutter', 'Node.js', 'OracleDB'],
-    logo: SAIL,
-    link: 'https://github.com/Akshat-Pandey16/MES-SAIL',
-  },
-  {
-    organization: 'Defence Research and Development Organisation',
-    role: 'Research & Development Intern',
-    period: '2022',
-    description:
-      'Worked on terrain analysis pipelines to accelerate ridge and spur detection for downstream geospatial research.',
-    highlights: [
-      'Built Python tooling around QGIS to automate DEM (Digital Elevation Model) processing.',
-      'Translated researcher intent into reproducible scripts the team could run unattended.',
-    ],
-    stack: ['Python', 'QGIS', 'Geospatial'],
-    logo: DRDO,
+    stack: ['Python', 'Django', 'PostgreSQL', 'Redis', 'RabbitMQ', 'Celery', 'MediaMTX'],
   },
 ];
 
@@ -87,49 +75,49 @@ export type Project = {
 
 export const PROJECTS: Project[] = [
   {
-    title: 'ShieldBuntu',
+    title: 'Papyrus',
     blurb:
-      'A hardening toolkit for Ubuntu that bundles secure-by-default configurations behind a simple UI. Built for non-experts who still want a sane baseline.',
-    image: Sb,
-    link: 'https://github.com/Akshat-Pandey16/ShieldBuntu',
-    tags: ['Security', 'Linux', 'Python'],
-    year: '2024',
+      'A self-hostable, privacy-first PDF toolkit — merge, split, compress, rotate, reorder and OCR — that runs in the browser with no signup. An async Celery pipeline does the heavy lifting, and a zero-retention mode purges your files on a timer so nothing lingers.',
+    image: Pa,
+    link: 'https://github.com/Akshat-Pandey16/papyrus',
+    tags: ['Full-stack', 'FastAPI', 'Privacy'],
+    year: '2026',
     featured: true,
-  },
-  {
-    title: 'MeshHawk',
-    blurb:
-      'Mesh-network monitoring concept giving operators a live view of node health and routing.',
-    image: Mh,
-    link: 'https://github.com/Akshat-Pandey16/MeshHawk',
-    tags: ['Networking', 'Backend'],
-    year: '2024',
   },
   {
     title: 'HeadTogether',
     blurb:
-      'Scheduling, polls and chat collapsed into one focused workspace.',
+      'A social app built on geo-bounded rooms — ephemeral chat spaces pinned to a real-world spot that only people inside the radius can find. Real-time messaging over WebSockets with a Redis pub/sub fanout.',
     image: Ht,
     link: 'https://github.com/Akshat-Pandey16/HeadTogether',
-    tags: ['Product', 'Full-stack'],
-    year: '2023',
+    tags: ['Full-stack', 'Real-time', 'FastAPI'],
+    year: '2024',
+  },
+  {
+    title: 'ShieldBuntu',
+    blurb:
+      'One-click Ubuntu hardening that turns CIS Benchmark controls into 16 idempotent Ansible roles — each with apply, dry-run and snapshot revert. A FastAPI daemon runs them and streams every step back to the browser live.',
+    image: Sb,
+    link: 'https://github.com/Akshat-Pandey16/ShieldBuntu',
+    tags: ['Security', 'FastAPI', 'Linux'],
+    year: '2024',
   },
   {
     title: 'Hoctor',
     blurb:
-      'Healthcare assistant prototype that helps clinicians log and revisit interactions.',
+      "Figures out which room you're in from nothing but the surrounding Wi-Fi signals. Capture a fingerprint per room, train a per-venue classifier, and it predicts your location with confidence scores — no beacons or extra hardware.",
     image: Hc,
-    link: 'https://github.com/Akshat-Pandey16/Hoctor.git',
-    tags: ['Healthtech', 'Backend'],
-    year: '2023',
+    link: 'https://github.com/Akshat-Pandey16/Hoctor',
+    tags: ['Machine Learning', 'Django', 'Full-stack'],
+    year: '2025',
   },
   {
-    title: 'FineCode',
+    title: 'MeshHawk',
     blurb:
-      'Lightweight linter front-end that surfaces code-quality signals during pull requests.',
-    image: Fc,
-    link: 'https://github.com/Akshat-Pandey16/FineCode',
-    tags: ['Devtools', 'TypeScript'],
+      'Feed it a packet capture and it rebuilds the 802.11 topology, works out which clusters are actually meshing, and exports a printable PDF report. Everything runs locally — your captures never leave the machine.',
+    image: Mh,
+    link: 'https://github.com/Akshat-Pandey16/MeshHawk',
+    tags: ['Networking', 'FastAPI', 'Security'],
     year: '2023',
   },
 ];
@@ -152,27 +140,30 @@ export const SKILL_GROUPS: SkillGroup[] = [
     caption: 'The keyboard end of the day-to-day.',
     skills: [
       { name: 'Python', Icon: SiPython, level: 92 },
-      { name: 'FastAPI', Icon: SiFastapi, level: 88 },
-      { name: 'Django', Icon: SiDjango, level: 80 },
-      { name: 'React', Icon: SiReact, level: 72 },
+      { name: 'FastAPI', Icon: SiFastapi, level: 90 },
+      { name: 'Django', Icon: SiDjango, level: 85 },
+      { name: 'Bash', Icon: SiGnubash, level: 80 },
     ],
   },
   {
-    label: 'Data & messaging',
-    caption: 'Where the system actually keeps its memory.',
+    label: 'Data & async',
+    caption: 'Where the system keeps its memory — and does its waiting.',
     skills: [
-      { name: 'PostgreSQL', Icon: SiPostgresql, level: 85 },
-      { name: 'Redis', Icon: SiRedis, level: 78 },
-      { name: 'RabbitMQ', Icon: SiRabbitmq, level: 70 },
+      { name: 'PostgreSQL', Icon: SiPostgresql, level: 88 },
+      { name: 'Redis', Icon: SiRedis, level: 80 },
+      { name: 'Celery', Icon: SiCelery, level: 82 },
+      { name: 'RabbitMQ', Icon: SiRabbitmq, level: 75 },
     ],
   },
   {
-    label: 'Platforms',
+    label: 'Infrastructure',
     caption: 'The boxes the code actually runs on.',
     skills: [
+      { name: 'Docker', Icon: SiDocker, level: 82 },
+      { name: 'Linux', Icon: SiLinux, level: 86 },
       { name: 'AWS', Icon: FaAws, level: 72 },
-      { name: 'Linux & Bash', Icon: SiLinux, level: 86 },
-      { name: 'Nginx', Icon: SiNginx, level: 70 },
+      { name: 'Nginx', Icon: SiNginx, level: 72 },
+      { name: 'Git', Icon: SiGit, level: 88 },
     ],
   },
 ];

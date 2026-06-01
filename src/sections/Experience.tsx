@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from 'motion/react';
 import { Section } from '../components/Section';
 import { EXPERIENCES } from '../lib/data';
 import { spotlightMove } from '../lib/spotlight';
+import { cn } from '../lib/cn';
 
 export function Experience() {
   const listRef = useRef<HTMLOListElement>(null);
@@ -19,10 +20,10 @@ export function Experience() {
       eyebrow="Experience"
       title={
         <>
-          Places that <em className="italic text-[var(--accent)]">gave me a desk.</em>
+          Where I <em className="italic text-[var(--accent)]">build right now.</em>
         </>
       }
-      description="Two internships, two very different problem spaces, both of which sharpened how I ship."
+      description="Leading backend on a computer-vision and video-analytics platform — most of what I build never shows its face in the UI, and that's the point."
       container="wide"
     >
       <ol ref={listRef} className="relative space-y-6 sm:space-y-8 lg:pl-12">
@@ -54,20 +55,37 @@ export function Experience() {
               className="surface spotlight group grid gap-6 rounded-3xl p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent-400 hover:shadow-xl hover:shadow-accent-500/5 sm:p-9 lg:grid-cols-[220px_1fr]"
             >
               <div className="flex items-start gap-4 lg:flex-col lg:items-start">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[var(--border)] bg-white/80 transition-transform group-hover:rotate-3 dark:bg-white/95">
-                  <img
-                    src={exp.logo}
-                    alt={`${exp.organization} logo`}
-                    width={64}
-                    height={64}
-                    className="h-full w-full object-contain p-2"
-                    loading="lazy"
-                    decoding="async"
-                  />
+                <div
+                  className={cn(
+                    'flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[var(--border)] transition-transform group-hover:rotate-3',
+                    exp.logo ? 'bg-white/80 dark:bg-white/95' : 'bg-[var(--bg)]',
+                  )}
+                >
+                  {exp.logo ? (
+                    <img
+                      src={exp.logo}
+                      alt={`${exp.organization} logo`}
+                      width={64}
+                      height={64}
+                      className="h-full w-full object-contain p-2"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <span
+                      aria-hidden
+                      className="font-display text-2xl font-bold text-[var(--accent)]"
+                    >
+                      {exp.organization.charAt(0)}
+                    </span>
+                  )}
                 </div>
                 <div className="lg:mt-2">
                   <p className="eyebrow">{exp.period}</p>
                   <p className="mt-1 text-sm font-semibold text-[var(--fg)]">{exp.role}</p>
+                  {exp.location && (
+                    <p className="mt-0.5 text-xs text-[var(--fg-muted)]">{exp.location}</p>
+                  )}
                 </div>
               </div>
 

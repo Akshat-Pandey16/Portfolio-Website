@@ -13,10 +13,10 @@ type Stat = {
 };
 
 const STATS: Stat[] = [
-  { label: 'Years writing code', to: 5, suffix: '+' },
-  { label: 'Internships shipped', to: 2 },
+  { label: 'Years writing code', to: 6, suffix: '+' },
+  { label: 'Years at Intozi Tech', to: 2 },
   { label: 'Projects in the wild', to: 10, suffix: '+' },
-  { label: 'Hackathons led', to: 0, literal: 'A few' },
+  { label: "KAVACH'23 hackathon", to: 0, literal: 'Winner' },
 ];
 
 const TRAITS = [
@@ -36,7 +36,7 @@ export function About() {
           A short story about <em className="italic text-[var(--accent)]">how I got here.</em>
         </>
       }
-      description="22 years old, finishing a Bachelors in Computer Science at Bhilai Institute of Technology, Durg. Backend is home base; everything else is curiosity."
+      description="Backend developer at Intozi Tech, building Python services for a computer-vision product. Computer Science grad from Bhilai Institute of Technology (CPI 9.68). Backend is home base; everything else is curiosity."
       container="wide"
     >
       <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr]">
@@ -55,14 +55,16 @@ export function About() {
               are great accelerants, terrible substitutes for taste.
             </p>
             <p>
-              I&apos;ve led teams in hackathons, won a couple, and learned more
-              from the ones we didn&apos;t. The pattern: stay close to the
-              problem, keep the data model honest, and write the boring docs.
+              I&apos;ve led teams in hackathons and learned a lot doing it —
+              including winning KAVACH&apos;23, the Government of India&apos;s
+              national cybersecurity hackathon. The pattern that travels: stay
+              close to the problem, keep the data model honest, and write the
+              boring docs.
             </p>
             <p>
-              This site is the product of that curiosity — a first React
-              project, learned end-to-end in TypeScript and Tailwind, then
-              rewritten when the original got embarrassing.
+              This site is the product of that same curiosity — a place to sweat
+              the frontend craft in TypeScript and Tailwind, rebuilt from scratch
+              once the first cut started to embarrass me.
             </p>
           </div>
 

@@ -8,7 +8,7 @@ const REASONS = [
     Icon: FiZap,
     title: 'I pick up stacks fast',
     body:
-      'This entire site was my first React project. I learned TypeScript, Tailwind and Figma to get it shipped — then rebuilt it once I knew better.',
+      'I move into unfamiliar territory without ceremony — RTSP/WebRTC streaming, Ansible, scapy, whatever the problem needs. This site I rebuilt from scratch just to sharpen the frontend craft.',
   },
   {
     Icon: FiLayers,
@@ -20,7 +20,7 @@ const REASONS = [
     Icon: FiUsers,
     title: 'I have led teams under pressure',
     body:
-      'Hackathon-style ownership, with the receipts: a couple of wins and many honest learnings. I am comfortable being the one who has to decide.',
+      "Hackathon-style ownership, with the receipts — winning KAVACH'23, the Government of India's national cybersecurity hackathon, plus many honest learnings. I am comfortable being the one who has to decide.",
   },
   {
     Icon: FiCode,
