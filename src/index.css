@@ -56,10 +56,6 @@
   --color-amber-400: oklch(86% 0.15 82);
   --color-amber-500: oklch(82% 0.155 78);
   --color-amber-600: oklch(72% 0.145 72);
-
-  /* coral — rare alert pop */
-  --color-coral-400: oklch(74% 0.18 26);
-  --color-coral-500: oklch(69% 0.19 25);
 }
 
 @layer base {
@@ -75,14 +71,14 @@
     --border-strong: oklch(25% 0.04 258 / 0.24);
     --grid: oklch(45% 0.06 232 / 0.07);
 
-    --accent: var(--color-accent-700);
+    /* deepened so small mono labels/links clear WCAG AA on the light deck */
+    --accent: oklch(49% 0.115 154);
     --accent-bright: var(--color-accent-600);
     --accent-soft: color-mix(in oklch, var(--color-accent-600) 16%, transparent);
     --accent-fg: oklch(99% 0.01 160);
 
     --cyan: var(--color-cyan-700);
     --amber: var(--color-amber-600);
-    --coral: var(--color-coral-500);
 
     --ring: var(--color-accent-700);
     --scrollbar-thumb: oklch(20% 0.04 258 / 0.26);
@@ -109,7 +105,6 @@
 
     --cyan: var(--color-cyan-400);
     --amber: var(--color-amber-400);
-    --coral: var(--color-coral-400);
 
     --ring: var(--color-accent-400);
     --scrollbar-thumb: oklch(100% 0 0 / 0.15);
@@ -246,10 +241,6 @@
   font-feature-settings: 'liga' off, 'calt' off;
   letter-spacing: -0.01em;
 }
-@utility hi {
-  color: var(--accent);
-  font-style: normal;
-}
 @utility eyebrow {
   font-family: var(--font-mono);
   font-size: 0.7rem;
@@ -364,10 +355,6 @@
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
 @keyframes sweep {
   0%   { transform: translateX(-120%); opacity: 0; }
   12%  { opacity: 1; }
@@ -384,20 +371,6 @@
 @keyframes blink {
   0%, 49%  { opacity: 1; }
   50%, 100% { opacity: 0; }
-}
-
-@utility shimmer-text {
-  background-image: linear-gradient(
-    100deg,
-    var(--fg) 0%, var(--fg) 38%,
-    var(--accent) 50%,
-    var(--fg) 62%, var(--fg) 100%
-  );
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: shimmer 6s linear infinite;
 }
 
 @utility term-caret {

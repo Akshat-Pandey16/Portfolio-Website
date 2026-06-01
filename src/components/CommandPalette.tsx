@@ -37,7 +37,27 @@ export function CommandPalette() {
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const { isDark, toggleTheme } = useTheme();
+
+  const trapTab = useCallback((e: React.KeyboardEvent) => {
+    if (e.key !== 'Tab') return;
+    const root = dialogRef.current;
+    if (!root) return;
+    const nodes = root.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])',
+    );
+    if (!nodes.length) return;
+    const first = nodes[0]!;
+    const last = nodes[nodes.length - 1]!;
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }, []);
 
   const close = useCallback(() => {
     setOpen(false);
@@ -248,6 +268,8 @@ export function CommandPalette() {
             className="absolute inset-0 -z-10 bg-[color-mix(in_oklch,var(--bg-sunken)_60%,transparent)] backdrop-blur-sm"
           />
           <motion.div
+            ref={dialogRef}
+            onKeyDown={trapTab}
             initial={{ opacity: 0, y: -10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.98 }}

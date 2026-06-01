@@ -42,29 +42,3 @@ export function Panel({
     </div>
   );
 }
-
-/** A small mono header strip for a panel: label · status code. */
-export function PanelTag({
-  label,
-  code,
-  className,
-}: {
-  label: ReactNode;
-  code?: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div
-      className={cn(
-        'flex items-center justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--fg-subtle)]',
-        className,
-      )}
-    >
-      <span className="inline-flex items-center gap-1.5">
-        <span className="h-1 w-1 rounded-full bg-[var(--accent)]" />
-        {label}
-      </span>
-      {code != null && <span className="tabular-nums">{code}</span>}
-    </div>
-  );
-}

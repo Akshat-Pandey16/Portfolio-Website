@@ -245,8 +245,24 @@ export function DeckBackground() {
       e.preventDefault();
       if (raf) cancelAnimationFrame(raf);
       raf = 0;
+      running = false;
+      // fall back to the CSS deck-grid so we never show a frozen/black canvas
+      canvas.style.display = 'none';
+      host.dataset.fallback = 'true';
+    };
+    const onContextRestored = () => {
+      canvas.style.display = 'block';
+      delete host.dataset.fallback;
+      resize();
+      applyTheme();
+      if (!running) {
+        running = true;
+        lastFrame = 0;
+        raf = requestAnimationFrame(render);
+      }
     };
     canvas.addEventListener('webglcontextlost', onContextLost);
+    canvas.addEventListener('webglcontextrestored', onContextRestored);
 
     return () => {
       if (raf) cancelAnimationFrame(raf);
@@ -254,6 +270,7 @@ export function DeckBackground() {
       window.removeEventListener('pointermove', onPointer);
       document.removeEventListener('visibilitychange', onVisibility);
       canvas.removeEventListener('webglcontextlost', onContextLost);
+      canvas.removeEventListener('webglcontextrestored', onContextRestored);
       themeObserver.disconnect();
       const ext = gl.getExtension('WEBGL_lose_context');
       ext?.loseContext();

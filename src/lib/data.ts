@@ -12,8 +12,6 @@ import {
   SiNginx,
   SiLinux,
   SiGit,
-  SiReact,
-  SiTypescript,
 } from 'react-icons/si';
 import { FaAws } from 'react-icons/fa';
 import Pa from '../assets/projects/Papyrus.svg';
@@ -27,7 +25,7 @@ export const GITHUB_USER = 'Akshat-Pandey16';
 export const GITHUB_URL = 'https://github.com/Akshat-Pandey16';
 export const LINKEDIN_URL = 'https://www.linkedin.com/in/akshat16pandey/';
 export const RESUME_URL =
-  'https://drive.google.com/file/d/1AB5wbR75BfJ3VMbgNqaa94Rv9sGOf53-/view?usp=drivesdk';
+  'https://drive.google.com/file/d/15GuXe4ZxjM2FMZhDFf4CR-62Sbbe6LNS/view?usp=sharing';
 
 export type NavSection = { id: string; label: string };
 
@@ -92,7 +90,7 @@ export const PROJECTS: Project[] = [
   {
     title: 'Papyrus',
     blurb:
-      'An open-source, self-hostable PDF workshop that runs in your browser — merge, split, compress, OCR, sign, redact, reorder — with a zero-retention mode that purges every file on a timer. A FastAPI + Celery pipeline does the heavy lifting, and document content is never logged.',
+      'An open-source, self-hostable PDF workshop that runs in your browser — merge, split, compress, rotate, reorder and OCR, with sign & redact on the way — and a zero-retention mode that purges every file on a timer. A FastAPI + Celery pipeline does the heavy lifting, and document content is never logged.',
     image: Pa,
     link: 'https://github.com/Akshat-Pandey16/papyrus',
     tags: ['Full-stack', 'FastAPI', 'Celery', 'Privacy'],
@@ -214,13 +212,7 @@ export const STACK_INFRA: { id: string; label: string; Icon: IconType; level: nu
 export const MARQUEE = [
   'Python', 'FastAPI', 'Django', 'Celery', 'PostgreSQL', 'Redis', 'RabbitMQ',
   'Docker', 'AWS', 'Nginx', 'Linux', 'Git', 'Bash', 'WebRTC', 'MediaMTX',
-  'SQLAlchemy', 'Pydantic', 'React', 'TypeScript', 'OpenAPI', 'pytest', 'SQL', 'uv',
-];
-
-/* used by the marquee / hero chips */
-export const SIDE_ICONS: { label: string; Icon: IconType }[] = [
-  { label: 'React', Icon: SiReact },
-  { label: 'TypeScript', Icon: SiTypescript },
+  'SQLAlchemy', 'Pydantic', 'asyncpg', 'OpenAPI', 'pytest', 'SQL', 'uv',
 ];
 
 /* ───────────────────────────── about stats ─────────────────────── */

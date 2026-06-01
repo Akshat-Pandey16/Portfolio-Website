@@ -95,7 +95,6 @@ export function Sparkline({
         strokeLinejoin="round"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
-        style={{ transition: 'd 0.7s linear' }}
       />
       <circle cx={W} cy={lastY} r="1.8" fill={stroke} vectorEffect="non-scaling-stroke" />
     </svg>

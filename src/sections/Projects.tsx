@@ -182,6 +182,9 @@ export function Projects() {
 
   const featured = list.find((p) => p.featured) ?? list[0];
   const rest = featured ? list.filter((p) => p !== featured) : [];
+  // only promote a feature card when there are enough small cards to backfill
+  // its second row on lg — otherwise it leaves an empty hole after filtering
+  const useFeature = rest.length >= 2;
 
   return (
     <Section
@@ -208,15 +211,14 @@ export function Projects() {
         </a>
       }
     >
-      <ul className="mb-6 flex flex-wrap gap-2" role="tablist" aria-label="Filter services by capability">
+      <ul className="mb-6 flex flex-wrap gap-2" role="group" aria-label="Filter services by capability">
         {tags.map((tag) => {
           const active = filter === tag;
           return (
             <li key={tag}>
               <button
                 type="button"
-                role="tab"
-                aria-selected={active}
+                aria-pressed={active}
                 onClick={() => setFilter(tag)}
                 className={cn(
                   'relative rounded-md px-3.5 py-1.5 font-mono text-[12px] transition-colors',
@@ -249,7 +251,11 @@ export function Projects() {
             transition={{ duration: 0.25 }}
             className="grid auto-rows-fr gap-5 sm:grid-cols-2 lg:grid-cols-3"
           >
-            <ProjectCard project={featured} variant="feature" index={0} />
+            <ProjectCard
+              project={featured}
+              variant={useFeature ? 'feature' : 'small'}
+              index={0}
+            />
             {rest.map((project, i) => (
               <ProjectCard key={project.title} project={project} index={i + 1} />
             ))}

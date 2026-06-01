@@ -6,6 +6,8 @@
       // theme bootstrap — runs before paint to avoid a flash (dark-first)
       (function () {
         try {
+          var p = new URLSearchParams(location.search).get('theme');
+          if (p === 'light' || p === 'dark') localStorage.setItem('portfolio-theme', p);
           var s = localStorage.getItem('portfolio-theme');
           var dark = s ? s === 'dark' : !window.matchMedia('(prefers-color-scheme: light)').matches;
           var root = document.documentElement;

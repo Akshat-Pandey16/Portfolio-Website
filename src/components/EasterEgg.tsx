@@ -80,6 +80,15 @@ export function EasterEgg() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!running) return;
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setRunning(false);
+    };
+    window.addEventListener('keydown', onEsc);
+    return () => window.removeEventListener('keydown', onEsc);
+  }, [running]);
+
   return (
     <AnimatePresence>
       {running && (
@@ -89,7 +98,9 @@ export function EasterEgg() {
           exit={{ opacity: 0 }}
           onClick={() => setRunning(false)}
           className="fixed inset-0 z-[100] flex items-center justify-center px-4"
-          aria-live="polite"
+          role="dialog"
+          aria-modal="true"
+          aria-label="System diagnostics — press Escape to close"
         >
           <div className="absolute inset-0 bg-[color-mix(in_oklch,var(--bg-sunken)_55%,transparent)] backdrop-blur-sm" />
           <Bits />

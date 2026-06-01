@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Reticle } from './components/Reticle';
+import { CursorGlow } from './components/CursorGlow';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { ScrollProgress } from './components/ScrollProgress';
@@ -37,6 +38,7 @@ export function App() {
       <Suspense fallback={null}>
         <DeckBackground />
       </Suspense>
+      <CursorGlow />
       <Reticle />
       <ScrollProgress />
       <Suspense fallback={null}>

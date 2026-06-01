@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion, useMotionValue, useSpring } from 'motion/react';
+import { motion } from 'motion/react';
 import {
   FiArrowDown,
   FiArrowUpRight,
@@ -95,58 +95,12 @@ function useClock() {
 
 export function Hero() {
   const typed = useTypewriter(ROTATING_FOCUS);
-  const clock = useClock();
-  const reqs = useReqCounter();
-
-  const containerRef = useRef<HTMLElement>(null);
-  const mx = useMotionValue(50);
-  const my = useMotionValue(18);
-  const sx = useSpring(mx, { stiffness: 60, damping: 20, mass: 0.6 });
-  const sy = useSpring(my, { stiffness: 60, damping: 20, mass: 0.6 });
-
-  useEffect(() => {
-    if (prefersReducedMotion()) return;
-    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-    let raf = 0;
-    let lastX = 0;
-    let lastY = 0;
-    const flush = () => {
-      raf = 0;
-      const el = containerRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      mx.set(((lastX - rect.left) / rect.width) * 100);
-      my.set(((lastY - rect.top) / rect.height) * 100);
-    };
-    const onMove = (e: PointerEvent) => {
-      lastX = e.clientX;
-      lastY = e.clientY;
-      if (!raf) raf = requestAnimationFrame(flush);
-    };
-    window.addEventListener('pointermove', onMove, { passive: true });
-    return () => {
-      window.removeEventListener('pointermove', onMove);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, [mx, my]);
 
   return (
     <section
-      ref={containerRef}
       id="hero"
-      className="relative isolate overflow-hidden px-5 pb-20 pt-28 sm:px-8 sm:pt-32 lg:px-10 lg:pb-24 lg:pt-36"
+      className="relative isolate px-5 pb-20 pt-28 sm:px-8 sm:pt-32 lg:px-10 lg:pb-24 lg:pt-36"
     >
-      <motion.div
-        aria-hidden
-        style={{
-          background:
-            'radial-gradient(36rem circle at var(--gx) var(--gy), color-mix(in oklch, var(--accent) 16%, transparent), transparent 62%)',
-          ['--gx' as never]: sx,
-          ['--gy' as never]: sy,
-        }}
-        className="pointer-events-none absolute inset-0 -z-10"
-      />
-
       <div className="mx-auto w-full max-w-[92rem]">
         {/* boot line */}
         <motion.div
@@ -325,9 +279,7 @@ export function Hero() {
                 <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--fg-subtle)]">
                   throughput · req/s
                 </span>
-                <span className="font-display text-2xl tabular-nums text-[var(--accent)]">
-                  {reqs}
-                </span>
+                <ReqReadout />
               </div>
               <Sparkline className="mt-2 h-10 w-full" />
             </div>
@@ -345,7 +297,7 @@ export function Hero() {
             </dl>
 
             <div className="mt-4 flex items-center justify-between border-t border-[var(--border)] pt-3 text-[10px] uppercase tracking-[0.2em] text-[var(--fg-subtle)]">
-              <span className="tabular-nums">{clock} IST</span>
+              <LiveClock />
               <span className="inline-flex items-center gap-1.5 text-[var(--accent)]">
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--accent)]" />
                 live
@@ -370,6 +322,17 @@ export function Hero() {
       </div>
     </section>
   );
+}
+
+/* leaf components so per-second ticks re-render only themselves, not all of Hero */
+function LiveClock() {
+  const clock = useClock();
+  return <span className="tabular-nums">{clock} IST</span>;
+}
+
+function ReqReadout() {
+  const reqs = useReqCounter();
+  return <span className="font-display text-2xl tabular-nums text-[var(--accent)]">{reqs}</span>;
 }
 
 /* a gently wandering "req/s" number for the status panel */

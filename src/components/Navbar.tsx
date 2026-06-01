@@ -8,6 +8,8 @@ import { ThemeToggle } from './ThemeToggle';
 import { cn } from '../lib/cn';
 
 const SECTION_IDS = NAV_SECTIONS.map((s) => s.id);
+// stable reference so useActiveSection's observer isn't rebuilt every render
+const NAV_IDS = ['hero', ...SECTION_IDS];
 
 function openConsole() {
   window.dispatchEvent(new CustomEvent('palette:open'));
@@ -16,7 +18,7 @@ function openConsole() {
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const active = useActiveSection(['hero', ...SECTION_IDS]);
+  const active = useActiveSection(NAV_IDS);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 14);
@@ -80,6 +82,7 @@ export function Navbar() {
                 <button
                   type="button"
                   onClick={() => go(section.id)}
+                  aria-current={isActive ? 'true' : undefined}
                   className={cn(
                     'relative rounded-md px-3 py-1.5 font-mono text-[12px] tracking-tight transition-colors',
                     isActive
@@ -158,6 +161,7 @@ export function Navbar() {
                     <button
                       type="button"
                       onClick={() => go(section.id)}
+                      aria-current={isActive ? 'true' : undefined}
                       className={cn(
                         'flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left font-mono text-[15px] transition-colors',
                         isActive
