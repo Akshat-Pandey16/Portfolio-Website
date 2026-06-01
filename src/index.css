@@ -2,94 +2,141 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+  ════════════════════════════════════════════════════════════════════
+  MISSION CONTROL — design system
+  An observability / control-room language: midnight navy deck,
+  signal-mint primary, electric cyan data, amber highlights.
+  Space Grotesk display · Inter body · JetBrains Mono telemetry.
+  ════════════════════════════════════════════════════════════════════
+*/
+
 @theme {
   --font-sans:
     'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system,
     'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  --font-display: var(--font-sans);
+  --font-display:
+    'Space Grotesk Variable', 'Space Grotesk', 'Inter Variable', ui-sans-serif,
+    system-ui, sans-serif;
   --font-mono:
     'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SF Mono',
     'Menlo', 'Consolas', monospace;
 
-  --text-display-xs: clamp(2rem, 3.6vw, 2.75rem);
-  --text-display-sm: clamp(2.5rem, 5vw, 3.75rem);
-  --text-display-md: clamp(3rem, 6.5vw, 5rem);
-  --text-display-lg: clamp(3.5rem, 9vw, 7.5rem);
-  --text-display-xl: clamp(4rem, 12vw, 10rem);
+  --text-display-xs: clamp(1.85rem, 3.4vw, 2.6rem);
+  --text-display-sm: clamp(2.35rem, 4.6vw, 3.6rem);
+  --text-display-md: clamp(2.9rem, 6.2vw, 5rem);
+  --text-display-lg: clamp(3.4rem, 8.4vw, 7rem);
+  --text-display-xl: clamp(3.6rem, 11vw, 9.5rem);
 
-  --color-ink-50: oklch(98% 0.005 80);
-  --color-ink-100: oklch(95% 0.008 80);
-  --color-ink-200: oklch(89% 0.012 80);
-  --color-ink-300: oklch(78% 0.015 80);
-  --color-ink-400: oklch(60% 0.015 80);
-  --color-ink-500: oklch(45% 0.015 80);
-  --color-ink-600: oklch(34% 0.012 80);
-  --color-ink-700: oklch(24% 0.010 80);
-  --color-ink-800: oklch(16% 0.008 80);
-  --color-ink-900: oklch(10% 0.006 80);
-  --color-ink-950: oklch(6% 0.005 80);
+  /* signal mint — the "system healthy" primary */
+  --color-accent-50:  oklch(97% 0.03 160);
+  --color-accent-100: oklch(94% 0.07 160);
+  --color-accent-200: oklch(90% 0.11 159);
+  --color-accent-300: oklch(87% 0.15 158);
+  --color-accent-400: oklch(85% 0.17 158);
+  --color-accent-500: oklch(82% 0.175 157);
+  --color-accent-600: oklch(72% 0.16 156);
+  --color-accent-700: oklch(60% 0.135 155);
+  --color-accent-800: oklch(47% 0.1 154);
+  --color-accent-900: oklch(34% 0.07 153);
 
-  /* Signature "high-noon" yellow — vibrant, lemon-warm, never muddy. */
-  --color-accent-50:  oklch(98% 0.035 102);
-  --color-accent-100: oklch(95% 0.08  102);
-  --color-accent-200: oklch(92% 0.13  102);
-  --color-accent-300: oklch(89% 0.17  102);
-  --color-accent-400: oklch(87% 0.19  102);
-  --color-accent-500: oklch(83% 0.195 102);
-  --color-accent-600: oklch(74% 0.185 100);
-  --color-accent-700: oklch(62% 0.155 98);
-  --color-accent-800: oklch(48% 0.115 96);
-  --color-accent-900: oklch(34% 0.075 94);
+  /* electric cyan — data, links, edges */
+  --color-cyan-50:  oklch(97% 0.025 220);
+  --color-cyan-100: oklch(93% 0.06 221);
+  --color-cyan-200: oklch(88% 0.1 221);
+  --color-cyan-300: oklch(83% 0.13 222);
+  --color-cyan-400: oklch(80% 0.145 222);
+  --color-cyan-500: oklch(74% 0.15 223);
+  --color-cyan-600: oklch(64% 0.14 224);
+  --color-cyan-700: oklch(53% 0.12 226);
+  --color-cyan-800: oklch(42% 0.095 228);
+  --color-cyan-900: oklch(32% 0.07 230);
 
-  /* secondary accent — used sparingly for highlights and gradients */
-  --color-pop-400: oklch(76% 0.18 45);
-  --color-pop-500: oklch(70% 0.19 45);
+  /* amber — highlights, "hot" metrics */
+  --color-amber-400: oklch(86% 0.15 82);
+  --color-amber-500: oklch(82% 0.155 78);
+  --color-amber-600: oklch(72% 0.145 72);
+
+  /* coral — rare alert pop */
+  --color-coral-400: oklch(74% 0.18 26);
+  --color-coral-500: oklch(69% 0.19 25);
 }
 
 @layer base {
   :root {
-    --bg: oklch(97.5% 0.008 85);
-    --bg-elev: oklch(99% 0.004 85);
-    --bg-sunken: oklch(94% 0.012 85);
-    --fg: var(--color-ink-900);
-    --fg-muted: var(--color-ink-500);
-    --fg-subtle: var(--color-ink-400);
-    --border: oklch(0% 0 0 / 0.08);
-    --border-strong: oklch(0% 0 0 / 0.14);
-    --accent: var(--color-accent-500);
-    --accent-soft: color-mix(in oklch, var(--color-accent-500) 18%, transparent);
-    --accent-fg: oklch(20% 0.04 95);
-    --pop: var(--color-pop-500);
-    --ring: var(--color-accent-600);
-    --scrollbar-track: var(--bg-sunken);
-    --scrollbar-thumb: var(--color-ink-300);
+    /* light — "daylight ops" cool monitoring theme */
+    --bg: oklch(97.4% 0.008 240);
+    --bg-elev: oklch(99.4% 0.004 235);
+    --bg-sunken: oklch(94.6% 0.012 240);
+    --fg: oklch(23% 0.03 258);
+    --fg-muted: oklch(44% 0.028 252);
+    --fg-subtle: oklch(56% 0.024 248);
+    --border: oklch(25% 0.04 258 / 0.12);
+    --border-strong: oklch(25% 0.04 258 / 0.24);
+    --grid: oklch(45% 0.06 232 / 0.07);
+
+    --accent: var(--color-accent-700);
+    --accent-bright: var(--color-accent-600);
+    --accent-soft: color-mix(in oklch, var(--color-accent-600) 16%, transparent);
+    --accent-fg: oklch(99% 0.01 160);
+
+    --cyan: var(--color-cyan-700);
+    --amber: var(--color-amber-600);
+    --coral: var(--color-coral-500);
+
+    --ring: var(--color-accent-700);
+    --scrollbar-thumb: oklch(70% 0.03 245);
+
+    color-scheme: light;
   }
 
   .dark {
-    --bg: oklch(11% 0.006 80);
-    --bg-elev: oklch(15% 0.008 80);
-    --bg-sunken: oklch(8% 0.005 80);
-    --fg: var(--color-ink-50);
-    --fg-muted: var(--color-ink-300);
-    --fg-subtle: var(--color-ink-400);
-    --border: oklch(100% 0 0 / 0.08);
-    --border-strong: oklch(100% 0 0 / 0.16);
+    /* dark — "night deck" midnight navy-indigo */
+    --bg: oklch(13.5% 0.026 262);
+    --bg-elev: oklch(17% 0.03 262);
+    --bg-sunken: oklch(10.5% 0.022 262);
+    --fg: oklch(96% 0.012 235);
+    --fg-muted: oklch(74% 0.022 232);
+    --fg-subtle: oklch(57% 0.028 240);
+    --border: oklch(100% 0 0 / 0.085);
+    --border-strong: oklch(100% 0 0 / 0.2);
+    --grid: oklch(80% 0.08 210 / 0.05);
+
     --accent: var(--color-accent-400);
-    --accent-soft: color-mix(in oklch, var(--color-accent-400) 22%, transparent);
-    --accent-fg: oklch(14% 0.03 95);
-    --pop: var(--color-pop-400);
+    --accent-bright: var(--color-accent-300);
+    --accent-soft: color-mix(in oklch, var(--color-accent-400) 20%, transparent);
+    --accent-fg: oklch(17% 0.05 162);
+
+    --cyan: var(--color-cyan-400);
+    --amber: var(--color-amber-400);
+    --coral: var(--color-coral-400);
+
     --ring: var(--color-accent-400);
-    --scrollbar-track: var(--bg);
-    --scrollbar-thumb: oklch(30% 0.010 80);
+    --scrollbar-thumb: oklch(34% 0.02 255);
+
+    color-scheme: dark;
   }
 
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
   }
+  /* Lenis owns the scroll when active; disable native smooth to avoid fights */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-stopped {
+    overflow: clip;
+  }
 
   @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
+    html {
+      scroll-behavior: auto;
+    }
   }
 
   body {
@@ -99,19 +146,18 @@
     color: var(--fg);
     font-family: var(--font-sans);
     font-weight: 400;
-    font-feature-settings: 'ss01', 'ss03', 'cv11', 'cv02';
+    font-feature-settings: 'ss01', 'cv11', 'cv02';
     font-optical-sizing: auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100dvh;
     text-wrap: pretty;
     letter-spacing: -0.011em;
+    overflow-x: clip;
   }
 
-  /* Kill every CSS transition while the theme is swapping so the only
-     animation the user sees is the View Transition clip-reveal. Without
-     this, dozens of `transition-colors` elements all animate simultaneously
-     and the swap drops to ~30fps. */
+  /* Kill every CSS transition during a theme swap so the only motion is the
+     View-Transition clip reveal (otherwise dozens of transition-colors fight). */
   .theme-switching,
   .theme-switching *,
   .theme-switching *::before,
@@ -122,16 +168,17 @@
   }
 
   h1, h2, h3, h4, h5 {
+    font-family: var(--font-display);
     text-wrap: balance;
-    letter-spacing: -0.035em;
-    font-weight: 700;
+    letter-spacing: -0.03em;
+    font-weight: 600;
   }
 
-  button, [role="button"], a[href], summary, label[for], input[type="checkbox"], input[type="radio"], select {
+  button, [role='button'], a[href], summary, label[for],
+  input[type='checkbox'], input[type='radio'], select {
     cursor: pointer;
   }
-
-  button:disabled, [aria-disabled="true"] {
+  button:disabled, [aria-disabled='true'] {
     cursor: not-allowed;
   }
 
@@ -143,10 +190,10 @@
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 3px;
-    border-radius: 6px;
+    border-radius: 4px;
   }
 
-  *::-webkit-scrollbar { width: 8px; height: 8px; }
+  *::-webkit-scrollbar { width: 9px; height: 9px; }
   *::-webkit-scrollbar-thumb {
     background-color: var(--scrollbar-thumb);
     border-radius: 999px;
@@ -154,12 +201,8 @@
     background-clip: padding-box;
     transition: background-color 200ms ease;
   }
-  *::-webkit-scrollbar-thumb:hover {
-    background-color: var(--accent);
-  }
-  *::-webkit-scrollbar-track {
-    background-color: transparent;
-  }
+  *::-webkit-scrollbar-thumb:hover { background-color: var(--accent); }
+  *::-webkit-scrollbar-track { background-color: transparent; }
   *::-webkit-scrollbar-corner { background: transparent; }
   * {
     scrollbar-color: var(--scrollbar-thumb) transparent;
@@ -167,96 +210,128 @@
   }
 }
 
-/* Custom cursor follower — spring-physics, transform-only */
+/*
+  ───────────────────────────── custom reticle cursor ─────────────────
+  A control-room targeting reticle. JS animates transform only.
+*/
 @media (hover: hover) and (pointer: fine) {
   @media (prefers-reduced-motion: no-preference) {
-    html, body, a, button, [role="button"], input, select, textarea, summary, label[for] {
+    html, body, a, button, [role='button'], input, select, textarea,
+    summary, label[for] {
       cursor: none;
     }
   }
-
-  .custom-cursor-dot,
-  .custom-cursor-ring {
+  .reticle {
     position: fixed;
     top: 0;
     left: 0;
     pointer-events: none;
     z-index: 9999;
-    will-change: transform, opacity;
+    will-change: transform;
     translate: -50% -50%;
   }
-
-  .custom-cursor-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    background-color: #ffffff;
-    mix-blend-mode: difference;
-  }
-
-  .custom-cursor-ring {
-    width: 34px;
-    height: 34px;
-    border-radius: 999px;
-    border: 1.5px solid #ffffff;
-    mix-blend-mode: difference;
-  }
 }
-
 @media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
-  .custom-cursor-dot,
-  .custom-cursor-ring {
-    display: none;
-  }
+  .reticle { display: none !important; }
 }
 
+/* ───────────────────────────── type utilities ───────────────────── */
 @utility font-display {
   font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.035em;
-}
-
-@utility font-display-italic {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-style: italic;
+  font-weight: 600;
   letter-spacing: -0.03em;
 }
-
 @utility font-mono {
   font-family: var(--font-mono);
   font-feature-settings: 'liga' off, 'calt' off;
   letter-spacing: -0.01em;
 }
-
 @utility hi {
   color: var(--accent);
   font-style: normal;
 }
-
-@utility surface {
-  background-color: var(--bg-elev);
-  border: 1px solid var(--border);
-}
-
-@utility surface-sunken {
-  background-color: var(--bg-sunken);
-  border: 1px solid var(--border);
-}
-
 @utility eyebrow {
   font-family: var(--font-mono);
   font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
   color: var(--fg-subtle);
 }
 
+/* ───────────────────────────── deck surfaces (panels) ───────────── */
+@utility panel {
+  position: relative;
+  background-color: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+}
+@utility panel-sunken {
+  background-color: var(--bg-sunken);
+  border: 1px solid var(--border);
+}
+
+/* corner brackets — the HUD "panel chrome" that frames a panel */
+@utility bracketed {
+  position: relative;
+}
+.bracketed::before,
+.bracketed::after {
+  content: '';
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  border: 1.5px solid var(--accent);
+  opacity: 0.5;
+  pointer-events: none;
+  transition: opacity 280ms ease, width 280ms ease, height 280ms ease;
+}
+.bracketed::before {
+  top: 9px;
+  left: 9px;
+  border-right: 0;
+  border-bottom: 0;
+}
+.bracketed::after {
+  bottom: 9px;
+  right: 9px;
+  border-left: 0;
+  border-top: 0;
+}
+.bracketed:hover::before,
+.bracketed:hover::after {
+  opacity: 1;
+  width: 17px;
+  height: 17px;
+}
+
+@utility chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background-color: var(--bg-elev);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--fg-muted);
+}
+
+/* status dot — pulsing signal indicator */
+@utility status-dot {
+  position: relative;
+  display: inline-flex;
+  height: 0.5rem;
+  width: 0.5rem;
+}
+
+/* ───────────────────────────── spotlight (cursor-tracked glow) ──── */
 @utility spotlight {
   position: relative;
 }
-
 .spotlight::before {
   content: '';
   position: absolute;
@@ -266,59 +341,90 @@
   opacity: 0;
   transition: opacity 240ms ease;
   background: radial-gradient(
-    320px circle at var(--mx, 50%) var(--my, 50%),
-    color-mix(in oklch, var(--accent) 16%, transparent),
-    transparent 60%
+    340px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in oklch, var(--accent) 13%, transparent),
+    transparent 62%
   );
 }
-
-.spotlight:hover::before {
-  opacity: 1;
-}
-
+.spotlight:hover::before { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
-  .spotlight::before {
-    display: none;
-  }
+  .spotlight::before { display: none; }
 }
 
-@utility chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.3rem 0.75rem;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background-color: var(--bg-elev);
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--fg-muted);
+/* ───────────────────────────── grid + scanline backdrops ────────── */
+@utility deck-grid {
+  background-image:
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size: 60px 60px;
 }
 
+/* fine scanline texture over the whole deck */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.4;
+  background-image: repeating-linear-gradient(
+    0deg,
+    color-mix(in oklch, var(--fg) 5%, transparent) 0px,
+    color-mix(in oklch, var(--fg) 5%, transparent) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+}
+.dark .scanlines { opacity: 0.5; }
+@media (prefers-reduced-motion: reduce) {
+  .scanlines { display: none; }
+}
+
+/* fine grain noise overlay */
+.noise-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+.dark .noise-layer { opacity: 0.06; mix-blend-mode: soft-light; }
+
+/* ───────────────────────────── animations ──────────────────────── */
 @keyframes marquee {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
-
-@keyframes drift {
-  0%   { transform: translate3d(0, 0, 0); }
-  50%  { transform: translate3d(0, -8px, 0); }
-  100% { transform: translate3d(0, 0, 0); }
-}
-
 @keyframes shimmer {
   0%   { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+@keyframes sweep {
+  0%   { transform: translateX(-120%); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateX(120%); opacity: 0; }
+}
+@keyframes pulse-ring {
+  0%   { transform: scale(0.6); opacity: 0.8; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+@keyframes flow-dash {
+  to { stroke-dashoffset: -24; }
+}
+@keyframes blink {
+  0%, 49%  { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
 
 @utility shimmer-text {
   background-image: linear-gradient(
-    90deg,
-    var(--fg) 0%,
-    var(--fg) 40%,
+    100deg,
+    var(--fg) 0%, var(--fg) 38%,
     var(--accent) 50%,
-    var(--fg) 60%,
-    var(--fg) 100%
+    var(--fg) 62%, var(--fg) 100%
   );
   background-size: 200% 100%;
   -webkit-background-clip: text;
@@ -327,49 +433,60 @@
   animation: shimmer 6s linear infinite;
 }
 
-/* Fine noise texture overlay — subtle, fixed, blends across the page */
-.noise-layer {
-  position: fixed;
+@utility term-caret {
+  display: inline-block;
+  width: 0.55ch;
+  height: 1.05em;
+  margin-left: 0.1em;
+  translate: 0 0.12em;
+  background: var(--accent);
+  animation: blink 1.05s steps(1) infinite;
+}
+
+/* radar sweep used inside panels/headers */
+.sweep-line {
+  position: absolute;
   inset: 0;
+  overflow: hidden;
   pointer-events: none;
-  z-index: 1;
-  opacity: 0.035;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  border-radius: inherit;
+}
+.sweep-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklch, var(--accent) 22%, transparent),
+    transparent
+  );
+  animation: sweep 5.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sweep-line::after { display: none; }
 }
 
-.dark .noise-layer {
-  opacity: 0.06;
-  mix-blend-mode: soft-light;
-}
-
-/* View-Transitions API hook for theme toggle */
+/* ───────────────────────────── view-transition theme toggle ─────── */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
 }
-
-::view-transition-old(root) {
-  z-index: 1;
-}
-
+::view-transition-old(root) { z-index: 1; }
 ::view-transition-new(root) {
   z-index: 2;
-  animation: theme-clip 480ms cubic-bezier(0.65, 0, 0.35, 1) both;
+  animation: theme-clip 520ms cubic-bezier(0.65, 0, 0.35, 1) both;
 }
-
 @keyframes theme-clip {
   from { clip-path: circle(0% at var(--theme-x, 50%) var(--theme-y, 50%)); }
   to   { clip-path: circle(150% at var(--theme-x, 50%) var(--theme-y, 50%)); }
 }
-
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-new(root) { animation: none; }
 }
 
-/* Tilt cards must not have their own transition on transform — JS animates */
-.tilt {
-  transform-style: preserve-3d;
-}
-
+/* tilt cards animate transform via JS — no css transition on transform */
+.tilt { transform-style: preserve-3d; }

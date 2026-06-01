@@ -1,23 +1,10 @@
 import { motion } from 'motion/react';
 import { FiCpu, FiCoffee, FiFeather, FiGithub } from 'react-icons/fi';
 import { Section } from '../components/Section';
+import { Panel } from '../components/Panel';
 import { CountUp } from '../components/CountUp';
-import { spotlightMove } from '../lib/spotlight';
-
-type Stat = {
-  label: string;
-  to: number;
-  prefix?: string;
-  suffix?: string;
-  literal?: string;
-};
-
-const STATS: Stat[] = [
-  { label: 'Years writing code', to: 6, suffix: '+' },
-  { label: 'Years at Intozi Tech', to: 2 },
-  { label: 'Projects in the wild', to: 10, suffix: '+' },
-  { label: "KAVACH'23 hackathon", to: 0, literal: 'Winner' },
-];
+import { STATS } from '../lib/data';
+import { VIEWPORT, reveal } from '../lib/motion';
 
 const TRAITS = [
   { Icon: FiCpu, label: 'Backend-first thinking' },
@@ -30,107 +17,104 @@ export function About() {
   return (
     <Section
       id="about"
-      eyebrow="About"
+      index="01"
+      channel="Profile"
       title={
         <>
-          A short story about <em className="italic text-[var(--accent)]">how I got here.</em>
+          The operator behind <span className="text-[var(--accent)]">the deck.</span>
         </>
       }
-      description="Backend developer at Intozi Tech, building Python services for a computer-vision product. Computer Science grad from Bhilai Institute of Technology (CPI 9.68). Backend is home base; everything else is curiosity."
+      description="Backend developer at Intozi Tech building Python services for a computer-vision product. CS grad from Bhilai Institute of Technology (CPI 9.68). Backend is home base; everything else is curiosity."
       container="wide"
     >
-      <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr]">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-          onPointerMove={spotlightMove}
-          className="surface spotlight rounded-3xl p-7 sm:p-10"
-        >
-          <div className="space-y-5 text-base leading-relaxed text-[var(--fg-muted)] sm:text-lg">
-            <p>
-              I&apos;m mostly self-taught. I navigate unfamiliar stacks without
-              ceremony, and I lean on AI tools when they earn their place — they
-              are great accelerants, terrible substitutes for taste.
-            </p>
-            <p>
-              I&apos;ve led teams in hackathons and learned a lot doing it —
-              including winning KAVACH&apos;23, the Government of India&apos;s
-              national cybersecurity hackathon. The pattern that travels: stay
-              close to the problem, keep the data model honest, and write the
-              boring docs.
-            </p>
-            <p>
-              This site is the product of that same curiosity — a place to sweat
-              the frontend craft in TypeScript and Tailwind, rebuilt from scratch
-              once the first cut started to embarrass me.
-            </p>
-          </div>
+      <div className="grid gap-5 lg:grid-cols-[1.5fr_1fr]">
+        <motion.div variants={reveal} initial="hidden" whileInView="show" viewport={VIEWPORT}>
+          <Panel bracket spotlight className="h-full p-7 sm:p-10">
+            <div className="space-y-5 text-base leading-relaxed text-[var(--fg-muted)] sm:text-lg">
+              <p>
+                I&apos;m mostly self-taught, and I move into unfamiliar stacks
+                without ceremony. I lean on AI tools when they earn their place —
+                great accelerants, terrible substitutes for taste.
+              </p>
+              <p>
+                I&apos;ve led teams in hackathons and learned a lot doing it —
+                including winning{' '}
+                <span className="text-[var(--fg)]">KAVACH&apos;23</span>, the
+                Government of India&apos;s national cybersecurity hackathon. The
+                pattern that travels: stay close to the problem, keep the data
+                model honest, and write the boring docs.
+              </p>
+              <p>
+                This deck is the product of that same curiosity — rebuilt from
+                scratch, end to end, once the first cut started to embarrass me.
+              </p>
+            </div>
 
-          <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {TRAITS.map(({ Icon, label }, i) => (
-              <motion.li
-                key={label}
-                initial={{ opacity: 0, y: 8 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.3, delay: 0.1 + i * 0.06 }}
-                className="group flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-xs font-medium text-[var(--fg-muted)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--accent)] hover:text-[var(--fg)]"
-              >
-                <Icon className="h-4 w-4 text-accent-500 transition-transform group-hover:rotate-12" />
-                {label}
-              </motion.li>
-            ))}
-          </ul>
+            <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {TRAITS.map(({ Icon, label }, i) => (
+                <motion.li
+                  key={label}
+                  initial={{ opacity: 0, y: 8 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={VIEWPORT}
+                  transition={{ duration: 0.3, delay: 0.1 + i * 0.06 }}
+                  className="group flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-xs font-medium text-[var(--fg-muted)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--accent)] hover:text-[var(--fg)]"
+                >
+                  <Icon className="h-4 w-4 text-[var(--accent)] transition-transform group-hover:rotate-12" />
+                  {label}
+                </motion.li>
+              ))}
+            </ul>
+          </Panel>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.5, ease: 'easeOut', delay: 0.1 }}
-          className="space-y-3"
-        >
-          <ul className="grid grid-cols-2 gap-3">
+        <div className="grid gap-4">
+          <ul className="grid grid-cols-2 gap-4">
             {STATS.map((stat, i) => (
               <motion.li
                 key={stat.label}
-                initial={{ opacity: 0, y: 12 }}
+                initial={{ opacity: 0, y: 14 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.4, delay: 0.15 + i * 0.06 }}
-                onPointerMove={spotlightMove}
-                className="surface spotlight group relative overflow-hidden rounded-2xl p-5 transition-all duration-200 hover:-translate-y-1 hover:border-[var(--border-strong)] hover:shadow-lg hover:shadow-black/5"
+                viewport={VIEWPORT}
+                transition={{ duration: 0.4, delay: i * 0.06 }}
               >
-                <p className="font-display text-4xl leading-none text-accent-500 tabular-nums">
-                  {stat.literal ? (
-                    stat.literal
-                  ) : (
-                    <CountUp to={stat.to} prefix={stat.prefix} suffix={stat.suffix} />
-                  )}
-                </p>
-                <p className="mt-2 text-sm text-[var(--fg-muted)]">{stat.label}</p>
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute -bottom-6 -right-6 h-20 w-20 rounded-full bg-[var(--accent)]/10 blur-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                />
+                <Panel spotlight interactive className="group h-full overflow-hidden p-5">
+                  <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--fg-subtle)]">
+                    {stat.hint}
+                  </p>
+                  <p className="font-display mt-2 text-[2.6rem] leading-none text-[var(--accent)] tabular-nums">
+                    {stat.literal ? (
+                      stat.literal
+                    ) : (
+                      <CountUp to={stat.to} suffix={stat.suffix} />
+                    )}
+                  </p>
+                  <p className="mt-2 text-sm leading-snug text-[var(--fg-muted)]">{stat.label}</p>
+                </Panel>
               </motion.li>
             ))}
           </ul>
-          <blockquote
-            onPointerMove={spotlightMove}
-            className="surface spotlight rounded-2xl p-6"
+
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={VIEWPORT}
+            transition={{ duration: 0.4, delay: 0.2 }}
           >
-            <p className="font-display text-lg leading-snug text-[var(--fg)]">
-              &ldquo;Backend is where I came from. Frontend is where I came to
-              stretch.&rdquo;
-            </p>
-            <footer className="mt-3 text-sm text-[var(--fg-muted)]">
-              — note to self, somewhere around year three
-            </footer>
-          </blockquote>
-        </motion.div>
+            <Panel spotlight className="p-6">
+              <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[var(--fg-subtle)]">
+                // note to self
+              </p>
+              <blockquote className="font-display mt-3 text-lg leading-snug text-[var(--fg)]">
+                &ldquo;Backend is where I came from. Frontend is where I came to
+                stretch.&rdquo;
+              </blockquote>
+              <p className="mt-3 text-sm text-[var(--fg-muted)]">
+                — somewhere around year three
+              </p>
+            </Panel>
+          </motion.div>
+        </div>
       </div>
     </Section>
   );

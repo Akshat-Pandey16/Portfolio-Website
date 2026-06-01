@@ -1,17 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
+import { scrollToBottom, scrollToTop } from '../lib/scroll';
 
 const KONAMI = [
-  'ArrowUp',
-  'ArrowUp',
-  'ArrowDown',
-  'ArrowDown',
-  'ArrowLeft',
-  'ArrowRight',
-  'ArrowLeft',
-  'ArrowRight',
-  'b',
-  'a',
+  'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
+  'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a',
+];
+
+const SUBSYSTEMS = [
+  'api.gateway',
+  'postgres.primary',
+  'celery.workers',
+  'rabbitmq.broker',
+  'redis.cache',
+  'rtsp.ingest',
+  'auth.pam',
 ];
 
 function isTypingTarget(target: EventTarget | null) {
@@ -21,25 +24,30 @@ function isTypingTarget(target: EventTarget | null) {
 }
 
 export function EasterEgg() {
-  const [confetti, setConfetti] = useState(false);
+  const [running, setRunning] = useState(false);
   const lastKeyRef = useRef<{ key: string; at: number } | null>(null);
 
   useEffect(() => {
+    const trigger = () => {
+      setRunning(true);
+      window.setTimeout(() => setRunning(false), 5200);
+    };
+    window.addEventListener('diagnostics:run', trigger);
+
     const onKey = (event: KeyboardEvent) => {
       if (isTypingTarget(event.target)) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
-
       const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
       const now = performance.now();
       const prev = lastKeyRef.current;
       if (prev && now - prev.at < 800) {
         if (prev.key === 'g' && key === 't') {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          scrollToTop();
           lastKeyRef.current = null;
           return;
         }
         if (prev.key === 'g' && key === 'b') {
-          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+          scrollToBottom();
           lastKeyRef.current = null;
           return;
         }
@@ -56,8 +64,7 @@ export function EasterEgg() {
         progress += 1;
         if (progress === KONAMI.length) {
           progress = 0;
-          setConfetti(true);
-          window.setTimeout(() => setConfetti(false), 5000);
+          trigger();
         }
       } else {
         progress = got === KONAMI[0] ? 1 : 0;
@@ -67,6 +74,7 @@ export function EasterEgg() {
     window.addEventListener('keydown', onKey);
     window.addEventListener('keydown', onKonami);
     return () => {
+      window.removeEventListener('diagnostics:run', trigger);
       window.removeEventListener('keydown', onKey);
       window.removeEventListener('keydown', onKonami);
     };
@@ -74,30 +82,59 @@ export function EasterEgg() {
 
   return (
     <AnimatePresence>
-      {confetti && (
+      {running && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="pointer-events-none fixed inset-0 z-[100] flex items-center justify-center"
+          onClick={() => setRunning(false)}
+          className="fixed inset-0 z-[100] flex items-center justify-center px-4"
           aria-live="polite"
         >
-          <Confetti />
+          <div className="absolute inset-0 bg-[color-mix(in_oklch,var(--bg-sunken)_55%,transparent)] backdrop-blur-sm" />
+          <Bits />
           <motion.div
-            initial={{ scale: 0.6, opacity: 0, y: 20 }}
+            initial={{ scale: 0.7, opacity: 0, y: 24 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.7, opacity: 0, y: -10 }}
+            exit={{ scale: 0.8, opacity: 0, y: -12 }}
             transition={{ type: 'spring', stiffness: 280, damping: 22 }}
-            className="rounded-3xl border border-[var(--border-strong)] bg-[var(--bg-elev)] px-7 py-5 text-center shadow-2xl shadow-black/30"
+            className="bracketed relative w-full max-w-sm overflow-hidden rounded-2xl border border-[var(--border-strong)] bg-[var(--bg-elev)] p-6 shadow-2xl shadow-black/40"
           >
-            <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-[var(--accent)]">
-              ↑↑↓↓←→←→BA
+            <span className="sweep-line" aria-hidden />
+            <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--fg-subtle)]">
+              ↑↑↓↓←→←→ba · diagnostic
             </p>
-            <p className="font-display mt-2 text-3xl text-[var(--fg)]">
-              You found the cheat code.
-            </p>
-            <p className="mt-2 text-sm text-[var(--fg-muted)]">
-              Tell me you noticed when you email — it&apos;s a +1.
+            <ul className="mt-4 space-y-1.5 font-mono text-[13px]">
+              {SUBSYSTEMS.map((name, i) => (
+                <motion.li
+                  key={name}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.15 + i * 0.22 }}
+                  className="flex items-center justify-between gap-3"
+                >
+                  <span className="text-[var(--fg-muted)]">{name}</span>
+                  <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.32 + i * 0.22 }}
+                    className="inline-flex items-center gap-1.5 text-[var(--accent)]"
+                  >
+                    OK ✓
+                  </motion.span>
+                </motion.li>
+              ))}
+            </ul>
+            <motion.p
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 + SUBSYSTEMS.length * 0.22 }}
+              className="font-display mt-5 text-2xl text-[var(--fg)]"
+            >
+              All systems nominal.
+            </motion.p>
+            <p className="mt-1.5 text-sm text-[var(--fg-muted)]">
+              You found the cheat code — mention it when you email, it&apos;s a +1.
             </p>
           </motion.div>
         </motion.div>
@@ -106,56 +143,49 @@ export function EasterEgg() {
   );
 }
 
-type ConfettiPiece = {
+type Bit = {
   left: number;
   delay: number;
   duration: number;
-  rotate: number;
-  driftX: number;
-  size: number;
-  hue: string;
+  drift: number;
+  char: string;
+  color: string;
 };
 
-function makePieces(): ConfettiPiece[] {
-  const palette = ['var(--accent)', 'var(--pop)', 'var(--fg)'];
-  return Array.from({ length: 70 }, (_, i) => ({
+function makeBits(): Bit[] {
+  const palette = ['var(--accent)', 'var(--cyan)', 'var(--amber)'];
+  return Array.from({ length: 56 }, (_, i) => ({
     left: Math.random() * 100,
-    delay: Math.random() * 0.6,
-    duration: 1.6 + Math.random() * 1.6,
-    rotate: 360 + Math.random() * 360,
-    driftX: (Math.random() - 0.5) * 220,
-    size: 6 + Math.round(Math.random() * 8),
-    hue: palette[i % palette.length] ?? 'var(--accent)',
+    delay: Math.random() * 0.7,
+    duration: 1.6 + Math.random() * 1.8,
+    drift: (Math.random() - 0.5) * 140,
+    char: Math.random() > 0.5 ? '1' : '0',
+    color: palette[i % palette.length]!,
   }));
 }
 
-function Confetti() {
-  const [pieces] = useState<ConfettiPiece[]>(makePieces);
-  const yEnd = typeof window === 'undefined' ? 900 : window.innerHeight + 60;
-
+function Bits() {
+  const [bits] = useState<Bit[]>(makeBits);
+  const yEnd = typeof window === 'undefined' ? -900 : -(window.innerHeight + 80);
   return (
-    <div className="absolute inset-0 overflow-hidden">
-      {pieces.map((p, i) => (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      {bits.map((b, i) => (
         <motion.span
           key={i}
-          initial={{ y: -30, opacity: 0, rotate: 0 }}
-          animate={{
-            y: yEnd,
-            opacity: [0, 1, 1, 0],
-            rotate: p.rotate,
-            x: p.driftX,
-          }}
-          transition={{ duration: p.duration, delay: p.delay, ease: 'easeIn' }}
+          initial={{ y: 40, opacity: 0 }}
+          animate={{ y: yEnd, opacity: [0, 1, 1, 0], x: b.drift }}
+          transition={{ duration: b.duration, delay: b.delay, ease: 'easeOut' }}
           style={{
             position: 'absolute',
-            left: `${p.left}%`,
-            top: 0,
-            width: p.size,
-            height: p.size * 0.4,
-            background: p.hue,
-            borderRadius: 2,
+            bottom: 0,
+            left: `${b.left}%`,
+            color: b.color,
+            fontFamily: 'var(--font-mono)',
+            fontSize: 12,
           }}
-        />
+        >
+          {b.char}
+        </motion.span>
       ))}
     </div>
   );

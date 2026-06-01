@@ -1,152 +1,110 @@
-import { useRef } from 'react';
-import { FiArrowUpRight, FiCheck, FiGithub } from 'react-icons/fi';
-import { motion, useScroll, useTransform } from 'motion/react';
+import { motion } from 'motion/react';
+import { FiActivity } from 'react-icons/fi';
 import { Section } from '../components/Section';
+import { Panel } from '../components/Panel';
 import { EXPERIENCES } from '../lib/data';
-import { spotlightMove } from '../lib/spotlight';
-import { cn } from '../lib/cn';
+import { VIEWPORT } from '../lib/motion';
 
 export function Experience() {
-  const listRef = useRef<HTMLOListElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: listRef,
-    offset: ['start 80%', 'end 35%'],
-  });
-  const lineScale = useTransform(scrollYProgress, [0, 1], [0, 1]);
-
   return (
     <Section
       id="experience"
-      eyebrow="Experience"
+      index="02"
+      channel="Deployment"
       title={
         <>
-          Where I <em className="italic text-[var(--accent)]">build right now.</em>
+          The service I run <span className="text-[var(--accent)]">in production.</span>
         </>
       }
-      description="Leading backend on a computer-vision and video-analytics platform — most of what I build never shows its face in the UI, and that's the point."
+      description="I lead the backend on a computer-vision and video-analytics platform — most of what I build never shows its face in the UI, and that's exactly the point."
       container="wide"
     >
-      <ol ref={listRef} className="relative space-y-6 sm:space-y-8 lg:pl-12">
-        <span
-          aria-hidden
-          className="pointer-events-none absolute left-[19px] top-3 hidden h-[calc(100%-1.5rem)] w-px bg-[var(--border)] lg:block"
-        />
-        <motion.span
-          aria-hidden
-          style={{ scaleY: lineScale, transformOrigin: '50% 0%' }}
-          className="pointer-events-none absolute left-[19px] top-3 hidden h-[calc(100%-1.5rem)] w-px bg-gradient-to-b from-[var(--accent)] via-[var(--accent)] to-transparent lg:block"
-        />
-
-        {EXPERIENCES.map((exp, index) => (
-          <motion.li
+      <div className="space-y-5">
+        {EXPERIENCES.map((exp) => (
+          <motion.div
             key={exp.organization}
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.45, ease: 'easeOut', delay: index * 0.05 }}
-            className="relative"
+            viewport={VIEWPORT}
+            transition={{ duration: 0.5, ease: [0.22, 0.8, 0.24, 1] }}
           >
-            <span
-              aria-hidden
-              className="absolute -left-[37px] top-7 hidden h-3 w-3 -translate-x-1/2 rounded-full border-2 border-[var(--accent)] bg-[var(--bg)] shadow-[0_0_0_4px_color-mix(in_oklch,var(--accent)_18%,transparent)] lg:block"
-            />
-            <article
-              onPointerMove={spotlightMove}
-              className="surface spotlight group grid gap-6 rounded-3xl p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent-400 hover:shadow-xl hover:shadow-accent-500/5 sm:p-9 lg:grid-cols-[220px_1fr]"
-            >
-              <div className="flex items-start gap-4 lg:flex-col lg:items-start">
-                <div
-                  className={cn(
-                    'flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[var(--border)] transition-transform group-hover:rotate-3',
-                    exp.logo ? 'bg-white/80 dark:bg-white/95' : 'bg-[var(--bg)]',
-                  )}
-                >
-                  {exp.logo ? (
-                    <img
-                      src={exp.logo}
-                      alt={`${exp.organization} logo`}
-                      width={64}
-                      height={64}
-                      className="h-full w-full object-contain p-2"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  ) : (
-                    <span
-                      aria-hidden
-                      className="font-display text-2xl font-bold text-[var(--accent)]"
-                    >
-                      {exp.organization.charAt(0)}
-                    </span>
-                  )}
+            <Panel bracket spotlight sweep className="overflow-hidden p-6 sm:p-9">
+              {/* header */}
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg)] font-display text-2xl font-bold text-[var(--accent)]">
+                    {exp.organization.charAt(0)}
+                  </div>
+                  <div>
+                    <h3 className="font-display text-2xl text-[var(--fg)] sm:text-3xl">
+                      {exp.organization}
+                    </h3>
+                    <p className="mt-1 font-mono text-xs text-[var(--fg-muted)]">
+                      {exp.role} · {exp.location}
+                    </p>
+                  </div>
                 </div>
-                <div className="lg:mt-2">
-                  <p className="eyebrow">{exp.period}</p>
-                  <p className="mt-1 text-sm font-semibold text-[var(--fg)]">{exp.role}</p>
-                  {exp.location && (
-                    <p className="mt-0.5 text-xs text-[var(--fg-muted)]">{exp.location}</p>
-                  )}
+                <div className="flex flex-col items-end gap-2">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-[var(--accent)]/40 bg-[var(--accent-soft)] px-3 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--accent)]">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--accent)]" />
+                    {exp.status}
+                  </span>
+                  <span className="font-mono text-[11px] text-[var(--fg-subtle)]">{exp.period}</span>
                 </div>
               </div>
 
-              <div>
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <h3 className="font-display text-2xl text-[var(--fg)] sm:text-3xl">
-                    {exp.organization}
-                  </h3>
-                  {exp.link && (
-                    <a
-                      href={exp.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group/link inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--bg)] px-4 py-1.5 text-xs font-semibold text-[var(--fg)] transition-colors hover:border-accent-400 hover:text-accent-500"
-                    >
-                      <FiGithub className="h-3.5 w-3.5" />
-                      Repository
-                      <FiArrowUpRight className="h-3 w-3 transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5" />
-                    </a>
-                  )}
-                </div>
+              {/* metrics strip */}
+              <dl className="mt-6 grid grid-cols-3 gap-3 rounded-xl border border-[var(--border)] bg-[var(--bg-sunken)] p-4">
+                {exp.metrics.map((m) => (
+                  <div key={m.label} className="text-center">
+                    <dt className="font-mono text-[9px] uppercase tracking-[0.16em] text-[var(--fg-subtle)]">
+                      {m.label}
+                    </dt>
+                    <dd className="font-display mt-1 text-base text-[var(--fg)] sm:text-lg">
+                      {m.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
 
-                <p className="mt-4 max-w-3xl text-base leading-relaxed text-[var(--fg-muted)] sm:text-lg">
-                  {exp.description}
-                </p>
+              <p className="mt-6 max-w-3xl text-base leading-relaxed text-[var(--fg-muted)] sm:text-lg">
+                {exp.description}
+              </p>
 
-                {exp.highlights.length > 0 && (
-                  <ul className="mt-5 space-y-2.5">
-                    {exp.highlights.map((highlight, hi) => (
-                      <motion.li
-                        key={highlight}
-                        initial={{ opacity: 0, x: -8 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true, margin: '-40px' }}
-                        transition={{ duration: 0.35, delay: 0.1 + hi * 0.05 }}
-                        className="flex gap-3 text-sm leading-relaxed text-[var(--fg-muted)] sm:text-base"
-                      >
-                        <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_oklch,var(--accent)_18%,transparent)] text-[var(--accent)]">
-                          <FiCheck className="h-2.5 w-2.5" strokeWidth={3} />
-                        </span>
-                        <span>{highlight}</span>
-                      </motion.li>
-                    ))}
-                  </ul>
-                )}
+              {/* active processes */}
+              <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--fg-subtle)]">
+                active processes
+              </p>
+              <ul className="mt-3 space-y-2.5">
+                {exp.highlights.map((h, hi) => (
+                  <motion.li
+                    key={h}
+                    initial={{ opacity: 0, x: -8 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={VIEWPORT}
+                    transition={{ duration: 0.35, delay: 0.1 + hi * 0.06 }}
+                    className="flex gap-3 text-sm leading-relaxed text-[var(--fg-muted)] sm:text-base"
+                  >
+                    <FiActivity className="mt-1 h-4 w-4 shrink-0 text-[var(--accent)]" />
+                    <span>{h}</span>
+                  </motion.li>
+                ))}
+              </ul>
 
-                <ul className="mt-6 flex flex-wrap gap-2">
-                  {exp.stack.map((tech) => (
-                    <li
-                      key={tech}
-                      className="rounded-full bg-accent-100 px-3 py-1 text-xs font-medium text-accent-700 transition-transform hover:-translate-y-0.5 dark:bg-accent-500/15 dark:text-accent-200"
-                    >
-                      {tech}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </article>
-          </motion.li>
+              <ul className="mt-6 flex flex-wrap gap-2">
+                {exp.stack.map((tech) => (
+                  <li
+                    key={tech}
+                    className="rounded-md border border-[var(--border)] bg-[var(--bg)] px-2.5 py-1 font-mono text-[11px] text-[var(--fg-muted)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                  >
+                    {tech}
+                  </li>
+                ))}
+              </ul>
+            </Panel>
+          </motion.div>
         ))}
-      </ol>
+      </div>
     </Section>
   );
 }

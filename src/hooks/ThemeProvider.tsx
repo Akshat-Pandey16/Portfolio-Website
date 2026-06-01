@@ -5,10 +5,11 @@ import { ThemeContext, type Theme } from './theme-context';
 const STORAGE_KEY = 'portfolio-theme';
 
 function getInitialTheme(): Theme {
-  if (typeof window === 'undefined') return 'light';
+  if (typeof window === 'undefined') return 'dark';
   const stored = window.localStorage.getItem(STORAGE_KEY);
   if (stored === 'light' || stored === 'dark') return stored;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  // dark-first: default to the night deck unless the OS explicitly asks for light
+  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 }
 
 type ViewTransitionDocument = Document & {

@@ -3,11 +3,32 @@ import { FiArrowUpRight, FiGithub } from 'react-icons/fi';
 import { AnimatePresence, motion } from 'motion/react';
 import type { Project } from '../lib/data';
 import { Section } from '../components/Section';
-import { PROJECTS } from '../lib/data';
+import { PROJECTS, LAB_REPOS, GITHUB_URL } from '../lib/data';
 import { cn } from '../lib/cn';
 import { useTilt } from '../hooks/useTilt';
+import { VIEWPORT } from '../lib/motion';
 
 const ALL = 'All';
+
+const STATUS_STYLES: Record<Project['status'], string> = {
+  live: 'text-[var(--accent)] border-[var(--accent)]/40 bg-[var(--accent-soft)]',
+  active: 'text-[var(--cyan)] border-[var(--cyan)]/40 bg-[color-mix(in_oklch,var(--cyan)_14%,transparent)]',
+  shipped: 'text-[var(--fg-muted)] border-[var(--border-strong)] bg-[var(--bg-sunken)]',
+};
+
+function StatusChip({ status }: { status: Project['status'] }) {
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em]',
+        STATUS_STYLES[status],
+      )}
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-current" />
+      {status}
+    </span>
+  );
+}
 
 function ProjectCard({
   project,
@@ -18,10 +39,7 @@ function ProjectCard({
   variant?: 'feature' | 'small';
   index: number;
 }) {
-  const ref = useTilt<HTMLAnchorElement>({
-    max: variant === 'feature' ? 5 : 7,
-    scale: 1.015,
-  });
+  const ref = useTilt<HTMLAnchorElement>({ max: variant === 'feature' ? 4 : 6, scale: 1.012 });
 
   return (
     <motion.a
@@ -33,12 +51,12 @@ function ProjectCard({
       layout
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-80px' }}
+      viewport={VIEWPORT}
       transition={{ duration: 0.45, ease: 'easeOut', delay: index * 0.04 }}
       style={{ transformStyle: 'preserve-3d' }}
       className={cn(
-        'group surface relative flex h-full flex-col overflow-hidden rounded-3xl transition-[box-shadow,border-color] duration-300',
-        'hover:border-[var(--border-strong)] hover:shadow-xl hover:shadow-black/10',
+        'group panel relative flex h-full flex-col overflow-hidden rounded-2xl transition-[box-shadow,border-color] duration-300',
+        'hover:border-[var(--border-strong)] hover:shadow-[0_24px_60px_-30px_rgba(0,0,0,0.55)]',
         variant === 'feature' && 'lg:row-span-2',
       )}
     >
@@ -47,15 +65,10 @@ function ProjectCard({
         className="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
           background:
-            'radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), color-mix(in oklch, var(--accent) 14%, transparent), transparent 70%)',
+            'radial-gradient(220px circle at var(--mx,50%) var(--my,50%), color-mix(in oklch, var(--accent) 13%, transparent), transparent 70%)',
         }}
       />
-      <div
-        className={cn(
-          'relative overflow-hidden',
-          variant === 'feature' ? 'aspect-[16/11]' : 'aspect-[16/10]',
-        )}
-      >
+      <div className={cn('relative overflow-hidden', variant === 'feature' ? 'aspect-[16/11]' : 'aspect-[16/10]')}>
         <img
           src={project.image}
           alt={`${project.title} preview`}
@@ -63,33 +76,16 @@ function ProjectCard({
           decoding="async"
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
-        <span className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.16em] text-white backdrop-blur">
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg)] via-[var(--bg)]/20 to-transparent" />
+        <span className="absolute right-3 top-3 inline-flex items-center rounded-full bg-black/45 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-white backdrop-blur">
           {project.year}
         </span>
-        {project.featured && (
-          <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--accent)] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--accent-fg)] shadow-lg shadow-black/20">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--accent-fg)]/60 opacity-75" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--accent-fg)]" />
-            </span>
-            Featured
-          </span>
-        )}
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-black/80 to-transparent p-6 text-xs font-mono uppercase tracking-[0.18em] text-white/90 transition-transform duration-500 group-hover:translate-y-0"
-        >
-          Open repository →
+        <span className="absolute left-3 top-3">
+          <StatusChip status={project.status} />
         </span>
       </div>
 
-      <div
-        className={cn(
-          'flex flex-1 flex-col gap-4 p-6',
-          variant === 'feature' && 'sm:p-8',
-        )}
-      >
+      <div className={cn('flex flex-1 flex-col gap-4 p-5', variant === 'feature' && 'sm:p-7')}>
         <div className="flex items-start justify-between gap-3">
           <h3
             className={cn(
@@ -99,7 +95,7 @@ function ProjectCard({
           >
             {project.title}
           </h3>
-          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border)] text-[var(--fg-muted)] transition-all duration-200 group-hover:rotate-45 group-hover:border-[var(--accent)] group-hover:bg-[var(--accent)] group-hover:text-[var(--accent-fg)]">
+          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border)] text-[var(--fg-muted)] transition-all duration-200 group-hover:rotate-45 group-hover:border-[var(--accent)] group-hover:bg-[var(--accent)] group-hover:text-[var(--accent-fg)]">
             <FiArrowUpRight className="h-4 w-4" />
           </span>
         </div>
@@ -111,22 +107,60 @@ function ProjectCard({
         >
           {project.blurb}
         </p>
-        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-2">
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-1">
           <ul className="flex flex-wrap gap-1.5">
             {project.tags.map((tag) => (
               <li
                 key={tag}
-                className="rounded-full border border-[var(--border)] bg-[var(--bg-sunken)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--fg-muted)]"
+                className="rounded-md border border-[var(--border)] bg-[var(--bg-sunken)] px-2 py-0.5 font-mono text-[10px] text-[var(--fg-muted)]"
               >
                 {tag}
               </li>
             ))}
           </ul>
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--fg-muted)]">
+          <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[var(--fg-muted)]">
             <FiGithub className="h-3.5 w-3.5" />
-            View source
+            source
           </span>
         </div>
+      </div>
+    </motion.a>
+  );
+}
+
+function LabCard({ project, index }: { project: Project; index: number }) {
+  return (
+    <motion.a
+      href={project.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`${project.title} — open repository`}
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={VIEWPORT}
+      transition={{ duration: 0.4, delay: index * 0.05 }}
+      className="group panel spotlight flex h-full flex-col rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--accent)]"
+    >
+      <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] pb-3 font-mono text-[11px]">
+        <span className="inline-flex items-center gap-2 text-[var(--fg-muted)]">
+          <span className="text-[var(--accent)]">$</span>
+          {project.title}
+        </span>
+        <StatusChip status={project.status} />
+      </div>
+      <p className="mt-3 flex-1 text-sm leading-relaxed text-[var(--fg-muted)]">{project.blurb}</p>
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <ul className="flex flex-wrap gap-1.5">
+          {project.tags.map((tag) => (
+            <li
+              key={tag}
+              className="rounded-md border border-[var(--border)] bg-[var(--bg-sunken)] px-2 py-0.5 font-mono text-[10px] text-[var(--fg-muted)]"
+            >
+              {tag}
+            </li>
+          ))}
+        </ul>
+        <FiArrowUpRight className="h-4 w-4 text-[var(--fg-muted)] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--accent)]" />
       </div>
     </motion.a>
   );
@@ -152,28 +186,29 @@ export function Projects() {
   return (
     <Section
       id="projects"
-      eyebrow="Selected work"
+      index="03"
+      channel="Services"
       title={
         <>
-          Things I have <em className="italic text-[var(--accent)]">built.</em>
+          Things I&apos;ve shipped <span className="text-[var(--accent)]">into the world.</span>
         </>
       }
-      description="A short list of work I am happy to show. Each one taught me something different."
+      description="A short list of work I'm happy to show. Each one is open source — and each taught me something different."
       container="wide"
       headerAside={
         <a
-          href="https://github.com/Akshat-Pandey16"
+          href={GITHUB_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="group inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--bg-elev)] px-5 py-3 text-sm font-semibold text-[var(--fg)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
+          className="group inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--bg-elev)] px-5 py-3 font-mono text-sm text-[var(--fg)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
         >
           <FiGithub className="h-4 w-4" />
-          See everything on GitHub
+          all repositories
           <FiArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
         </a>
       }
     >
-      <ul className="mb-6 flex flex-wrap gap-2" role="tablist" aria-label="Filter projects by tag">
+      <ul className="mb-6 flex flex-wrap gap-2" role="tablist" aria-label="Filter services by capability">
         {tags.map((tag) => {
           const active = filter === tag;
           return (
@@ -184,7 +219,7 @@ export function Projects() {
                 aria-selected={active}
                 onClick={() => setFilter(tag)}
                 className={cn(
-                  'relative rounded-full px-4 py-1.5 text-xs font-medium transition-colors',
+                  'relative rounded-md px-3.5 py-1.5 font-mono text-[12px] transition-colors',
                   active
                     ? 'text-[var(--accent-fg)]'
                     : 'border border-[var(--border)] bg-[var(--bg-elev)] text-[var(--fg-muted)] hover:border-[var(--border-strong)] hover:text-[var(--fg)]',
@@ -193,7 +228,7 @@ export function Projects() {
                 {active && (
                   <motion.span
                     layoutId="project-filter-pill"
-                    className="absolute inset-0 -z-10 rounded-full bg-[var(--accent)]"
+                    className="absolute inset-0 -z-10 rounded-md bg-[var(--accent)]"
                     transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                   />
                 )}
@@ -220,11 +255,23 @@ export function Projects() {
             ))}
           </motion.div>
         ) : (
-          <p className="rounded-2xl border border-dashed border-[var(--border)] p-10 text-center text-sm text-[var(--fg-muted)]">
-            Nothing here yet for <span className="font-mono">{filter}</span>. Try another tag.
+          <p className="rounded-2xl border border-dashed border-[var(--border)] p-10 text-center font-mono text-sm text-[var(--fg-muted)]">
+            no services tagged <span className="text-[var(--accent)]">{filter}</span>. try another.
           </p>
         )}
       </AnimatePresence>
+
+      {/* lab — backend foundations */}
+      <div className="mt-12">
+        <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--fg-subtle)]">
+          // lab · backend foundations
+        </p>
+        <div className="grid gap-5 sm:grid-cols-2">
+          {LAB_REPOS.map((repo, i) => (
+            <LabCard key={repo.title} project={repo} index={i} />
+          ))}
+        </div>
+      </div>
     </Section>
   );
 }

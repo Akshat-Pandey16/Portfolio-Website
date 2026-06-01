@@ -1,36 +1,34 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
+  FiActivity,
   FiCheck,
-  FiCommand,
-  FiCornerDownLeft,
   FiCopy,
+  FiCornerDownLeft,
   FiDownload,
   FiGithub,
   FiLinkedin,
   FiMail,
   FiMoon,
-  FiSearch,
   FiSun,
+  FiChevronRight,
 } from 'react-icons/fi';
 import type { IconType } from 'react-icons';
-import { EMAIL, NAV_SECTIONS, RESUME_URL } from '../lib/data';
+import { EMAIL, GITHUB_URL, LINKEDIN_URL, NAV_SECTIONS, RESUME_URL } from '../lib/data';
 import { useTheme } from '../hooks/useTheme';
+import { scrollToId, scrollToTop } from '../lib/scroll';
 import { cn } from '../lib/cn';
 
+type Group = 'Navigate' | 'Execute' | 'Links';
 type Action = {
   id: string;
   label: string;
   hint?: string;
   keywords?: string;
-  group: 'Jump to' | 'Quick actions' | 'Profiles';
+  group: Group;
   Icon: IconType;
   run: () => void | Promise<void>;
 };
-
-function scrollToSection(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
@@ -58,33 +56,33 @@ export function CommandPalette() {
   }, []);
 
   const actions = useMemo<Action[]>(() => {
-    const jumps: Action[] = [
-      { id: 'jump-hero', label: 'Top', group: 'Jump to', Icon: FiSearch, run: () => scrollToSection('hero') },
+    const navigate: Action[] = [
+      { id: 'jump-hero', label: 'Top of deck', group: 'Navigate', Icon: FiChevronRight, run: () => scrollToTop() },
       ...NAV_SECTIONS.map((s) => ({
         id: `jump-${s.id}`,
         label: s.label,
-        group: 'Jump to' as const,
-        Icon: FiSearch,
-        run: () => scrollToSection(s.id),
+        group: 'Navigate' as const,
+        Icon: FiChevronRight,
+        run: () => scrollToId(s.id),
       })),
     ];
 
-    const quick: Action[] = [
+    const execute: Action[] = [
       {
         id: 'copy-email',
         label: 'Copy email address',
         hint: EMAIL,
         keywords: 'mail contact reach',
-        group: 'Quick actions',
+        group: 'Execute',
         Icon: copied ? FiCheck : FiCopy,
         run: () => copyEmail(),
       },
       {
         id: 'send-email',
-        label: 'Send email',
+        label: 'Open mail uplink',
         hint: `mailto:${EMAIL}`,
-        keywords: 'gmail message write',
-        group: 'Quick actions',
+        keywords: 'gmail message write send',
+        group: 'Execute',
         Icon: FiMail,
         run: () => {
           window.location.href = `mailto:${EMAIL}`;
@@ -92,10 +90,10 @@ export function CommandPalette() {
       },
       {
         id: 'open-resume',
-        label: 'Open résumé',
-        hint: 'Google Drive · PDF',
-        keywords: 'cv pdf download',
-        group: 'Quick actions',
+        label: 'Download résumé',
+        hint: 'PDF · Google Drive',
+        keywords: 'cv pdf',
+        group: 'Execute',
         Icon: FiDownload,
         run: () => {
           window.open(RESUME_URL, '_blank', 'noopener,noreferrer');
@@ -103,24 +101,33 @@ export function CommandPalette() {
       },
       {
         id: 'toggle-theme',
-        label: isDark ? 'Switch to light mode' : 'Switch to dark mode',
-        keywords: 'dark light theme appearance',
-        group: 'Quick actions',
+        label: isDark ? 'Switch to daylight ops' : 'Switch to night deck',
+        keywords: 'dark light theme appearance mode',
+        group: 'Execute',
         Icon: isDark ? FiSun : FiMoon,
         run: () => toggleTheme(),
       },
+      {
+        id: 'run-diagnostics',
+        label: 'Run system diagnostics',
+        hint: 'all subsystems',
+        keywords: 'easter egg test check konami',
+        group: 'Execute',
+        Icon: FiActivity,
+        run: () => window.dispatchEvent(new CustomEvent('diagnostics:run')),
+      },
     ];
 
-    const profiles: Action[] = [
+    const links: Action[] = [
       {
         id: 'open-github',
         label: 'GitHub',
         hint: 'github.com/Akshat-Pandey16',
-        keywords: 'code repos',
-        group: 'Profiles',
+        keywords: 'code repos source',
+        group: 'Links',
         Icon: FiGithub,
         run: () => {
-          window.open('https://github.com/Akshat-Pandey16', '_blank', 'noopener,noreferrer');
+          window.open(GITHUB_URL, '_blank', 'noopener,noreferrer');
         },
       },
       {
@@ -128,15 +135,15 @@ export function CommandPalette() {
         label: 'LinkedIn',
         hint: 'linkedin.com/in/akshat16pandey',
         keywords: 'profile work',
-        group: 'Profiles',
+        group: 'Links',
         Icon: FiLinkedin,
         run: () => {
-          window.open('https://www.linkedin.com/in/akshat16pandey/', '_blank', 'noopener,noreferrer');
+          window.open(LINKEDIN_URL, '_blank', 'noopener,noreferrer');
         },
       },
     ];
 
-    return [...jumps, ...quick, ...profiles];
+    return [...navigate, ...execute, ...links];
   }, [copied, copyEmail, isDark, toggleTheme]);
 
   const filtered = useMemo(() => {
@@ -148,7 +155,7 @@ export function CommandPalette() {
   }, [query, actions]);
 
   const grouped = useMemo(() => {
-    const map = new Map<Action['group'], Action[]>();
+    const map = new Map<Group, Action[]>();
     for (const a of filtered) {
       if (!map.has(a.group)) map.set(a.group, []);
       map.get(a.group)!.push(a);
@@ -196,9 +203,7 @@ export function CommandPalette() {
   const handleSelect = useCallback(
     async (action: Action) => {
       await action.run();
-      if (action.id !== 'copy-email' && action.id !== 'toggle-theme') {
-        close();
-      }
+      if (action.id !== 'copy-email' && action.id !== 'toggle-theme') close();
     },
     [close],
   );
@@ -226,38 +231,38 @@ export function CommandPalette() {
     <AnimatePresence>
       {open && (
         <motion.div
-          key="palette"
+          key="console"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
-          className="fixed inset-0 z-[80] flex items-start justify-center px-4 pt-[12vh] sm:pt-[16vh]"
+          className="fixed inset-0 z-[80] flex items-start justify-center px-4 pt-[12vh] sm:pt-[15vh]"
           aria-modal
           role="dialog"
-          aria-label="Command palette"
+          aria-label="Command console"
         >
           <button
             type="button"
-            aria-label="Close palette"
+            aria-label="Close console"
             onClick={close}
-            className="absolute inset-0 -z-10 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 -z-10 bg-[color-mix(in_oklch,var(--bg-sunken)_60%,transparent)] backdrop-blur-sm"
           />
           <motion.div
             initial={{ opacity: 0, y: -10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.98 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
-            className="w-full max-w-xl overflow-hidden rounded-2xl border border-[var(--border-strong)] bg-[var(--bg-elev)] shadow-2xl shadow-black/30"
+            className="bracketed w-full max-w-xl overflow-hidden rounded-2xl border border-[var(--border-strong)] bg-[var(--bg-elev)] shadow-2xl shadow-black/40"
           >
-            <div className="flex items-center gap-3 border-b border-[var(--border)] px-4">
-              <FiSearch className="h-4 w-4 shrink-0 text-[var(--fg-subtle)]" />
+            <div className="flex items-center gap-2.5 border-b border-[var(--border)] px-4">
+              <span className="font-mono text-sm font-bold text-[var(--accent)]">$</span>
               <input
                 ref={inputRef}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={onInputKey}
-                placeholder="Type a command, or search…"
-                className="w-full bg-transparent py-4 text-sm text-[var(--fg)] placeholder:text-[var(--fg-subtle)] focus:outline-none"
+                placeholder="type a command…"
+                className="w-full bg-transparent py-4 font-mono text-sm text-[var(--fg)] placeholder:text-[var(--fg-subtle)] focus:outline-none"
                 autoComplete="off"
                 spellCheck={false}
               />
@@ -266,15 +271,15 @@ export function CommandPalette() {
               </kbd>
             </div>
 
-            <ul ref={listRef} className="max-h-[55vh] overflow-y-auto p-2">
+            <ul ref={listRef} data-lenis-prevent className="max-h-[52vh] overflow-y-auto p-2">
               {grouped.length === 0 && (
-                <li className="px-3 py-6 text-center text-sm text-[var(--fg-subtle)]">
-                  Nothing matches that. Try jumping to a section name.
+                <li className="px-3 py-6 text-center font-mono text-sm text-[var(--fg-subtle)]">
+                  no command matches. try a section name.
                 </li>
               )}
               {grouped.map(([group, items]) => (
                 <li key={group} className="mb-1">
-                  <p className="px-3 pb-1 pt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--fg-subtle)]">
+                  <p className="px-3 pb-1 pt-2 font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--fg-subtle)]">
                     {group}
                   </p>
                   <ul>
@@ -291,7 +296,7 @@ export function CommandPalette() {
                             className={cn(
                               'group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors',
                               isActive
-                                ? 'bg-[color-mix(in_oklch,var(--accent)_14%,transparent)] text-[var(--fg)]'
+                                ? 'bg-[var(--accent-soft)] text-[var(--fg)]'
                                 : 'text-[var(--fg-muted)] hover:bg-[var(--bg-sunken)]',
                             )}
                           >
@@ -329,17 +334,14 @@ export function CommandPalette() {
               <span className="flex items-center gap-3">
                 <span className="inline-flex items-center gap-1">
                   <kbd className="rounded border border-[var(--border)] bg-[var(--bg)] px-1.5 py-0.5">↑↓</kbd>
-                  navigate
+                  move
                 </span>
                 <span className="inline-flex items-center gap-1">
                   <kbd className="rounded border border-[var(--border)] bg-[var(--bg)] px-1.5 py-0.5">↵</kbd>
-                  select
+                  run
                 </span>
               </span>
-              <span className="inline-flex items-center gap-1.5">
-                <FiCommand className="h-3 w-3" />
-                <span>K to open</span>
-              </span>
+              <span>akshat.sys · console</span>
             </div>
           </motion.div>
         </motion.div>
