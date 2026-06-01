@@ -4,10 +4,11 @@ import { prefersReducedMotion } from '../lib/motion';
 
 /*
   The "telemetry field" — a GPU fragment-shader backdrop: a slow flowing
-  noise nebula tinted mint↔cyan, a faint radar grid, a drifting sweep band
-  and pointer parallax. Single fullscreen triangle, ~5-octave value-noise.
-  Adaptive DPR, pauses when the tab is hidden, freezes (still pretty) under
-  prefers-reduced-motion, and degrades to a CSS gradient if WebGL is absent.
+  noise nebula tinted mint↔cyan, a faint radar grid and pointer parallax.
+  Tuned to be cheap: 3-octave noise, sub-1 render scale (it's a soft field,
+  upscaling is invisible), ~30fps throttle, pauses when the tab is hidden,
+  freezes (still pretty) under prefers-reduced-motion, and degrades to the
+  CSS grid if WebGL is unavailable.
 */
 
 // sRGB 0-1 palettes per theme: [base bg, mint, cyan]
@@ -18,8 +19,8 @@ const DARK = {
 } as const;
 const LIGHT = {
   bg: [0.953, 0.961, 0.976],
-  mint: [0.1, 0.62, 0.45],
-  cyan: [0.12, 0.5, 0.72],
+  mint: [0.2, 0.62, 0.46],
+  cyan: [0.22, 0.52, 0.74],
 } as const;
 
 const vertex = /* glsl */ `
@@ -33,7 +34,7 @@ const vertex = /* glsl */ `
 `;
 
 const fragment = /* glsl */ `
-  precision highp float;
+  precision mediump float;
   uniform float uTime;
   uniform float uDark;
   uniform float uReveal;
@@ -61,7 +62,7 @@ const fragment = /* glsl */ `
   float fbm(vec2 p) {
     float v = 0.0, a = 0.5;
     mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 3; i++) {
       v += a * noise(p);
       p = m * p;
       a *= 0.5;
@@ -78,32 +79,31 @@ const fragment = /* glsl */ `
     vec2 q = p - par * 0.06;
     float t = uTime * 0.035;
 
-    // flowing nebula
-    vec2 warp = vec2(fbm(q * 1.6 + t), fbm(q * 1.6 - t + 5.2));
-    float field = fbm(q * 1.7 + warp * 1.4 + vec2(0.0, -t * 1.5));
+    // flowing nebula (cheap: scalar warp + one field)
+    float warp = fbm(q * 1.5 + t);
+    float field = fbm(q * 1.7 + warp * 1.2 + vec2(0.0, -t * 1.3));
     field = smoothstep(0.12, 0.95, field);
 
-    // two-tone tint selection
-    float mixv = smoothstep(0.2, 0.85, fbm(q * 1.1 - t + 2.0));
+    float mixv = smoothstep(0.2, 0.85, fbm(q * 1.0 - t + 2.0));
     vec3 tint = mix(uCyan, uMint, mixv);
 
     // faint radar grid, drifting
     vec2 gp = fract(q * 5.0 + vec2(par.x * 0.4, t * 1.4)) - 0.5;
-    float grid = smoothstep(0.028, 0.0, abs(gp.x)) + smoothstep(0.028, 0.0, abs(gp.y));
+    float grid = smoothstep(0.03, 0.0, abs(gp.x)) + smoothstep(0.03, 0.0, abs(gp.y));
 
-    // slow diagonal sweep
-    float band = sin((uv.x + uv.y) * 3.2 - uTime * 0.45);
-    band = smoothstep(0.75, 1.0, band);
+    // dark: additive glow over deep navy
+    float band = smoothstep(0.75, 1.0, sin((uv.x + uv.y) * 3.2 - uTime * 0.45));
+    vec3 darkCol = uBg + tint * field * 0.42 + tint * grid * 0.05 + uMint * band * 0.03;
 
-    vec3 col = uBg;
-    col += tint * field * mix(0.07, 0.4, uDark);
-    col += tint * grid * mix(0.02, 0.055, uDark);
-    col += uMint * band * mix(0.012, 0.03, uDark);
+    // light: visible soft colored wash (mix toward medium tint)
+    vec3 lightCol = mix(uBg, tint, field * 0.22);
+    lightCol = mix(lightCol, tint * 0.65, grid * 0.12);
 
-    // vignette: darken edges in dark, lighten center in light
+    vec3 col = mix(lightCol, darkCol, uDark);
+
+    // vignette: darken edges in dark only
     float vig = smoothstep(1.35, 0.25, length(p));
-    col *= mix(1.0, mix(0.62, 1.06, vig), uDark);
-    col = mix(col, col + (1.0 - vig) * 0.015, 1.0 - uDark);
+    col *= mix(1.0, mix(0.6, 1.05, vig), uDark);
 
     col = mix(uBg, col, uReveal);
     gl_FragColor = vec4(col, 1.0);
@@ -120,14 +120,16 @@ export function DeckBackground() {
     let isDarkNow = document.documentElement.classList.contains('dark');
     const reduced = prefersReducedMotion();
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    const maxDpr = isMobile ? 1 : 1.3;
+    // sub-1 render scale: the field is soft, so upscaling a low-res buffer is
+    // invisible but roughly halves fragment-shader cost.
+    const renderScale = isMobile ? 0.6 : 0.75;
 
     let renderer: Renderer;
     try {
       renderer = new Renderer({
         alpha: false,
         antialias: false,
-        dpr: Math.min(window.devicePixelRatio || 1, maxDpr),
+        dpr: renderScale,
         powerPreference: 'low-power',
       });
     } catch {
@@ -162,15 +164,14 @@ export function DeckBackground() {
     const mesh = new Mesh(gl, { geometry: new Triangle(gl), program });
 
     const resize = () => {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      renderer.setSize(w, h);
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
       program.uniforms.uResolution.value = [gl.drawingBufferWidth, gl.drawingBufferHeight];
     };
     resize();
     window.addEventListener('resize', resize, { passive: true });
 
-    // pointer parallax (smoothed)
     const ptrTarget = { x: 0.5, y: 0.5 };
     const ptr = { x: 0.5, y: 0.5 };
     const onPointer = (e: PointerEvent) => {
@@ -179,7 +180,6 @@ export function DeckBackground() {
     };
     if (!reduced) window.addEventListener('pointermove', onPointer, { passive: true });
 
-    // theme sync without reinit
     const applyTheme = () => {
       const pal = isDarkNow ? DARK : LIGHT;
       program.uniforms.uDark.value = isDarkNow ? 1 : 0;
@@ -199,20 +199,23 @@ export function DeckBackground() {
     let raf = 0;
     let running = true;
     const start = performance.now();
+    let lastFrame = 0;
+    const FRAME_MS = 33; // ~30fps is plenty for a slow field, and gentle on the GPU
 
     const render = (now: number) => {
       raf = requestAnimationFrame(render);
-      // soft pointer lerp
-      ptr.x += (ptrTarget.x - ptr.x) * 0.06;
-      ptr.y += (ptrTarget.y - ptr.y) * 0.06;
+      if (now - lastFrame < FRAME_MS) return;
+      lastFrame = now;
+
+      ptr.x += (ptrTarget.x - ptr.x) * 0.08;
+      ptr.y += (ptrTarget.y - ptr.y) * 0.08;
       program.uniforms.uPointer.value = [ptr.x, ptr.y];
 
       const elapsed = (now - start) / 1000;
-      // reveal fade-in over ~1.1s
       program.uniforms.uReveal.value = Math.min(1, elapsed / 1.1);
 
       if (reduced) {
-        program.uniforms.uTime.value = 12; // frozen, but a pretty frame
+        program.uniforms.uTime.value = 12;
         renderer.render({ scene: mesh });
         if (program.uniforms.uReveal.value >= 1) {
           cancelAnimationFrame(raf);
@@ -232,6 +235,7 @@ export function DeckBackground() {
         running = false;
       } else if (!running && !reduced) {
         running = true;
+        lastFrame = 0;
         raf = requestAnimationFrame(render);
       }
     };

@@ -85,7 +85,7 @@
     --coral: var(--color-coral-500);
 
     --ring: var(--color-accent-700);
-    --scrollbar-thumb: oklch(70% 0.03 245);
+    --scrollbar-thumb: oklch(20% 0.04 258 / 0.26);
 
     color-scheme: light;
   }
@@ -112,7 +112,7 @@
     --coral: var(--color-coral-400);
 
     --ring: var(--color-accent-400);
-    --scrollbar-thumb: oklch(34% 0.02 255);
+    --scrollbar-thumb: oklch(100% 0 0 / 0.15);
 
     color-scheme: dark;
   }
@@ -193,14 +193,14 @@
     border-radius: 4px;
   }
 
-  *::-webkit-scrollbar { width: 9px; height: 9px; }
+  /* near-invisible scrollbar that only reveals on hover */
+  *::-webkit-scrollbar { width: 6px; height: 6px; }
   *::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb);
+    background-color: transparent;
     border-radius: 999px;
-    border: 2px solid transparent;
-    background-clip: padding-box;
     transition: background-color 200ms ease;
   }
+  *:hover::-webkit-scrollbar-thumb { background-color: var(--scrollbar-thumb); }
   *::-webkit-scrollbar-thumb:hover { background-color: var(--accent); }
   *::-webkit-scrollbar-track { background-color: transparent; }
   *::-webkit-scrollbar-corner { background: transparent; }
@@ -358,39 +358,6 @@
     linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
   background-size: 60px 60px;
 }
-
-/* fine scanline texture over the whole deck */
-.scanlines {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 2;
-  opacity: 0.4;
-  background-image: repeating-linear-gradient(
-    0deg,
-    color-mix(in oklch, var(--fg) 5%, transparent) 0px,
-    color-mix(in oklch, var(--fg) 5%, transparent) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-  mix-blend-mode: overlay;
-}
-.dark .scanlines { opacity: 0.5; }
-@media (prefers-reduced-motion: reduce) {
-  .scanlines { display: none; }
-}
-
-/* fine grain noise overlay */
-.noise-layer {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  opacity: 0.04;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-}
-.dark .noise-layer { opacity: 0.06; mix-blend-mode: soft-light; }
 
 /* ───────────────────────────── animations ──────────────────────── */
 @keyframes marquee {

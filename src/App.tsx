@@ -37,8 +37,6 @@ export function App() {
       <Suspense fallback={null}>
         <DeckBackground />
       </Suspense>
-      <div className="noise-layer" aria-hidden />
-      <div className="scanlines" aria-hidden />
       <Reticle />
       <ScrollProgress />
       <Suspense fallback={null}>
