@@ -10,7 +10,7 @@ export function Experience() {
   return (
     <Section
       id="experience"
-      index="03"
+      index="02"
       channel="Deployment"
       plain="Experience"
       title={

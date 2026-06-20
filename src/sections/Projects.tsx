@@ -189,7 +189,7 @@ export function Projects() {
   return (
     <Section
       id="projects"
-      index="02"
+      index="03"
       channel="Services"
       plain="Projects"
       title={

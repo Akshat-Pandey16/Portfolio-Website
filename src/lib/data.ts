@@ -19,8 +19,6 @@ import Sb from '../assets/projects/SB.webp';
 import Mh from '../assets/projects/MH.webp';
 import Ht from '../assets/projects/HT.webp';
 import Hc from '../assets/projects/HC.webp';
-import DrdoLogo from '../assets/internships/DRDO.webp';
-import SailLogo from '../assets/internships/SAIL.webp';
 
 export const EMAIL = 'akshat16pandey@gmail.com';
 export const GITHUB_USER = 'Akshat-Pandey16';
@@ -46,8 +44,8 @@ export type NavSection = { id: string; label: string; plain: string };
 
 export const NAV_SECTIONS: NavSection[] = [
   { id: 'about', label: 'Profile', plain: 'About' },
-  { id: 'projects', label: 'Services', plain: 'Projects' },
   { id: 'experience', label: 'Deployment', plain: 'Experience' },
+  { id: 'projects', label: 'Services', plain: 'Projects' },
   { id: 'skills', label: 'Stack', plain: 'Skills' },
   { id: 'why-hire', label: 'Runbook', plain: 'Why hire me' },
   { id: 'contact', label: 'Uplink', plain: 'Contact' },
@@ -88,48 +86,6 @@ export const EXPERIENCES: Experience[] = [
       { label: 'role', value: 'backend' },
       { label: 'domain', value: 'video AI' },
     ],
-  },
-  {
-    organization: 'Steel Authority of India',
-    role: 'Flutter Developer Intern',
-    period: '2023',
-    location: 'SAIL · India',
-    status: 'shipped',
-    description:
-      'Built a cross-platform mobile app that streamlined maintenance workflows across plant operations at one of India’s largest public-sector steel producers.',
-    highlights: [
-      'Shipped the Flutter client end to end against an in-house Node.js API.',
-      'Modelled the data layer on top of an existing OracleDB without breaking legacy systems.',
-      'Worked across engineering teams to scope, validate and hand off the build.',
-    ],
-    stack: ['Flutter', 'Node.js', 'OracleDB'],
-    metrics: [
-      { label: 'year', value: '2023' },
-      { label: 'role', value: 'mobile' },
-      { label: 'domain', value: 'plant ops' },
-    ],
-    logo: SailLogo,
-    link: 'https://github.com/Akshat-Pandey16/MES-SAIL',
-  },
-  {
-    organization: 'DRDO',
-    role: 'Research & Development Intern',
-    period: '2022',
-    location: 'Defence R&D Organisation · India',
-    status: 'shipped',
-    description:
-      'Worked on terrain-analysis pipelines for India’s premier defence research agency, accelerating ridge and spur detection for downstream geospatial research.',
-    highlights: [
-      'Built Python tooling around QGIS to automate DEM (Digital Elevation Model) processing.',
-      'Turned researcher intent into reproducible scripts the team could run unattended.',
-    ],
-    stack: ['Python', 'QGIS', 'Geospatial'],
-    metrics: [
-      { label: 'year', value: '2022' },
-      { label: 'role', value: 'research' },
-      { label: 'domain', value: 'geospatial' },
-    ],
-    logo: DrdoLogo,
   },
 ];
 

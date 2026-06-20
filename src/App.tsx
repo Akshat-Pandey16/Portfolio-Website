@@ -7,8 +7,8 @@ import { ScrollProgress } from './components/ScrollProgress';
 import { useSmoothScroll } from './hooks/useSmoothScroll';
 import { Hero } from './sections/Hero';
 import { About } from './sections/About';
-import { Projects } from './sections/Projects';
 import { Experience } from './sections/Experience';
+import { Projects } from './sections/Projects';
 import { Skills } from './sections/Skills';
 import { WhyHire } from './sections/WhyHire';
 import { Contact } from './sections/Contact';
@@ -53,8 +53,8 @@ export function App() {
       <main className="relative z-10">
         <Hero />
         <About />
-        <Projects />
         <Experience />
+        <Projects />
         <Skills />
         <WhyHire />
         <Contact />
