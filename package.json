@@ -11,7 +11,8 @@
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "bun run build && bunx wrangler pages deploy dist --project-name=portfolio-website"
   },
   "dependencies": {
     "clsx": "^2.1.1",
