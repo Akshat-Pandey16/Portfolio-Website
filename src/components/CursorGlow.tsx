@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion, useMotionValue, useSpring } from 'motion/react';
 import { isFinePointer, prefersReducedMotion } from '../lib/motion';
 
-const SIZE = 760; // px — the glow's diameter
+const SIZE = 560; // px — the glow's diameter (kept modest to limit repaint cost)
 
 /**
  * A soft accent light that trails the cursor across the WHOLE deck. It's a
