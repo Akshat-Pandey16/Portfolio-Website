@@ -23,6 +23,9 @@ const CommandPalette = lazy(() =>
 const EasterEgg = lazy(() =>
   import('./components/EasterEgg').then((m) => ({ default: m.EasterEgg })),
 );
+const ResumeModal = lazy(() =>
+  import('./components/ResumeModal').then((m) => ({ default: m.ResumeModal })),
+);
 
 export function App() {
   useSmoothScroll();
@@ -44,6 +47,7 @@ export function App() {
       <Suspense fallback={null}>
         <CommandPalette />
         <EasterEgg />
+        <ResumeModal />
       </Suspense>
       <Navbar />
       <main className="relative z-10">

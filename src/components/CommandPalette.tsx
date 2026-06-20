@@ -14,9 +14,10 @@ import {
   FiChevronRight,
 } from 'react-icons/fi';
 import type { IconType } from 'react-icons';
-import { EMAIL, GITHUB_URL, LINKEDIN_URL, NAV_SECTIONS, RESUME_URL } from '../lib/data';
+import { EMAIL, GITHUB_URL, LINKEDIN_URL, NAV_SECTIONS } from '../lib/data';
 import { useTheme } from '../hooks/useTheme';
 import { scrollToId, scrollToTop } from '../lib/scroll';
+import { openResume } from '../lib/resume';
 import { isTypingTarget } from '../lib/dom';
 import { cn } from '../lib/cn';
 
@@ -111,14 +112,12 @@ export function CommandPalette() {
       },
       {
         id: 'open-resume',
-        label: 'Download résumé',
-        hint: 'PDF · Google Drive',
-        keywords: 'cv pdf',
+        label: 'View résumé',
+        hint: 'PDF · view & download',
+        keywords: 'cv pdf resume download',
         group: 'Execute',
         Icon: FiDownload,
-        run: () => {
-          window.open(RESUME_URL, '_blank', 'noopener,noreferrer');
-        },
+        run: () => openResume(),
       },
       {
         id: 'toggle-theme',

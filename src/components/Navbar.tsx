@@ -14,8 +14,9 @@ import {
   GITHUB_URL,
   LINKEDIN_URL,
   NAV_SECTIONS,
-  RESUME_URL,
+  RESUME_FILE,
 } from '../lib/data';
+import { onResumeClick } from '../lib/resume';
 import { useActiveSection } from '../hooks/useActiveSection';
 import { scrollToId, scrollToTop } from '../lib/scroll';
 import { ThemeToggle } from './ThemeToggle';
@@ -201,17 +202,19 @@ export function Navbar() {
               {/* primary actions — recruiters shouldn't have to hunt for these */}
               <li className="mt-1 grid grid-cols-2 gap-1 border-t border-[var(--border)] pt-2">
                 {[
-                  { href: RESUME_URL, label: 'Résumé', Icon: FiDownload, download: true, ext: true },
-                  { href: `mailto:${EMAIL}`, label: 'Email', Icon: FiMail, download: false, ext: false },
-                  { href: GITHUB_URL, label: 'GitHub', Icon: FiGithub, download: false, ext: true },
-                  { href: LINKEDIN_URL, label: 'LinkedIn', Icon: FiLinkedin, download: false, ext: true },
-                ].map(({ href, label, Icon, download, ext }) => (
+                  { href: RESUME_FILE, label: 'Résumé', Icon: FiDownload, ext: true, resume: true },
+                  { href: `mailto:${EMAIL}`, label: 'Email', Icon: FiMail, ext: false, resume: false },
+                  { href: GITHUB_URL, label: 'GitHub', Icon: FiGithub, ext: true, resume: false },
+                  { href: LINKEDIN_URL, label: 'LinkedIn', Icon: FiLinkedin, ext: true, resume: false },
+                ].map(({ href, label, Icon, ext, resume }) => (
                   <a
                     key={label}
                     href={href}
                     {...(ext ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                    {...(download ? { download: '' } : {})}
-                    onClick={() => setOpen(false)}
+                    onClick={(e) => {
+                      if (resume) onResumeClick(e);
+                      setOpen(false);
+                    }}
                     className="flex items-center gap-2.5 rounded-xl px-4 py-3 font-mono text-[13px] text-[var(--fg-muted)] transition-colors hover:bg-[var(--bg-sunken)] hover:text-[var(--fg)]"
                   >
                     <Icon className="h-4 w-4 text-[var(--accent)]" />

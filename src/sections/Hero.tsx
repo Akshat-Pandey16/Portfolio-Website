@@ -8,10 +8,11 @@ import {
   FiLinkedin,
   FiTerminal,
 } from 'react-icons/fi';
-import { AVAILABILITY, EMAIL, GITHUB_URL, LINKEDIN_URL, RESUME_URL, ROLE } from '../lib/data';
+import { AVAILABILITY, EMAIL, GITHUB_URL, LINKEDIN_URL, RESUME_FILE, ROLE } from '../lib/data';
 import { MagneticButton } from '../components/MagneticButton';
 import { useClock } from '../hooks/useClock';
 import { scrollToId } from '../lib/scroll';
+import { onResumeClick } from '../lib/resume';
 import { prefersReducedMotion } from '../lib/motion';
 
 /* real, defensible signals — no fabricated metrics */
@@ -200,10 +201,10 @@ export function Hero() {
                 <FiArrowUpRight className="relative h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
               </MagneticButton>
               <a
-                href={RESUME_URL}
+                href={RESUME_FILE}
+                onClick={onResumeClick}
                 target="_blank"
                 rel="noopener noreferrer"
-                download
                 className="group inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--bg-elev)] px-7 py-3.5 text-sm font-semibold text-[var(--fg)] transition-all duration-200 hover:border-[var(--accent)] hover:text-[var(--accent)]"
               >
                 <FiDownload className="h-4 w-4 transition-transform group-hover:translate-y-0.5" />

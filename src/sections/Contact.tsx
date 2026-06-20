@@ -13,6 +13,7 @@ import type { IconType } from 'react-icons';
 import { Section } from '../components/Section';
 import { CONTACT_LINKS, EMAIL } from '../lib/data';
 import { spotlightMove } from '../lib/spotlight';
+import { onResumeClick } from '../lib/resume';
 import { VIEWPORT } from '../lib/motion';
 
 const ICONS: Record<(typeof CONTACT_LINKS)[number]['icon'], IconType> = {
@@ -142,6 +143,7 @@ export function Contact() {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={link.icon === 'resume' ? onResumeClick : undefined}
                   className="group panel flex h-full items-center justify-between gap-4 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--accent)]"
                 >
                   <span className="flex min-w-0 items-center gap-4">

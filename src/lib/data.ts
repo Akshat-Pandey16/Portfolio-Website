@@ -30,9 +30,11 @@ export const LINKEDIN_URL = 'https://www.linkedin.com/in/akshat16pandey/';
 export const ROLE = 'Backend Engineer';
 /* honest availability — recruiters filter hard on this */
 export const AVAILABILITY = 'Remote · open to relocation';
-/* direct-download form of the Drive link so "Download résumé" actually downloads */
-export const RESUME_URL =
-  'https://drive.google.com/uc?export=download&id=15GuXe4ZxjM2FMZhDFf4CR-62Sbbe6LNS';
+/* served same-origin from /public so the in-app viewer can embed it and the
+   download button can force a filename. ⚠️ drop your PDF here:
+   public/Akshat-Pandey-Resume.pdf */
+export const RESUME_FILE = '/Akshat-Pandey-Resume.pdf';
+export const RESUME_DOWNLOAD_NAME = 'Akshat-Pandey-Resume.pdf';
 
 /* ⚠️ set this to your real deployed domain — powers canonical URL, OG/Twitter
    card, sitemap and JSON-LD. Change the one constant; everything follows. */
@@ -76,9 +78,9 @@ export const EXPERIENCES: Experience[] = [
     description:
       'I own the backend at a computer-vision and video-analytics product company — the Python services across the product line, including the core analytics engine, Ikshana — and keep frontend and feature delivery moving inside a small, fast team.',
     highlights: [
-      'Building the backend for a client-facing Video Management System — Django services with MediaMTX wired in for RTSP/WebRTC, so live camera feeds and AI analytics land in the app in real time.',
-      'Architected the data and async layers — PostgreSQL, Redis, RabbitMQ and Celery — to push video-processing and AI workloads off the request path, keeping the services responsive under load.',
-      'Built an internal MLOps pipeline (Django + React) that runs the full loop: dataset upload, auto-labeling, human verification and training / retraining, with a path to client-facing deployment.',
+      'Own the backend of a client-facing Video Management System — Django services with MediaMTX wired in for RTSP/WebRTC, streaming live camera feeds and AI analytics into the app in real time.',
+      'Moved video-processing and AI inference off the request path with Celery, RabbitMQ and Redis, so the API stays responsive while heavy jobs run asynchronously in the background.',
+      'Built an internal MLOps platform (Django + React) that runs the full loop — dataset upload, auto-labeling, human verification and re-training — so new models ship without ever leaving the tool.',
     ],
     stack: ['Python', 'Django', 'PostgreSQL', 'Redis', 'RabbitMQ', 'Celery', 'MediaMTX', 'Docker'],
     metrics: [
@@ -327,7 +329,7 @@ export type ContactLink = {
 };
 
 export const CONTACT_LINKS: ContactLink[] = [
-  { label: 'Resume', value: 'PDF · Google Drive', href: RESUME_URL, icon: 'resume' },
+  { label: 'Resume', value: 'PDF · view & download', href: RESUME_FILE, icon: 'resume' },
   { label: 'GitHub', value: 'Akshat-Pandey16', href: GITHUB_URL, icon: 'github' },
   { label: 'LinkedIn', value: 'akshat16pandey', href: LINKEDIN_URL, icon: 'linkedin' },
   { label: 'Email', value: EMAIL, href: `mailto:${EMAIL}`, icon: 'email' },
