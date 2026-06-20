@@ -120,19 +120,9 @@ export function DeckBackground() {
     let isDarkNow = document.documentElement.classList.contains('dark');
     const reduced = prefersReducedMotion();
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    const coarse = window.matchMedia('(pointer: coarse)').matches;
-
-    // Touch devices (usually weaker GPUs, and there's no pointer parallax to
-    // gain) get the cheap CSS grid instead of a full-screen fragment shader.
-    if (coarse) {
-      host.dataset.fallback = 'true';
-      return;
-    }
-
     // sub-1 render scale: the field is soft, so upscaling a low-res buffer is
-    // invisible but cuts fragment-shader cost sharply. Kept conservative so it
-    // stays smooth on integrated GPUs.
-    const renderScale = isMobile ? 0.5 : 0.6;
+    // invisible but roughly halves fragment-shader cost.
+    const renderScale = isMobile ? 0.6 : 0.75;
 
     let renderer: Renderer;
     try {
@@ -212,32 +202,10 @@ export function DeckBackground() {
     let lastFrame = 0;
     const FRAME_MS = 33; // ~30fps is plenty for a slow field, and gentle on the GPU
 
-    let rendered = 0;
-    let degraded = false;
-    const fallbackToGrid = () => {
-      if (raf) cancelAnimationFrame(raf);
-      raf = 0;
-      running = false;
-      canvas.style.display = 'none';
-      host.dataset.fallback = 'true';
-    };
-
     const render = (now: number) => {
       raf = requestAnimationFrame(render);
       if (now - lastFrame < FRAME_MS) return;
       lastFrame = now;
-
-      // FPS watchdog: if this GPU can't sustain a smooth field in the first
-      // couple seconds, drop to the cheap CSS grid instead of stuttering forever.
-      rendered += 1;
-      if (!degraded && now - start > 2200) {
-        degraded = true;
-        const fps = rendered / ((now - start) / 1000);
-        if (fps < 26) {
-          fallbackToGrid();
-          return;
-        }
-      }
 
       ptr.x += (ptrTarget.x - ptr.x) * 0.08;
       ptr.y += (ptrTarget.y - ptr.y) * 0.08;
