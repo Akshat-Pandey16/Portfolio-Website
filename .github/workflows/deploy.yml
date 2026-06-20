@@ -6,7 +6,7 @@ name: Deploy to Cloudflare Pages
 #   CLOUDFLARE_API_TOKEN  — Cloudflare dashboard → My Profile → API Tokens →
 #                           Create Token → "Edit Cloudflare Workers"/Pages:Edit
 #   CLOUDFLARE_ACCOUNT_ID — Cloudflare dashboard → Workers & Pages (right sidebar)
-# Also create the Pages project once named "portfolio-website" (or run
+# Also create the Pages project once named "akshat-pandey" (or run
 # `bun run deploy` locally the first time, which creates it).
 
 on:
@@ -38,4 +38,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=portfolio-website --branch=main
+          command: pages deploy dist --project-name=akshat-pandey --branch=main
