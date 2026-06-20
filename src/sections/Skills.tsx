@@ -11,6 +11,7 @@ export function Skills() {
       id="skills"
       index="04"
       channel="Stack"
+      plain="Skills"
       title={
         <>
           The route a request <span className="text-[var(--accent)]">travels.</span>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useInView } from 'motion/react';
+import { prefersReducedMotion } from '../lib/motion';
 
 type Props = {
   to: number;
@@ -8,11 +9,6 @@ type Props = {
   suffix?: string;
   className?: string;
 };
-
-function prefersReducedMotion() {
-  if (typeof window === 'undefined') return false;
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
 
 export function CountUp({ to, duration = 1.6, prefix = '', suffix = '', className }: Props) {
   const ref = useRef<HTMLSpanElement>(null);

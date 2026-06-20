@@ -1,30 +1,13 @@
-import { useEffect, useState } from 'react';
 import { FiArrowUp, FiGithub, FiLinkedin, FiMail } from 'react-icons/fi';
 import { GITHUB_URL, LINKEDIN_URL, EMAIL } from '../lib/data';
 import { scrollToTop } from '../lib/scroll';
+import { useClock } from '../hooks/useClock';
 
 const SOCIALS = [
   { href: GITHUB_URL, label: 'GitHub', Icon: FiGithub },
   { href: LINKEDIN_URL, label: 'LinkedIn', Icon: FiLinkedin },
   { href: `mailto:${EMAIL}`, label: 'Email', Icon: FiMail },
 ];
-
-function useClock() {
-  const fmt = () =>
-    new Intl.DateTimeFormat('en-GB', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-      timeZone: 'Asia/Kolkata',
-    }).format(new Date());
-  const [time, setTime] = useState(fmt);
-  useEffect(() => {
-    const id = window.setInterval(() => setTime(fmt()), 1000);
-    return () => window.clearInterval(id);
-  }, []);
-  return time;
-}
 
 export function Footer() {
   const clock = useClock();

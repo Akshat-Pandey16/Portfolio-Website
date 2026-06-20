@@ -3,6 +3,42 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
+  Self-hosted variable fonts — latin subset only. Importing the @fontsource
+  packages pulled every subset (cyrillic, greek, vietnamese, latin-ext) for a
+  Latin-script site; shipping just the latin axis drops ~140KB of woff2.
+*/
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/inter-latin.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Space Grotesk Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300 700;
+  src: url('/fonts/space-grotesk-latin.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+
+/*
   ════════════════════════════════════════════════════════════════════
   MISSION CONTROL — design system
   An observability / control-room language: midnight navy deck,
@@ -65,10 +101,11 @@
     --bg-elev: oklch(99.4% 0.004 235);
     --bg-sunken: oklch(94.6% 0.012 240);
     --fg: oklch(23% 0.03 258);
-    --fg-muted: oklch(44% 0.028 252);
-    --fg-subtle: oklch(56% 0.024 248);
-    --border: oklch(25% 0.04 258 / 0.12);
-    --border-strong: oklch(25% 0.04 258 / 0.24);
+    --fg-muted: oklch(42% 0.028 252);
+    /* deepened: 10px mono subtle labels were borderline for WCAG AA on the light deck */
+    --fg-subtle: oklch(49% 0.026 250);
+    --border: oklch(25% 0.04 258 / 0.14);
+    --border-strong: oklch(25% 0.04 258 / 0.26);
     --grid: oklch(45% 0.06 232 / 0.07);
 
     /* deepened so small mono labels/links clear WCAG AA on the light deck */
@@ -116,21 +153,20 @@
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
   }
-  /* Lenis owns the scroll when active; disable native smooth to avoid fights */
-  html.lenis,
-  html.lenis body {
-    height: auto;
-  }
-  .lenis.lenis-smooth {
-    scroll-behavior: auto !important;
-  }
-  .lenis.lenis-stopped {
-    overflow: clip;
-  }
 
+  /* Respect reduced-motion globally: MotionConfig governs framer-motion JS, but
+     raw CSS keyframes (pulse rings, blink caret, marquee, bounce, sweep) need a
+     guard of their own so nothing loops for users who asked for stillness. */
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
     }
   }
 

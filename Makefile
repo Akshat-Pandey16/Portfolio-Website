@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-PKG ?= pnpm
+PKG ?= bun
 
 .PHONY: help install dev build preview lint lint-fix typecheck check clean reset open outdated upgrade upgrade-latest audit
 
@@ -11,22 +11,22 @@ install: ## Install dependencies
 	$(PKG) install
 
 dev: ## Run dev server with HMR
-	$(PKG) dev
+	$(PKG) run dev
 
 build: ## Production build
-	$(PKG) build
+	$(PKG) run build
 
 preview: build ## Build and preview production bundle
-	$(PKG) preview
+	$(PKG) run preview
 
 lint: ## Lint the project
-	$(PKG) lint
+	$(PKG) run lint
 
 lint-fix: ## Lint and apply fixable issues
-	$(PKG) lint -- --fix
+	$(PKG) run lint --fix
 
 typecheck: ## Run TypeScript without emitting
-	$(PKG) typecheck
+	$(PKG) run typecheck
 
 check: typecheck lint build ## Run all quality gates
 
@@ -34,7 +34,7 @@ clean: ## Remove build output
 	rm -rf dist node_modules/.vite
 
 reset: clean ## Wipe build output and node_modules
-	rm -rf node_modules pnpm-lock.yaml
+	rm -rf node_modules bun.lock
 
 open: ## Open the local dev server in default browser
 	@command -v xdg-open >/dev/null 2>&1 && xdg-open http://localhost:5173 || open http://localhost:5173
@@ -43,10 +43,10 @@ outdated: ## Show dependencies that have newer versions
 	$(PKG) outdated || true
 
 upgrade: ## Upgrade dependencies inside their semver ranges
-	$(PKG) update --recursive
+	$(PKG) update
 
 upgrade-latest: ## Bump every dependency to the latest version, then verify
-	$(PKG) update --latest --recursive
+	$(PKG) update --latest
 	$(MAKE) install
 	$(MAKE) check
 

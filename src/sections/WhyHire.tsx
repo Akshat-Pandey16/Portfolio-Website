@@ -10,6 +10,7 @@ export function WhyHire() {
       id="why-hire"
       index="05"
       channel="Runbook"
+      plain="Why hire me"
       title={
         <>
           How I operate <span className="text-[var(--accent)]">under load.</span>

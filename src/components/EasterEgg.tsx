@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { scrollToBottom, scrollToTop } from '../lib/scroll';
+import { isTypingTarget } from '../lib/dom';
 
 const KONAMI = [
   'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
@@ -16,12 +17,6 @@ const SUBSYSTEMS = [
   'rtsp.ingest',
   'auth.pam',
 ];
-
-function isTypingTarget(target: EventTarget | null) {
-  if (!(target instanceof HTMLElement)) return false;
-  const tag = target.tagName.toLowerCase();
-  return tag === 'input' || tag === 'textarea' || target.isContentEditable;
-}
 
 export function EasterEgg() {
   const [running, setRunning] = useState(false);

@@ -7,6 +7,8 @@ type SectionProps = Omit<HTMLAttributes<HTMLElement>, 'title'> & {
   id: string;
   index?: string;
   channel?: string;
+  /** plain-language word recruiters scan for, shown beside the themed channel */
+  plain?: string;
   title?: ReactNode;
   description?: ReactNode;
   container?: 'default' | 'wide' | 'narrow';
@@ -23,6 +25,7 @@ export function Section({
   id,
   index,
   channel,
+  plain,
   title,
   description,
   children,
@@ -51,7 +54,8 @@ export function Section({
             {channel && (
               <div className="mb-6 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.26em] text-[var(--fg-subtle)]">
                 <span className="text-[var(--accent)]">{index ?? '//'}</span>
-                <span>{channel}</span>
+                <span className="text-[var(--fg-muted)]">{channel}</span>
+                {plain && <span className="text-[var(--fg-subtle)]">· {plain}</span>}
                 <span className="relative h-px flex-1 overflow-hidden bg-[var(--border)]">
                   <motion.span
                     initial={{ scaleX: 0 }}

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# ⚠️ update the domain to your real deployed site
+Sitemap: https://akshatpandey.dev/sitemap.xml

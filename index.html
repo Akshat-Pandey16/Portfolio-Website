@@ -21,35 +21,58 @@
     <link rel="icon" type="image/png" href="/favicon-192.png" sizes="192x192" />
     <link rel="icon" type="image/png" href="/favicon-512.png" sizes="512x512" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- preload above-the-fold fonts: display (H1 / LCP) + body -->
+    <link
+      rel="preload"
+      href="/fonts/space-grotesk-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href="/fonts/inter-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#f3f5f9" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0d111d" media="(prefers-color-scheme: dark)" />
     <meta
       name="description"
-      content="Akshat Pandey — backend developer building Python services for computer-vision and video analytics. Async pipelines, streaming, clean APIs and honest data models. Open to work."
+      content="Akshat Pandey — backend engineer building Python services for computer-vision and video analytics. Async pipelines, streaming, clean APIs and honest data models. ~2 yrs at Intozi Tech. Open to work — remote or relocation."
     />
     <meta name="author" content="Akshat Pandey" />
     <meta name="color-scheme" content="dark light" />
     <meta name="robots" content="index, follow" />
+    <!-- ⚠️ update the domain in these absolute URLs to your real deployed site -->
+    <link rel="canonical" href="https://akshatpandey.dev/" />
 
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Akshat Pandey — Backend Developer" />
+    <meta property="og:url" content="https://akshatpandey.dev/" />
+    <meta property="og:site_name" content="Akshat Pandey" />
+    <meta property="og:title" content="Akshat Pandey — Backend Engineer" />
     <meta
       property="og:description"
-      content="Backend developer for computer-vision and video analytics — streaming, async pipelines, clean APIs. Explore the deck."
+      content="Backend engineer for computer-vision & video analytics — streaming, async pipelines, clean APIs. ~2 yrs at Intozi Tech. Open to work."
     />
-    <meta property="og:image" content="/favicon-512.png" />
+    <meta property="og:image" content="https://akshatpandey.dev/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Akshat Pandey — Backend Engineer. Python, FastAPI, Django, video analytics. Open to work." />
     <meta property="og:locale" content="en_IN" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Akshat Pandey — Backend Developer" />
+    <meta name="twitter:title" content="Akshat Pandey — Backend Engineer" />
     <meta
       name="twitter:description"
-      content="Backend developer for computer-vision and video analytics. Streaming, async pipelines, clean APIs."
+      content="Backend engineer for computer-vision & video analytics. Streaming, async pipelines, clean APIs. Open to work."
     />
-    <meta name="twitter:image" content="/favicon-512.png" />
+    <meta name="twitter:image" content="https://akshatpandey.dev/og.png" />
 
-    <title>Akshat Pandey — Backend Developer</title>
+    <title>Akshat Pandey — Backend Engineer</title>
 
     <script type="application/ld+json">
       {
@@ -58,9 +81,10 @@
         "name": "Akshat Pandey",
         "givenName": "Akshat",
         "familyName": "Pandey",
-        "jobTitle": "Backend Developer",
+        "jobTitle": "Backend Engineer",
         "email": "mailto:akshat16pandey@gmail.com",
-        "url": "https://github.com/Akshat-Pandey16",
+        "url": "https://akshatpandey.dev/",
+        "image": "https://akshatpandey.dev/og.png",
         "worksFor": { "@type": "Organization", "name": "Intozi Tech" },
         "address": {
           "@type": "PostalAddress",

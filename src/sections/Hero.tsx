@@ -8,17 +8,18 @@ import {
   FiLinkedin,
   FiTerminal,
 } from 'react-icons/fi';
-import { EMAIL, GITHUB_URL, LINKEDIN_URL, RESUME_URL } from '../lib/data';
+import { AVAILABILITY, EMAIL, GITHUB_URL, LINKEDIN_URL, RESUME_URL, ROLE } from '../lib/data';
 import { MagneticButton } from '../components/MagneticButton';
-import { Sparkline } from '../components/Sparkline';
+import { useClock } from '../hooks/useClock';
 import { scrollToId } from '../lib/scroll';
 import { prefersReducedMotion } from '../lib/motion';
 
+/* real, defensible signals — no fabricated metrics */
 const READOUTS = [
-  { k: 'role', v: 'Backend lead' },
+  { k: 'role', v: ROLE },
   { k: 'org', v: 'Intozi Tech' },
   { k: 'base', v: 'Gurugram, IN' },
-  { k: 'status', v: 'Open to work' },
+  { k: 'focus', v: 'Video AI' },
 ];
 
 const ROTATING_FOCUS = [
@@ -74,23 +75,6 @@ function useTypewriter(words: readonly string[], speed = 52, hold = 1700) {
   }, [words, speed, hold]);
 
   return text;
-}
-
-function useClock() {
-  const fmt = () =>
-    new Intl.DateTimeFormat('en-GB', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-      timeZone: 'Asia/Kolkata',
-    }).format(new Date());
-  const [time, setTime] = useState(fmt);
-  useEffect(() => {
-    const id = window.setInterval(() => setTime(fmt()), 1000);
-    return () => window.clearInterval(id);
-  }, []);
-  return time;
 }
 
 export function Hero() {
@@ -187,12 +171,14 @@ export function Hero() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.7 }}
-              aria-live="polite"
               className="mt-6 flex h-6 items-center gap-2 font-mono text-xs text-[var(--fg-subtle)] sm:text-sm"
             >
-              <span className="text-[var(--accent)]">▸</span>
+              <span className="text-[var(--accent)]" aria-hidden>▸</span>
               <span className="text-[var(--fg-muted)]">currently building</span>
-              <span className="text-[var(--fg)]">{typed}</span>
+              {/* aria-hidden: the rotating text is ambient flourish — a live region
+                  here would announce it character-by-character to screen readers */}
+              <span className="text-[var(--fg)]" aria-hidden>{typed}</span>
+              <span className="sr-only">Django services, Celery pipelines, Postgres schemas and MLOps.</span>
               <span className="term-caret" aria-hidden />
             </motion.div>
 
@@ -217,6 +203,7 @@ export function Hero() {
                 href={RESUME_URL}
                 target="_blank"
                 rel="noopener noreferrer"
+                download
                 className="group inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--bg-elev)] px-7 py-3.5 text-sm font-semibold text-[var(--fg)] transition-all duration-200 hover:border-[var(--accent)] hover:text-[var(--accent)]"
               >
                 <FiDownload className="h-4 w-4 transition-transform group-hover:translate-y-0.5" />
@@ -256,12 +243,12 @@ export function Hero() {
             </motion.p>
           </div>
 
-          {/* live status panel */}
+          {/* status panel — real signals, no fabricated metrics */}
           <motion.aside
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: 'easeOut', delay: 0.5 }}
-            aria-label="Live system status"
+            aria-label="Availability and profile status"
             className="bracketed panel relative w-full overflow-hidden rounded-2xl p-5 font-mono lg:max-w-sm lg:justify-self-end"
           >
             <span className="sweep-line" aria-hidden />
@@ -273,15 +260,19 @@ export function Hero() {
               <span className="tabular-nums">v2026.06</span>
             </div>
 
-            {/* req/s telemetry */}
+            {/* headline signal: open to work */}
             <div className="mt-4">
-              <div className="flex items-end justify-between">
-                <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--fg-subtle)]">
-                  throughput · req/s
+              <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--fg-subtle)]">
+                availability
+              </span>
+              <p className="font-display mt-1.5 flex items-center gap-2.5 text-2xl text-[var(--fg)]">
+                <span className="status-dot">
+                  <span className="absolute inline-flex h-full w-full animate-[pulse-ring_1.8s_ease-out_infinite] rounded-full bg-[var(--accent)]" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--accent)]" />
                 </span>
-                <ReqReadout />
-              </div>
-              <Sparkline className="mt-2 h-10 w-full" />
+                Open to work
+              </p>
+              <p className="mt-1.5 text-[12px] text-[var(--fg-muted)]">{AVAILABILITY}</p>
             </div>
 
             {/* readouts */}
@@ -324,34 +315,8 @@ export function Hero() {
   );
 }
 
-/* leaf components so per-second ticks re-render only themselves, not all of Hero */
+/* leaf component so the per-second tick re-renders only itself, not all of Hero */
 function LiveClock() {
   const clock = useClock();
   return <span className="tabular-nums">{clock} IST</span>;
-}
-
-function ReqReadout() {
-  const reqs = useReqCounter();
-  return <span className="font-display text-2xl tabular-nums text-[var(--accent)]">{reqs}</span>;
-}
-
-/* a gently wandering "req/s" number for the status panel */
-function useReqCounter() {
-  const [n, setN] = useState(1284);
-  useEffect(() => {
-    if (prefersReducedMotion()) return;
-    let id = 0;
-    const tick = () => {
-      if (!document.hidden) {
-        setN((prev) => {
-          const next = prev + Math.round((Math.random() - 0.45) * 90);
-          return Math.max(820, Math.min(2400, next));
-        });
-      }
-      id = window.setTimeout(tick, 900);
-    };
-    id = window.setTimeout(tick, 900);
-    return () => window.clearTimeout(id);
-  }, []);
-  return n.toLocaleString('en-US');
 }

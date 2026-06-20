@@ -19,23 +19,36 @@ import Sb from '../assets/projects/SB.webp';
 import Mh from '../assets/projects/MH.webp';
 import Ht from '../assets/projects/HT.webp';
 import Hc from '../assets/projects/HC.webp';
+import DrdoLogo from '../assets/internships/DRDO.webp';
+import SailLogo from '../assets/internships/SAIL.webp';
 
 export const EMAIL = 'akshat16pandey@gmail.com';
 export const GITHUB_USER = 'Akshat-Pandey16';
 export const GITHUB_URL = 'https://github.com/Akshat-Pandey16';
 export const LINKEDIN_URL = 'https://www.linkedin.com/in/akshat16pandey/';
+/* canonical job title — used verbatim everywhere (page title, JSON-LD, hero, ATS) */
+export const ROLE = 'Backend Engineer';
+/* honest availability — recruiters filter hard on this */
+export const AVAILABILITY = 'Remote · open to relocation';
+/* direct-download form of the Drive link so "Download résumé" actually downloads */
 export const RESUME_URL =
-  'https://drive.google.com/file/d/15GuXe4ZxjM2FMZhDFf4CR-62Sbbe6LNS/view?usp=sharing';
+  'https://drive.google.com/uc?export=download&id=15GuXe4ZxjM2FMZhDFf4CR-62Sbbe6LNS';
 
-export type NavSection = { id: string; label: string };
+/* ⚠️ set this to your real deployed domain — powers canonical URL, OG/Twitter
+   card, sitemap and JSON-LD. Change the one constant; everything follows. */
+export const SITE_URL = 'https://akshatpandey.dev';
+
+/* primary label is the mission-control callsign; `plain` is the word a recruiter
+   actually scans for, shown as a quiet subtitle so we keep the theme AND the clarity. */
+export type NavSection = { id: string; label: string; plain: string };
 
 export const NAV_SECTIONS: NavSection[] = [
-  { id: 'about', label: 'Profile' },
-  { id: 'experience', label: 'Deployment' },
-  { id: 'projects', label: 'Services' },
-  { id: 'skills', label: 'Stack' },
-  { id: 'why-hire', label: 'Runbook' },
-  { id: 'contact', label: 'Uplink' },
+  { id: 'about', label: 'Profile', plain: 'About' },
+  { id: 'projects', label: 'Services', plain: 'Projects' },
+  { id: 'experience', label: 'Deployment', plain: 'Experience' },
+  { id: 'skills', label: 'Stack', plain: 'Skills' },
+  { id: 'why-hire', label: 'Runbook', plain: 'Why hire me' },
+  { id: 'contact', label: 'Uplink', plain: 'Contact' },
 ];
 
 /* ───────────────────────────── experience ──────────────────────── */
@@ -44,22 +57,24 @@ export type Experience = {
   role: string;
   period: string;
   location?: string;
-  status: string;
+  status: 'live' | 'shipped';
   description: string;
   highlights: string[];
   stack: string[];
   metrics: { label: string; value: string }[];
+  logo?: string;
+  link?: string;
 };
 
 export const EXPERIENCES: Experience[] = [
   {
     organization: 'Intozi Tech',
-    role: 'Backend Developer',
+    role: ROLE,
     period: 'Jun 2024 — Present',
     location: 'Gurugram, India',
     status: 'live',
     description:
-      'I lead the backend at a computer-vision and video-analytics product company — I own the Python services across the product line, including the core analytics engine, Ikshana, and keep frontend and feature delivery moving inside a small, fast team.',
+      'I own the backend at a computer-vision and video-analytics product company — the Python services across the product line, including the core analytics engine, Ikshana — and keep frontend and feature delivery moving inside a small, fast team.',
     highlights: [
       'Building the backend for a client-facing Video Management System — Django services with MediaMTX wired in for RTSP/WebRTC, so live camera feeds and AI analytics land in the app in real time.',
       'Architected the data and async layers — PostgreSQL, Redis, RabbitMQ and Celery — to push video-processing and AI workloads off the request path, keeping the services responsive under load.',
@@ -67,10 +82,52 @@ export const EXPERIENCES: Experience[] = [
     ],
     stack: ['Python', 'Django', 'PostgreSQL', 'Redis', 'RabbitMQ', 'Celery', 'MediaMTX', 'Docker'],
     metrics: [
-      { label: 'uptime', value: '2 yrs' },
-      { label: 'role', value: 'backend lead' },
+      { label: 'tenure', value: '2 yrs' },
+      { label: 'role', value: 'backend' },
       { label: 'domain', value: 'video AI' },
     ],
+  },
+  {
+    organization: 'Steel Authority of India',
+    role: 'Flutter Developer Intern',
+    period: '2023',
+    location: 'SAIL · India',
+    status: 'shipped',
+    description:
+      'Built a cross-platform mobile app that streamlined maintenance workflows across plant operations at one of India’s largest public-sector steel producers.',
+    highlights: [
+      'Shipped the Flutter client end to end against an in-house Node.js API.',
+      'Modelled the data layer on top of an existing OracleDB without breaking legacy systems.',
+      'Worked across engineering teams to scope, validate and hand off the build.',
+    ],
+    stack: ['Flutter', 'Node.js', 'OracleDB'],
+    metrics: [
+      { label: 'year', value: '2023' },
+      { label: 'role', value: 'mobile' },
+      { label: 'domain', value: 'plant ops' },
+    ],
+    logo: SailLogo,
+    link: 'https://github.com/Akshat-Pandey16/MES-SAIL',
+  },
+  {
+    organization: 'DRDO',
+    role: 'Research & Development Intern',
+    period: '2022',
+    location: 'Defence R&D Organisation · India',
+    status: 'shipped',
+    description:
+      'Worked on terrain-analysis pipelines for India’s premier defence research agency, accelerating ridge and spur detection for downstream geospatial research.',
+    highlights: [
+      'Built Python tooling around QGIS to automate DEM (Digital Elevation Model) processing.',
+      'Turned researcher intent into reproducible scripts the team could run unattended.',
+    ],
+    stack: ['Python', 'QGIS', 'Geospatial'],
+    metrics: [
+      { label: 'year', value: '2022' },
+      { label: 'role', value: 'research' },
+      { label: 'domain', value: 'geospatial' },
+    ],
+    logo: DrdoLogo,
   },
 ];
 
@@ -226,7 +283,7 @@ export type Stat = {
 
 export const STATS: Stat[] = [
   { label: 'years shipping code', to: 6, suffix: '+', hint: 'since 2020' },
-  { label: 'at Intozi Tech', to: 2, suffix: ' yrs', hint: 'backend lead' },
+  { label: 'at Intozi Tech', to: 2, suffix: ' yrs', hint: 'backend engineer' },
   { label: 'public repositories', to: 12, hint: 'open source' },
   { label: "KAVACH'23 national hackathon", to: 0, literal: 'WON', hint: 'Govt. of India' },
 ];

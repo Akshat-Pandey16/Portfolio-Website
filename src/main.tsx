@@ -1,9 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MotionConfig } from 'motion/react';
-import '@fontsource-variable/inter';
-import '@fontsource-variable/space-grotesk';
-import '@fontsource-variable/jetbrains-mono';
 import { App } from './App';
 import { ThemeProvider } from './hooks/ThemeProvider';
 import './index.css';

@@ -1,7 +1,21 @@
 import { useEffect, useState } from 'react';
-import { FiMenu, FiTerminal, FiX } from 'react-icons/fi';
+import {
+  FiDownload,
+  FiGithub,
+  FiLinkedin,
+  FiMail,
+  FiMenu,
+  FiTerminal,
+  FiX,
+} from 'react-icons/fi';
 import { AnimatePresence, motion } from 'motion/react';
-import { NAV_SECTIONS } from '../lib/data';
+import {
+  EMAIL,
+  GITHUB_URL,
+  LINKEDIN_URL,
+  NAV_SECTIONS,
+  RESUME_URL,
+} from '../lib/data';
 import { useActiveSection } from '../hooks/useActiveSection';
 import { scrollToId, scrollToTop } from '../lib/scroll';
 import { ThemeToggle } from './ThemeToggle';
@@ -83,8 +97,9 @@ export function Navbar() {
                   type="button"
                   onClick={() => go(section.id)}
                   aria-current={isActive ? 'true' : undefined}
+                  aria-label={`${section.plain} — ${section.label}`}
                   className={cn(
-                    'relative rounded-md px-3 py-1.5 font-mono text-[12px] tracking-tight transition-colors',
+                    'relative rounded-md px-3 py-1 font-mono text-[12px] tracking-tight transition-colors',
                     isActive
                       ? 'text-[var(--fg)]'
                       : 'text-[var(--fg-muted)] hover:text-[var(--fg)]',
@@ -97,10 +112,12 @@ export function Navbar() {
                       transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                     />
                   )}
-                  <span className="mr-1 text-[var(--fg-subtle)]">
-                    {String(i + 1).padStart(2, '0')}
+                  <span className="flex flex-col items-start leading-[1.1]">
+                    <span>{section.plain}</span>
+                    <span className="text-[8.5px] uppercase tracking-[0.16em] text-[var(--fg-subtle)]">
+                      {String(i + 1).padStart(2, '0')} · {section.label}
+                    </span>
                   </span>
-                  {section.label}
                 </button>
               </li>
             );
@@ -151,7 +168,6 @@ export function Navbar() {
             className="lg:hidden"
           >
             <ul
-              data-lenis-prevent
               className="mx-4 mb-3 flex flex-col gap-1 rounded-2xl border border-[var(--border)] bg-[var(--bg-elev)] p-2 shadow-2xl shadow-black/20"
             >
               {NAV_SECTIONS.map((section, i) => {
@@ -162,6 +178,7 @@ export function Navbar() {
                       type="button"
                       onClick={() => go(section.id)}
                       aria-current={isActive ? 'true' : undefined}
+                      aria-label={`${section.plain} — ${section.label}`}
                       className={cn(
                         'flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left font-mono text-[15px] transition-colors',
                         isActive
@@ -172,11 +189,36 @@ export function Navbar() {
                       <span className="text-xs text-[var(--fg-subtle)]">
                         {String(i + 1).padStart(2, '0')}
                       </span>
-                      {section.label}
+                      <span className="flex items-baseline gap-2">
+                        {section.plain}
+                        <span className="text-[11px] text-[var(--fg-subtle)]">· {section.label}</span>
+                      </span>
                     </button>
                   </li>
                 );
               })}
+
+              {/* primary actions — recruiters shouldn't have to hunt for these */}
+              <li className="mt-1 grid grid-cols-2 gap-1 border-t border-[var(--border)] pt-2">
+                {[
+                  { href: RESUME_URL, label: 'Résumé', Icon: FiDownload, download: true, ext: true },
+                  { href: `mailto:${EMAIL}`, label: 'Email', Icon: FiMail, download: false, ext: false },
+                  { href: GITHUB_URL, label: 'GitHub', Icon: FiGithub, download: false, ext: true },
+                  { href: LINKEDIN_URL, label: 'LinkedIn', Icon: FiLinkedin, download: false, ext: true },
+                ].map(({ href, label, Icon, download, ext }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    {...(ext ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    {...(download ? { download: '' } : {})}
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-2.5 rounded-xl px-4 py-3 font-mono text-[13px] text-[var(--fg-muted)] transition-colors hover:bg-[var(--bg-sunken)] hover:text-[var(--fg)]"
+                  >
+                    <Icon className="h-4 w-4 text-[var(--accent)]" />
+                    {label}
+                  </a>
+                ))}
+              </li>
             </ul>
           </motion.div>
         )}

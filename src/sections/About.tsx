@@ -19,6 +19,7 @@ export function About() {
       id="about"
       index="01"
       channel="Profile"
+      plain="About"
       title={
         <>
           The operator behind <span className="text-[var(--accent)]">the deck.</span>

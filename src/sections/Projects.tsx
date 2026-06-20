@@ -189,8 +189,9 @@ export function Projects() {
   return (
     <Section
       id="projects"
-      index="03"
+      index="02"
       channel="Services"
+      plain="Projects"
       title={
         <>
           Things I&apos;ve shipped <span className="text-[var(--accent)]">into the world.</span>

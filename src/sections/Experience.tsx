@@ -1,16 +1,18 @@
 import { motion } from 'motion/react';
-import { FiActivity } from 'react-icons/fi';
+import { FiActivity, FiGithub } from 'react-icons/fi';
 import { Section } from '../components/Section';
 import { Panel } from '../components/Panel';
 import { EXPERIENCES } from '../lib/data';
+import { cn } from '../lib/cn';
 import { VIEWPORT } from '../lib/motion';
 
 export function Experience() {
   return (
     <Section
       id="experience"
-      index="02"
+      index="03"
       channel="Deployment"
+      plain="Experience"
       title={
         <>
           The service I run <span className="text-[var(--accent)]">in production.</span>
@@ -28,25 +30,59 @@ export function Experience() {
             viewport={VIEWPORT}
             transition={{ duration: 0.5, ease: [0.22, 0.8, 0.24, 1] }}
           >
-            <Panel bracket spotlight sweep className="overflow-hidden p-6 sm:p-9">
+            <Panel bracket spotlight className="overflow-hidden p-6 sm:p-9">
               {/* header */}
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg)] font-display text-2xl font-bold text-[var(--accent)]">
-                    {exp.organization.charAt(0)}
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg)] font-display text-2xl font-bold text-[var(--accent)]">
+                    {exp.logo ? (
+                      <img
+                        src={exp.logo}
+                        alt={`${exp.organization} logo`}
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-contain p-1.5"
+                      />
+                    ) : (
+                      exp.organization.charAt(0)
+                    )}
                   </div>
                   <div>
                     <h3 className="font-display text-2xl text-[var(--fg)] sm:text-3xl">
                       {exp.organization}
                     </h3>
                     <p className="mt-1 font-mono text-xs text-[var(--fg-muted)]">
-                      {exp.role} · {exp.location}
+                      {exp.role}
+                      {exp.location ? ` · ${exp.location}` : ''}
                     </p>
+                    {exp.link && (
+                      <a
+                        href={exp.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-1.5 inline-flex items-center gap-1.5 font-mono text-[11px] text-[var(--fg-subtle)] transition-colors hover:text-[var(--accent)]"
+                      >
+                        <FiGithub className="h-3 w-3" />
+                        source
+                      </a>
+                    )}
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-[var(--accent)]/40 bg-[var(--accent-soft)] px-3 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--accent)]">
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--accent)]" />
+                  <span
+                    className={cn(
+                      'inline-flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.18em]',
+                      exp.status === 'live'
+                        ? 'border-[var(--accent)]/40 bg-[var(--accent-soft)] text-[var(--accent)]'
+                        : 'border-[var(--border-strong)] bg-[var(--bg-sunken)] text-[var(--fg-muted)]',
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'h-1.5 w-1.5 rounded-full',
+                        exp.status === 'live' ? 'animate-pulse bg-[var(--accent)]' : 'bg-[var(--fg-subtle)]',
+                      )}
+                    />
                     {exp.status}
                   </span>
                   <span className="font-mono text-[11px] text-[var(--fg-subtle)]">{exp.period}</span>

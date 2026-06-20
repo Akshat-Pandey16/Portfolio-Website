@@ -42,6 +42,7 @@ export function Contact() {
       id="contact"
       index="06"
       channel="Uplink"
+      plain="Contact"
       title={
         <>
           Let&apos;s open <span className="text-[var(--accent)]">a channel.</span>

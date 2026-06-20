@@ -17,6 +17,7 @@ import type { IconType } from 'react-icons';
 import { EMAIL, GITHUB_URL, LINKEDIN_URL, NAV_SECTIONS, RESUME_URL } from '../lib/data';
 import { useTheme } from '../hooks/useTheme';
 import { scrollToId, scrollToTop } from '../lib/scroll';
+import { isTypingTarget } from '../lib/dom';
 import { cn } from '../lib/cn';
 
 type Group = 'Navigate' | 'Execute' | 'Links';
@@ -210,8 +211,13 @@ export function CommandPalette() {
 
   useEffect(() => {
     if (!open) return;
+    const restore = document.activeElement as HTMLElement | null;
     const id = window.setTimeout(() => inputRef.current?.focus(), 30);
-    return () => window.clearTimeout(id);
+    return () => {
+      window.clearTimeout(id);
+      // return focus to whatever opened the palette (keyboard/AT users)
+      restore?.focus?.();
+    };
   }, [open]);
 
   useEffect(() => {
@@ -293,7 +299,7 @@ export function CommandPalette() {
               </kbd>
             </div>
 
-            <ul ref={listRef} data-lenis-prevent className="max-h-[52vh] overflow-y-auto p-2">
+            <ul ref={listRef} className="max-h-[52vh] overflow-y-auto p-2">
               {grouped.length === 0 && (
                 <li className="px-3 py-6 text-center font-mono text-sm text-[var(--fg-subtle)]">
                   no command matches. try a section name.
@@ -370,10 +376,4 @@ export function CommandPalette() {
       )}
     </AnimatePresence>
   );
-}
-
-function isTypingTarget(target: EventTarget | null) {
-  if (!(target instanceof HTMLElement)) return false;
-  const tag = target.tagName.toLowerCase();
-  return tag === 'input' || tag === 'textarea' || target.isContentEditable;
 }
