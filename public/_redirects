@@ -1,0 +1,3 @@
+# SPA fallback — real files (og.png, the PDF, /assets, /fonts) are served first;
+# any unknown path falls back to the app shell instead of a 404.
+/*    /index.html   200

@@ -1,0 +1,9 @@
+# Cloudflare Pages (and Netlify) headers. Hashed build assets + fonts never
+# change, so cache them hard; everything else stays fresh.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
