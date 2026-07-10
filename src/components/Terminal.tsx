@@ -13,6 +13,7 @@ import {
   EXPERIENCES,
   GITHUB_URL,
   LAB_REPOS,
+  PAST_ROLES,
   PROJECTS,
   RESUME_DOWNLOAD_NAME,
   RESUME_FILE,
@@ -310,6 +311,15 @@ export function Terminal() {
           </aside>
         </div>
         <p className="out faint" style={{ marginTop: 12 }}>the full timeline → {L('git log', 'git log')}</p>
+        <div className="eyebrow" style={{ marginTop: 18 }}>// earlier</div>
+        {PAST_ROLES.map((p) => (
+          <div className="lr" key={p.org} style={{ marginTop: 5 }}>
+            <span className="dim bold">{p.org}</span>
+            <span className="faint">{p.role}</span>
+            <span className="faint">· {p.period}</span>
+            <span className="faint">· {p.note}</span>
+          </div>
+        ))}
       </>
     );
   }

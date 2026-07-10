@@ -148,3 +148,12 @@ export const CONTACT_LINKS: ContactLink[] = [
   { label: 'LinkedIn', value: 'akshat16pandey', href: LINKEDIN_URL, icon: 'linkedin' },
   { label: 'Email', value: EMAIL, href: `mailto:${EMAIL}`, icon: 'email' },
 ];
+
+/* ───────────────────────────── earlier roles ───────────────────── */
+/* internships — for a complete career picture ahead of Intozi */
+export type PastRole = { org: string; role: string; period: string; note: string };
+
+export const PAST_ROLES: PastRole[] = [
+  { org: 'Steel Authority of India', role: 'Flutter Developer Intern', period: '2023', note: 'mobile app development' },
+  { org: 'DRDO', role: 'R&D Intern', period: '2022', note: 'geospatial terrain analysis' },
+];
