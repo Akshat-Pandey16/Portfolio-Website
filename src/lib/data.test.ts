@@ -1,27 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import {
-  NAV_SECTIONS,
   EXPERIENCES,
   PROJECTS,
   LAB_REPOS,
-  STACK_NODES,
-  STACK_EDGES,
   CONTACT_LINKS,
   ROLE,
   SITE_URL,
   RESUME_FILE,
 } from './data';
-
-describe('nav sections', () => {
-  it('have unique ids and both labels', () => {
-    const ids = NAV_SECTIONS.map((s) => s.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    for (const s of NAV_SECTIONS) {
-      expect(s.label.length).toBeGreaterThan(0);
-      expect(s.plain.length).toBeGreaterThan(0);
-    }
-  });
-});
 
 describe('experiences', () => {
   it('each entry is well-formed', () => {
@@ -50,16 +36,6 @@ describe('projects', () => {
     for (const p of all) {
       expect(p.link.startsWith('https://github.com/')).toBe(true);
       expect(p.tags.length).toBeGreaterThan(0);
-    }
-  });
-});
-
-describe('stack topology', () => {
-  it('every edge references a real node', () => {
-    const ids = new Set(STACK_NODES.map((n) => n.id));
-    for (const [a, b] of STACK_EDGES) {
-      expect(ids.has(a)).toBe(true);
-      expect(ids.has(b)).toBe(true);
     }
   });
 });

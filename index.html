@@ -2,44 +2,22 @@
 <html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <script>
-      // theme bootstrap — runs before paint to avoid a flash (dark-first)
-      (function () {
-        try {
-          var p = new URLSearchParams(location.search).get('theme');
-          if (p === 'light' || p === 'dark') localStorage.setItem('portfolio-theme', p);
-          var s = localStorage.getItem('portfolio-theme');
-          var dark = s ? s === 'dark' : !window.matchMedia('(prefers-color-scheme: light)').matches;
-          var root = document.documentElement;
-          root.classList.toggle('dark', dark);
-          root.style.colorScheme = dark ? 'dark' : 'light';
-        } catch (e) {}
-      })();
-    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" href="/favicon-192.png" sizes="192x192" />
     <link rel="icon" type="image/png" href="/favicon-512.png" sizes="512x512" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-    <!-- preload above-the-fold fonts: display (H1 / LCP) + body -->
+    <!-- preload the single terminal typeface -->
     <link
       rel="preload"
-      href="/fonts/space-grotesk-latin.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="preload"
-      href="/fonts/inter-latin.woff2"
+      href="/fonts/jetbrains-mono-latin.woff2"
       as="font"
       type="font/woff2"
       crossorigin="anonymous"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#f3f5f9" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0d111d" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#070b09" />
     <meta
       name="description"
       content="Akshat Pandey — backend engineer building Python services for computer-vision and video analytics. Async pipelines, streaming, clean APIs and honest data models. ~2 yrs at Intozi Tech. Open to work — remote or relocation."
