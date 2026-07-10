@@ -531,8 +531,9 @@ export function Terminal() {
     const finish = () => {
       push(neofetchNode());
       push(welcomeNode());
-      const h = decodeURIComponent(location.hash.replace(/^#/, '')).toLowerCase();
-      if (SECTION.has(h)) exec(h);
+      const h = decodeURIComponent(location.hash.replace(/^#/, '')).trim().toLowerCase();
+      const first = h.split(/\s+/)[0];
+      if (h && (SECTION.has(first) || CMDS.includes(first))) exec(h);
       inputRef.current?.focus();
     };
     if (RM) { lines.forEach((l) => push(<div className="out">{l}</div>)); finish(); return; }

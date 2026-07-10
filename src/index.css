@@ -172,7 +172,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .btnrow { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
 
 /* ── htop overlay (a hidden delighter for tech visitors) ───────────── */
-.ov { position: fixed; inset: 0; z-index: 60; background: var(--term); display: flex; flex-direction: column; animation: rise .12s ease both; }
+.ov { position: fixed; inset: 0; z-index: 60; background: var(--term); display: flex; flex-direction: column; }
 .ov-head { flex: none; padding: 7px clamp(12px, 3vw, 26px); background: var(--accent); color: #04140c; font-weight: 700; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
 .ov-body { flex: 1; min-height: 0; overflow: auto; padding: 12px clamp(12px, 3vw, 26px); }
 .ov-foot { flex: none; padding: 6px clamp(12px, 3vw, 26px); background: var(--bar); border-top: 1px solid var(--border); color: var(--dim); font-size: 12px; }

@@ -39,8 +39,11 @@ export function Htop({ reducedMotion, onExit }: { reducedMotion: boolean; onExit
   const [procs, setProcs] = useState<Proc[]>(BASE);
   const [mem, setMem] = useState(() => rnd(46, 58));
   const t0 = useRef(Date.now());
+  const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    // move focus into the dialog so keystrokes don't leak to the input behind it
+    closeRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'q' || e.key === 'Escape' || (e.ctrlKey && e.key === 'c')) {
         e.preventDefault();
@@ -67,7 +70,7 @@ export function Htop({ reducedMotion, onExit }: { reducedMotion: boolean; onExit
     <div className="ov" role="dialog" aria-modal="true" aria-label="htop process monitor">
       <div className="ov-head">
         <span>htop — akshat@intozi</span>
-        <button type="button" onClick={onExit} style={{ color: 'inherit', fontWeight: 700 }}>press q to quit ✕</button>
+        <button ref={closeRef} type="button" onClick={onExit} style={{ color: 'inherit', fontWeight: 700 }}>press q to quit ✕</button>
       </div>
       <div className="ov-body">
         {cores.map((v, i) => <Meter key={i} lab={String(i + 1)} v={v} />)}
