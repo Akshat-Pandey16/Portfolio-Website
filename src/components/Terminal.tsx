@@ -519,6 +519,12 @@ export function Terminal() {
     if (e.key === 'Enter') { e.preventDefault(); const v = input; setInput(''); exec(v); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); if (histIdxRef.current > 0) { histIdxRef.current--; setInput(histRef.current[histIdxRef.current] ?? ''); } }
     else if (e.key === 'ArrowDown') { e.preventDefault(); if (histIdxRef.current < histRef.current.length) { histIdxRef.current++; setInput(histRef.current[histIdxRef.current] ?? ''); } }
+    else if (e.key === 'ArrowRight') {
+      const lc = input.toLowerCase();
+      const m = input && !/\s/.test(input) ? CMDS.find((c) => c.startsWith(lc) && c !== lc) : undefined;
+      const el = e.currentTarget;
+      if (m && el.selectionStart != null && el.selectionStart >= input.length) { e.preventDefault(); setInput(m); }
+    }
     else if (e.key === 'Tab') { e.preventDefault(); complete(); }
     else if (e.key === 'l' && e.ctrlKey) { e.preventDefault(); setBlocks([]); }
   }
@@ -589,6 +595,10 @@ export function Terminal() {
     el.scrollTop = el.scrollHeight;
   }, [blocks]);
 
+  const lc = input.toLowerCase();
+  const ghostMatch = input && !/\s/.test(input) ? CMDS.find((c) => c.startsWith(lc) && c !== lc) : undefined;
+  const ghost = ghostMatch ? ghostMatch.slice(input.length) : '';
+
   return (
     <div className="term">
       <a className="skip" href="#term-input">Skip to command input</a>
@@ -631,6 +641,7 @@ export function Terminal() {
             {promptSpan()}
             <span className="typed">{input}</span>
             <span className={focused ? 'blk-caret' : 'blk-caret off'} aria-hidden="true" />
+            {ghost && <span className="ghost" aria-hidden="true">{ghost}</span>}
             {input === '' && <span className="ph2">type a command like 'help' — or click a button above ↑</span>}
             <input
               id="term-input"

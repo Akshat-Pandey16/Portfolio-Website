@@ -20,7 +20,7 @@
 */
 :root {
   --bg:#070b09; --term:#0b110e; --bar:#090e0c; --fg:#d3ddd4; --dim:#7c8d81;
-  --faint:#465447; --accent:#2bd68a; --accent-hi:#5cebab; --accent-dim:#1f9c67;
+  --faint:#5c6f61; --accent:#2bd68a; --accent-hi:#5cebab; --accent-dim:#1f9c67;
   --link:#63b6ea; --amber:#e3b341; --cyan:#48c8bd; --red:#ef7a6d; --violet:#b48ce8;
   --border:#18251e; --border-hi:#26402f; --sel:#1f5a41;
   --mono:'JetBrains Mono Variable','JetBrains Mono',ui-monospace,'SF Mono','Cascadia Code',Menlo,Consolas,monospace;
@@ -116,6 +116,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .inl { display: flex; flex-wrap: wrap; align-items: baseline; margin: 10px 0 4px; position: relative; cursor: text; }
 .inl .ps { flex: none; }
 .typed { color: var(--fg); white-space: pre-wrap; word-break: break-word; }
+.ghost { color: var(--dim); opacity: .85; }
 .ph2 { color: var(--faint); }
 .blk-caret {
   display: inline-block; width: 0.58ch; height: 1.12em; translate: 1px 0.18em;
