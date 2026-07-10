@@ -37,11 +37,11 @@ export const EXPERIENCES: Experience[] = [
     location: 'Gurugram, India',
     status: 'live',
     description:
-      'I own the backend at a computer-vision and video-analytics product company — the Python services across the product line, including the core analytics engine, Ikshana — and keep frontend and feature delivery moving inside a small, fast team.',
+      'I own the backend at a computer-vision and video-analytics company: the Python services across the product line, including the core analytics engine, Ikshana. In a small, fast team I also keep frontend and feature delivery moving.',
     highlights: [
-      'Own the backend of a client-facing Video Management System — Django services with MediaMTX wired in for RTSP/WebRTC, streaming live camera feeds and AI analytics into the app in real time.',
-      'Moved video-processing and AI inference off the request path with Celery, RabbitMQ and Redis, so the API stays responsive while heavy jobs run asynchronously in the background.',
-      'Built an internal MLOps platform (Django + React) that runs the full loop — dataset upload, auto-labeling, human verification and re-training — so new models ship without ever leaving the tool.',
+      'Own the backend of a client-facing Video Management System: Django services with MediaMTX wired in for RTSP/WebRTC, streaming live camera feeds and AI analytics into the app in real time.',
+      'Moved video-processing and AI inference off the request path with Celery, RabbitMQ and Redis, so the API stays responsive while heavy jobs run in the background.',
+      'Built an internal MLOps platform (Django + React) that runs the full loop: dataset upload, auto-labeling, human verification, re-training. New models ship without ever leaving the tool.',
     ],
     stack: ['Python', 'Django', 'PostgreSQL', 'Redis', 'RabbitMQ', 'Celery', 'MediaMTX', 'Docker'],
     metrics: [

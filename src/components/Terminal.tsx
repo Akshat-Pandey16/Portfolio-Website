@@ -244,7 +244,7 @@ export function Terminal() {
     return (
       <div className="out">
         <span className="gh bold">Welcome.</span>{' '}
-        <span className="dim">This is Akshat's résumé, as a terminal. Not into typing? Just click a button up top ↑. Curious? Try </span>
+        <span className="dim">This is my résumé, built as a terminal. Not a fan of typing? Every button up top works ↑. Or try </span>
         {L('projects')}<span className="dim">, </span>{L('resume')}<span className="dim">, or </span>{L('help')}<span className="dim">.</span>
       </div>
     );
@@ -255,9 +255,9 @@ export function Terminal() {
         <div className="eyebrow">// about</div>
         <div className="two">
           <div className="measure">
-            <p className="out">I'm <span className="g bold">Akshat</span> — I build the backend for a video-AI product at Intozi Tech.</p>
-            <p className="out">Django and FastAPI services, the data models under them, and the Celery pipelines that keep live camera feeds and model inference off the request path. Mostly self-taught, with a CS degree from Bhilai Institute of Technology.</p>
-            <p className="out">I take the frontend when it needs doing — this terminal is one of those times. When a project needs a tool I haven't used (Ansible, scapy, scikit-learn), I pick it up and ship with it.</p>
+            <p className="out">I'm <span className="g bold">Akshat</span>. I write the backend for a video-AI product at Intozi Tech.</p>
+            <p className="out">That means the Django and FastAPI services, the data models under them, and the Celery pipelines that keep live camera feeds and model inference off the request path. I'm mostly self-taught, with a CS degree from Bhilai Institute of Technology.</p>
+            <p className="out">The frontend I pick up when it needs doing; this terminal is one of those times. When a project needs a tool I haven't used — Ansible, scapy, scikit-learn — I learn it on the way and ship.</p>
           </div>
           <aside className="panel">
             <div className="kv">
@@ -381,7 +381,7 @@ export function Terminal() {
             </div>
           ))}
         </div>
-        <p className="out faint" style={{ marginTop: 12 }}>no percentages — grouped by how often I actually use them. Curious what's running? try {L('htop')}.</p>
+        <p className="out faint" style={{ marginTop: 12 }}>Grouped by how often I reach for them, not by a made-up percentage. Want to see what's actually running? try {L('htop')}.</p>
       </>
     );
   }
