@@ -58,6 +58,7 @@ const CMDS = [
 const SECTION = new Set(['about', 'experience', 'projects', 'skills', 'resume', 'contact']);
 
 const NAV: { cmd: string; label: string; primary?: boolean }[] = [
+  { cmd: 'neofetch', label: 'neofetch' },
   { cmd: 'about', label: 'About' },
   { cmd: 'experience', label: 'Experience' },
   { cmd: 'projects', label: 'Projects' },
@@ -221,6 +222,16 @@ export function Terminal() {
           {frow('Status', <span className="g">● open to work</span>)}
           <div className="blocks">{colorBlocks()}</div>
         </div>
+        <aside className="hero-cta">
+          <div className="hc-title">jump in</div>
+          <div className="hc-btns">
+            <button type="button" className="btn primary" onClick={() => go('projects')}>See projects</button>
+            <button type="button" className="btn" onClick={() => go('resume')}>Résumé</button>
+            <button type="button" className="btn" onClick={() => go('experience')}>Experience</button>
+            <button type="button" className="btn" onClick={() => go('contact')}>Contact</button>
+          </div>
+          <div className="faint" style={{ fontSize: 12 }}>…or type a command below ↓</div>
+        </aside>
       </div>
     );
   }
