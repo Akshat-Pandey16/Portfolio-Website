@@ -101,11 +101,13 @@ function colorBlocks(): ReactNode {
 export function Terminal() {
   const [blocks, setBlocks] = useState<ReactNode[]>([]);
   const [input, setInput] = useState('');
+  const [focused, setFocused] = useState(false);
   const [overlay, setOverlay] = useState<'htop' | null>(null);
   const [sshHost, setSshHost] = useState<string | null>(null);
   const [cwd, setCwd] = useState<string[]>([]);
 
   const idRef = useRef(0);
+  const scrollMode = useRef<'top' | 'bottom'>('bottom');
   const histRef = useRef<string[]>([]);
   const histIdxRef = useRef(0);
   const bootedRef = useRef(false);
@@ -133,6 +135,7 @@ export function Terminal() {
 
   /* the shell dispatcher (hoisted so content builders below can call it) */
   function exec(raw: string) {
+    scrollMode.current = 'bottom'; // typed commands keep the prompt in view (terminal-natural)
     const cmd = (raw ?? '').trim();
     push(<div className="cmdline">{promptSpan()}<span>{cmd}</span></div>);
     if (!cmd) return;
@@ -191,6 +194,7 @@ export function Terminal() {
 
   const go = (cmd: string) => {
     exec(cmd);
+    scrollMode.current = 'top'; // clicking a section scrolls its heading to the top to read top-down
     const base = cmd.split(' ')[0];
     if (SECTION.has(base)) { try { history.replaceState(null, '', `#${base}`); } catch { /* ignore */ } }
     inputRef.current?.focus();
@@ -542,7 +546,7 @@ export function Terminal() {
       push(welcomeNode());
       const h = decodeURIComponent(location.hash.replace(/^#/, '')).trim().toLowerCase();
       const first = h.split(/\s+/)[0];
-      if (h && (SECTION.has(first) || CMDS.includes(first))) exec(h);
+      if (h && (SECTION.has(first) || CMDS.includes(first))) { exec(h); scrollMode.current = 'top'; }
       inputRef.current?.focus();
     };
     if (RM) { lines.forEach((l) => push(<div className="out">{l}</div>)); finish(); return; }
@@ -564,6 +568,7 @@ export function Terminal() {
     const logs = SSH_LOGS[sshHost] ?? [];
     let i = 0;
     const iv = window.setInterval(() => {
+      scrollMode.current = 'bottom';
       const t = new Date().toTimeString().slice(0, 8);
       push(<div className="out"><span className="faint">{t}</span> <span className="cy">{logs[i % logs.length]}</span></div>);
       i += 1;
@@ -571,10 +576,17 @@ export function Terminal() {
     return () => window.clearInterval(iv);
   }, [sshHost, push]);
 
-  /* autoscroll to newest output */
+  /* scroll: a run scrolls its command line to the top (read top-down);
+     streaming output (ssh tail, boot) sticks to the bottom */
   useEffect(() => {
     const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (!el) return;
+    if (scrollMode.current === 'top') {
+      const cmds = el.querySelectorAll('.cmdline');
+      const last = cmds[cmds.length - 1] as HTMLElement | undefined;
+      if (last) { last.scrollIntoView({ block: 'start', behavior: 'auto' }); return; }
+    }
+    el.scrollTop = el.scrollHeight;
   }, [blocks]);
 
   return (
@@ -615,8 +627,11 @@ export function Terminal() {
       >
         <div className="term-inner">
           {blocks}
-          <div className="inl">
+          <div className="inl" onClick={() => inputRef.current?.focus()}>
             {promptSpan()}
+            <span className="typed">{input}</span>
+            <span className={focused ? 'blk-caret' : 'blk-caret off'} aria-hidden="true" />
+            {input === '' && <span className="ph2">type a command like 'help' — or click a button above ↑</span>}
             <input
               id="term-input"
               ref={inputRef}
@@ -624,7 +639,8 @@ export function Terminal() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKey}
-              placeholder="type a command like 'help' — or click a button above ↑"
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
               autoComplete="off"
               autoCapitalize="off"
               autoCorrect="off"

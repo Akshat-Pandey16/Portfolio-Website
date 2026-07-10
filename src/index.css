@@ -98,7 +98,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 @media (max-width: 760px) { .term-nav .hint { display: none; } }
 
 /* ── screen ─────────────────────────────────────────────────────────── */
-.term-screen { flex: 1; min-height: 0; overflow-y: auto; scroll-behavior: smooth; }
+.term-screen { flex: 1; min-height: 0; overflow-y: auto; }
 .term-inner { width: 100%; padding: 18px clamp(16px, 3vw, 60px) 28px; }
 .term-screen::-webkit-scrollbar { width: 11px; }
 .term-screen::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 99px; border: 3px solid var(--term); }
@@ -112,14 +112,23 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* prompt echo + input */
 .ps { white-space: pre-wrap; }
 .ps .u { color: var(--accent); font-weight: 600; } .ps .c { color: var(--fg); } .ps .p { color: var(--link); }
-.cmdline { margin: 10px 0 2px; }
-.inl { display: flex; align-items: baseline; margin: 10px 0 4px; }
+.cmdline { margin: 10px 0 2px; scroll-margin-top: 16px; }
+.inl { display: flex; flex-wrap: wrap; align-items: baseline; margin: 10px 0 4px; position: relative; cursor: text; }
 .inl .ps { flex: none; }
-.cli {
-  flex: 1; min-width: 4ch; background: transparent; border: 0; outline: none; padding: 0;
-  color: var(--fg); font: inherit; letter-spacing: inherit; caret-color: var(--accent);
+.typed { color: var(--fg); white-space: pre-wrap; word-break: break-word; }
+.ph2 { color: var(--faint); }
+.blk-caret {
+  display: inline-block; width: 0.58ch; height: 1.12em; translate: 1px 0.18em;
+  background: var(--accent); box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 60%, transparent);
+  animation: blink 1.05s steps(1) infinite;
 }
-.cli::placeholder { color: var(--faint); }
+.blk-caret.off { animation: none; opacity: .4; box-shadow: none; }
+@keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+/* the real input sits invisibly over the line: captures typing + taps, native caret hidden */
+.cli {
+  position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0;
+  background: transparent; border: 0; outline: none; padding: 0; margin: 0; font: inherit;
+}
 
 /* clickable inline command */
 .cmd { color: var(--accent-hi); cursor: pointer; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; text-decoration-color: var(--border-hi); }
