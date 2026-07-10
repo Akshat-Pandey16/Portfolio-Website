@@ -38,7 +38,7 @@ export function Htop({ reducedMotion, onExit }: { reducedMotion: boolean; onExit
   const [cores, setCores] = useState<number[]>(() => Array.from({ length: 8 }, () => rnd(8, 55)));
   const [procs, setProcs] = useState<Proc[]>(BASE);
   const [mem, setMem] = useState(() => rnd(46, 58));
-  const t0 = useRef(Date.now());
+  const [elapsed, setElapsed] = useState(0);
   const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -57,13 +57,14 @@ export function Htop({ reducedMotion, onExit }: { reducedMotion: boolean; onExit
         setCores((cs) => cs.map((c) => clamp(c + rnd(-14, 14), 2, 99)));
         setMem((m) => clamp(m + rnd(-3, 3), 30, 74));
         setProcs((ps) => ps.map((p) => ({ ...p, cpu: clamp(p.cpu + rnd(-6, 6), 0, 99), mem: clamp(p.mem + rnd(-2, 2), 0, 99) })));
+        setElapsed((s) => s + 1);
       }, 1100);
     }
     return () => { window.removeEventListener('keydown', onKey); if (iv) window.clearInterval(iv); };
   }, [reducedMotion, onExit]);
 
   const load = (cores.reduce((a, c) => a + c, 0) / cores.length / 100) * 4;
-  const up = Math.floor((Date.now() - t0.current) / 1000);
+  const up = elapsed;
   const sorted = [...procs].sort((a, b) => b.cpu - a.cpu);
 
   return (

@@ -257,9 +257,10 @@ export function Terminal() {
           <aside className="panel">
             <div className="kv">
               <span className="k">role</span><span>{ROLE}</span>
-              <span className="k">company</span><span>Intozi Tech</span>
+              <span className="k">company</span><span>Intozi Tech · 2 yrs</span>
               <span className="k">base</span><span>Gurugram, IN</span>
               <span className="k">degree</span><span>B.Tech CS · BIT Durg</span>
+              <span className="k">award</span><span className="am">KAVACH'23 — national hackathon, winner</span>
               <span className="k">status</span><span className="g">● open to work</span>
             </div>
             <div className="btnrow" style={{ marginTop: 16 }}>
@@ -280,7 +281,15 @@ export function Terminal() {
           <div>
             <div className="lr"><span className="g bold">{e.organization}</span> <span className="dim">{e.role}</span> {statusTag(e.status)}</div>
             <p className="out dim measure" style={{ marginTop: 6 }}>{e.description}</p>
-            <div style={{ marginTop: 10 }}>
+            <div className="lr" style={{ marginTop: 12, gap: 26 }}>
+              {e.metrics.map((m) => (
+                <div key={m.label}>
+                  <div className="g bold" style={{ fontSize: '1.15em' }}>{m.value}</div>
+                  <div className="faint" style={{ fontSize: 12 }}>{m.label}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 12 }}>
               {e.highlights.map((h, i) => (
                 <p className="out measure" key={i} style={{ marginTop: 8 }}><span className="g">→ </span>{h}</p>
               ))}
