@@ -8,7 +8,9 @@ import {
 } from 'react';
 import {
   AVAILABILITY,
+  AWARD,
   CONTACT_LINKS,
+  EDUCATION,
   EMAIL,
   EXPERIENCES,
   GITHUB_URL,
@@ -18,6 +20,7 @@ import {
   RESUME_DOWNLOAD_NAME,
   RESUME_FILE,
   ROLE,
+  TAGLINE,
   type Project,
 } from '../lib/data';
 import { FACE } from '../lib/face';
@@ -28,38 +31,56 @@ const RM =
   typeof window !== 'undefined' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/* the left pane shows exactly ONE of these at a time — click a menu item or
+   type a command and the content swaps in place, so the page never scrolls */
+type View =
+  | { k: 'home' }
+  | { k: 'about' }
+  | { k: 'experience' }
+  | { k: 'projects' }
+  | { k: 'project'; slug: string }
+  | { k: 'skills' }
+  | { k: 'resume' }
+  | { k: 'contact' }
+  | { k: 'help' }
+  | { k: 'gitlog' }
+  | { k: 'neofetch' }
+  | { k: 'ssh'; host: string }
+  | { k: 'console' };
+
 /* career, rendered as a git history */
 const COMMITS: [string, string, string][] = [
   ['a1f0cc2', 'now', 'feat(mlops): dataset → label → verify → retrain, all in-tool'],
-  ['7d3e11b', '2025', 'perf(api): move inference off the request path (celery/rabbitmq)'],
+  ['b7e2c19', '2026', 'ship: onveef — zeep-free ONVIF ingest client for IP cameras'],
+  ['7d3e11b', '2025', 'perf(pipeline): move video + inference off the request path'],
   ['3b9a04e', '2025', 'ship: Hoctor — wifi indoor localization (random forest)'],
-  ['c04f7aa', '2024', 'feat(vms): live RTSP/WebRTC via MediaMTX into the app'],
-  ['e21b8d9', '2024', 'ship: ShieldBuntu — one-click CIS hardening, streamed over SSE'],
-  ['9ba33c1', '2024', 'join: Intozi Tech — backend engineer'],
+  ['c04f7aa', '2024', 'feat(ingest): live RTSP/WebRTC via MediaMTX into the VMS'],
+  ['e21b8d9', '2024', 'ship: ShieldBuntu — CIS hardening, streamed over SSE'],
+  ['9ba33c1', '2024', 'join: Intozi Tech — backend & data platform'],
   ['f5c0d70', '2023', "win: KAVACH'23 — Govt. of India national hackathon"],
-  ['0012abf', '2020', 'init: first commit. hello, backend.'],
+  ['0012abf', '2020', 'init: first commit.'],
 ];
 
 /* project "servers" you can ssh into — a delighter for developers */
 const SSH_LOGS: Record<string, string[]> = {
-  papyrus: ['POST /api/merge 200 · 4 files', 'celery: ocr.task[a3f] done in 2.41s', 'purge: 6 files wiped (zero-retention)', 'GET /healthz 200'],
+  papyrus: ['POST /api/v1/compress 200 · 3 files', 'celery: ocr.task[a3f] done in 2.41s', 'purge: 6 files wiped (zero-retention TTL)', 'GET /healthz 200'],
   headtogether: ['ws: room#kailash presence=12', 'msg relayed · room#cp · 3ms', 'waitlist: promoted user 88', 'ws: typing… room#kailash'],
   shieldbuntu: ['ansible: role[19-firewall] ok', 'SSE: harden.ufw changed', 'snapshot: pre-apply saved', 'pam: auth ok (local)'],
   hoctor: ['scan: 14 APs · rssi vector built', 'rf.predict: room=lab-2 conf=0.91', 'model: per-venue forest loaded'],
   meshhawk: ['pcap: 1.4k frames parsed', 'graph: 6 clusters · mesh-score 0.78', 'networkx: centrality computed'],
+  fosslove: ['GET /api/v1/apps 200 · 142 apps', 'script: built for pop-os (apt+flatpak)', 'redis: catalog cache warm', 'auth: refresh token rotated'],
 };
 
 const CMDS = [
-  'help', 'about', 'experience', 'projects', 'skills', 'resume', 'contact',
+  'help', 'home', 'about', 'experience', 'projects', 'skills', 'resume', 'contact',
   'neofetch', 'clear', 'ls', 'cd', 'cat', 'pwd', 'whoami', 'uname', 'date',
   'echo', 'history', 'git', 'htop', 'ssh', 'sudo', 'project',
 ];
 
 /* commands that map to a shareable #hash (deep links: site.com/#projects) */
-const SECTION = new Set(['about', 'experience', 'projects', 'skills', 'resume', 'contact']);
+const SECTION = new Set(['home', 'about', 'experience', 'projects', 'skills', 'resume', 'contact']);
 
 const NAV: { cmd: string; label: string; primary?: boolean }[] = [
-  { cmd: 'neofetch', label: 'neofetch' },
   { cmd: 'about', label: 'About' },
   { cmd: 'experience', label: 'Experience' },
   { cmd: 'projects', label: 'Projects' },
@@ -70,10 +91,12 @@ const NAV: { cmd: string; label: string; primary?: boolean }[] = [
 
 const SKILL_GROUPS: { h: string; items: string }[] = [
   { h: 'languages', items: 'Python · SQL · Bash · TypeScript' },
+  { h: 'ingest & streaming', items: 'MediaMTX (RTSP/WebRTC) · ONVIF · WebSockets · SSE' },
+  { h: 'pipelines & async', items: 'Celery · RabbitMQ · Redis · ARQ' },
+  { h: 'stores', items: 'PostgreSQL · Redis · S3' },
   { h: 'frameworks', items: 'FastAPI · Django · React' },
-  { h: 'data & async', items: 'PostgreSQL · Redis · RabbitMQ · Celery' },
-  { h: 'streaming / ml', items: 'MediaMTX · WebRTC · scikit-learn' },
-  { h: 'infra', items: 'Docker · Linux · Nginx · AWS · Git' },
+  { h: 'ml & data', items: 'scikit-learn · scapy · NetworkX' },
+  { h: 'infra', items: 'Docker · Kubernetes · Nginx · AWS · Linux · Git' },
 ];
 
 function slug(p: Project): string {
@@ -93,52 +116,57 @@ function colorBlocks(): ReactNode {
   return (
     <>
       {[r1, r2].map((row, i) => (
-        <div key={i}>{row.map((c, j) => <span key={j} style={{ color: c }}>███</span>)}</div>
+        <div key={i}>{row.map((c, j) => <span key={j} style={{ color: c }}>██</span>)}</div>
       ))}
     </>
   );
 }
 
 export function Terminal() {
-  const [blocks, setBlocks] = useState<ReactNode[]>([]);
+  const [view, setView] = useState<View>({ k: 'home' });
+  const [consoleLines, setConsoleLines] = useState<ReactNode[]>([]);
+  const [sshLines, setSshLines] = useState<ReactNode[]>([]);
   const [input, setInput] = useState('');
   const [focused, setFocused] = useState(false);
   const [overlay, setOverlay] = useState<'htop' | null>(null);
-  const [sshHost, setSshHost] = useState<string | null>(null);
   const [cwd, setCwd] = useState<string[]>([]);
+  const [booting, setBooting] = useState(!RM);
 
   const idRef = useRef(0);
-  const scrollMode = useRef<'top' | 'bottom'>('bottom');
   const histRef = useRef<string[]>([]);
   const histIdxRef = useRef(0);
-  const bootedRef = useRef(false);
-  const bootTimer = useRef<number | undefined>(undefined);
   const inputRef = useRef<HTMLInputElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const paneRef = useRef<HTMLDivElement>(null);
   const unlockedRef = useRef(false);
 
-  const push = useCallback((node: ReactNode) => {
-    setBlocks((b) => [...b, <div className="blk" key={idRef.current++}>{node}</div>]);
+  const nid = () => idRef.current++;
+
+  /* only auto-focus the command line on desktop — on phones it would pop the
+     on-screen keyboard and shove the layout around */
+  const isDesktop = () => typeof window !== 'undefined' && window.innerWidth > 880;
+  const focus = useCallback(() => inputRef.current?.focus(), []);
+  const focusDesktop = useCallback(() => { if (isDesktop()) inputRef.current?.focus(); }, []);
+
+  /* push a line into the console-delighter buffer and switch the pane to it */
+  const pushConsole = useCallback((node: ReactNode) => {
+    setConsoleLines((b) => [...b, <div className="cline" key={nid()}>{node}</div>]);
+    setView({ k: 'console' });
   }, []);
 
-  /* prompt line for the current context (ssh host / working dir) */
-  function promptSpan(): ReactNode {
-    if (sshHost) {
-      return (
-        <span className="ps"><span className="u">akshat@{sshHost}</span><span className="c">:</span><span className="p">~</span><span className="c">$ </span></span>
-      );
-    }
+  /* echo of a typed command, terminal-style — used inside the console view */
+  function echo(cmd: string): ReactNode {
     const path = cwd.length ? '~/' + cwd.join('/') : '~';
     return (
-      <span className="ps"><span className="u">akshat@intozi</span><span className="c">:</span><span className="p">{path}</span><span className="c">$ </span></span>
+      <div className="cmdline">
+        <span className="ps"><span className="u">akshat@intozi</span><span className="c">:</span><span className="p">{path}</span><span className="c">$ </span></span>
+        <span>{cmd}</span>
+      </div>
     );
   }
 
-  /* the shell dispatcher (hoisted so content builders below can call it) */
+  /* the shell dispatcher — shared by typing, nav clicks and inline links */
   function exec(raw: string) {
-    scrollMode.current = 'bottom'; // typed commands keep the prompt in view (terminal-natural)
     const cmd = (raw ?? '').trim();
-    push(<div className="cmdline">{promptSpan()}<span>{cmd}</span></div>);
     if (!cmd) return;
     histRef.current.push(cmd);
     histIdxRef.current = histRef.current.length;
@@ -146,106 +174,107 @@ export function Terminal() {
     const first = cmd.split(/\s+/)[0].toLowerCase();
     const rest = cmd.slice(first.length).trim();
 
-    // inside an ssh session: only a small set of verbs, then `exit`
-    if (sshHost) {
+    // inside an ssh session, a small set of verbs behaves specially; anything
+    // else (a nav command, say) falls through and ends the session naturally
+    if (view.k === 'ssh') {
       if (first === 'exit' || first === 'logout') {
-        push(<div className="out dim">Connection to {sshHost}.prod closed.</div>);
-        setSshHost(null);
-      } else if (first === 'status' || first === 'uptime') {
-        push(<div className="out g">● {sshHost}.prod — nominal · up 41d</div>);
-      } else if (first === 'clear') {
-        setBlocks([]);
-      } else {
-        push(<div className="out dim">{first}: on {sshHost}.prod try {L('status')} , {L('logs', 'logs')} , or {L('exit')}.</div>);
+        setView({ k: 'home' });
+        return;
       }
-      return;
+      if (first === 'status' || first === 'uptime') {
+        setSshLines((l) => [...l, <div className="out g" key={nid()}>● {view.host}.prod — nominal · up 41d</div>]);
+        return;
+      }
+      if (first === 'clear') { setSshLines([]); return; }
     }
 
     switch (first) {
-      case 'help': push(helpNode()); break;
-      case 'about': push(aboutNode()); break;
-      case 'experience': case 'work': push(experienceNode()); break;
-      case 'projects': push(projectsNode()); break;
-      case 'project': push(projectDetailNode(rest)); break;
-      case 'skills': case 'stack': push(skillsNode()); break;
-      case 'resume': case 'cv': push(resumeNode()); break;
-      case 'contact': push(contactNode()); break;
-      case 'neofetch': case 'fetch': push(neofetchNode()); break;
-      case 'git': push(gitlogNode()); break;
+      case 'home': setView({ k: 'home' }); break;
+      case 'about': setView({ k: 'about' }); break;
+      case 'experience': case 'work': setView({ k: 'experience' }); break;
+      case 'projects': setView({ k: 'projects' }); break;
+      case 'project': openProject(rest); break;
+      case 'skills': case 'stack': setView({ k: 'skills' }); break;
+      case 'resume': case 'cv': setView({ k: 'resume' }); break;
+      case 'contact': setView({ k: 'contact' }); break;
+      case 'help': case '?': setView({ k: 'help' }); break;
+      case 'neofetch': case 'fetch': setView({ k: 'neofetch' }); break;
+      case 'git': setView({ k: 'gitlog' }); break;
       case 'htop': case 'top': setOverlay('htop'); break;
       case 'ssh': sshCmd(rest); break;
-      case 'clear': case 'cls': setBlocks([]); break;
+      case 'clear': case 'cls': setConsoleLines([]); setView({ k: 'home' }); break;
       case 'ls': case 'dir': lsCmd(); break;
       case 'cd': cdCmd(rest); break;
       case 'cat': catCmd(rest); break;
-      case 'pwd': push(<div className="out">/home/akshat{cwd.length ? '/' + cwd.join('/') : ''}</div>); break;
-      case 'whoami': push(<div className="out">akshat{unlockedRef.current ? <span className="faint"> (root — you escalated, respect)</span> : null}</div>); break;
-      case 'uname': push(<div className="out dim">Linux intozi-akshat 6.17.0-oem #1 SMP x86_64 GNU/Linux</div>); break;
-      case 'hostname': push(<div className="out">intozi-akshat</div>); break;
-      case 'date': push(<div className="out dim">{new Date().toString()}</div>); break;
-      case 'echo': push(<div className="out">{rest}</div>); break;
-      case 'history': push(<pre className="out">{histRef.current.map((h, i) => `${String(i + 1).padStart(3)}  ${h}`).join('\n')}</pre>); break;
+      case 'pwd': pushConsole(<div className="out">/home/akshat{cwd.length ? '/' + cwd.join('/') : ''}</div>); break;
+      case 'whoami': pushConsole(<div className="out">akshat{unlockedRef.current ? <span className="faint"> (root — you escalated, respect)</span> : null}</div>); break;
+      case 'uname': pushConsole(<div className="out dim">Linux intozi-akshat 6.17.0-oem #1 SMP x86_64 GNU/Linux</div>); break;
+      case 'hostname': pushConsole(<div className="out">intozi-akshat</div>); break;
+      case 'date': pushConsole(<div className="out dim">{new Date().toString()}</div>); break;
+      case 'echo': pushConsole(<div className="out">{rest}</div>); break;
+      case 'history': pushConsole(<pre className="out">{histRef.current.map((h, i) => `${String(i + 1).padStart(3)}  ${h}`).join('\n')}</pre>); break;
       case 'sudo': sudoCmd(rest); break;
-      case 'exit': case 'logout': push(<div className="out dim">There's no exit — this is the whole site. Try {L('help')}.</div>); break;
+      case 'exit': case 'logout': pushConsole(<div className="out dim">There's no exit — this is the whole site. Try {L('help')}.</div>); break;
       case 'open': openRepo(rest); break;
       default:
-        push(<div className="out"><span className="rd">{first}: command not found</span> — try {L('help')}{nearHint(first) ? <> · did you mean {L(nearHint(first))}?</> : null}</div>);
+        pushConsole(<div className="out"><span className="rd">{first}: command not found</span> — try {L('help')}{nearHint(first) ? <> · did you mean {L(nearHint(first))}?</> : null}</div>);
     }
   }
 
-  const go = (cmd: string) => {
+  /* run + echo (typed commands) and keep deep-links in sync */
+  const run = (cmd: string, opts?: { echo?: boolean }) => {
+    if (opts?.echo && view.k === 'ssh') {
+      setSshLines((l) => [...l, <div key={nid()}>{echo(cmd)}</div>]);
+    } else if (opts?.echo) {
+      // typed commands that stay on the console show their prompt echo
+      const first = cmd.trim().split(/\s+/)[0].toLowerCase();
+      const isConsoley = !['home', 'about', 'experience', 'work', 'projects', 'project', 'skills', 'stack', 'resume', 'cv', 'contact', 'help', 'neofetch', 'fetch', 'git', 'htop', 'top', 'ssh', 'clear', 'cls'].includes(first);
+      if (isConsoley) setConsoleLines((l) => [...l, <div key={nid()}>{echo(cmd)}</div>]);
+    }
     exec(cmd);
-    scrollMode.current = 'top'; // clicking a section scrolls its heading to the top to read top-down
-    const base = cmd.split(' ')[0];
-    if (SECTION.has(base)) { try { history.replaceState(null, '', `#${base}`); } catch { /* ignore */ } }
-    inputRef.current?.focus();
+    const base = cmd.split(' ')[0].toLowerCase();
+    if (SECTION.has(base)) { try { history.replaceState(null, '', base === 'home' ? location.pathname : `#${base}`); } catch { /* ignore */ } }
   };
 
   /* a clickable inline command token */
   const L = (cmd: string, label?: ReactNode): ReactNode => (
-    <button type="button" className="cmd" onClick={() => go(cmd)}>{label ?? cmd}</button>
+    <button type="button" className="cmd" onClick={() => run(cmd)}>{label ?? cmd}</button>
   );
+
+  function openProject(q: string) {
+    const key = q.replace(/\.md$/, '').toLowerCase();
+    const p = [...PROJECTS, ...LAB_REPOS].find(
+      (x) => slug(x) === key || x.title.toLowerCase() === key || x.title.toLowerCase().startsWith(key),
+    );
+    if (!p) { pushConsole(<div className="out"><span className="rd">project '{q}' not found.</span> see {L('projects')}</div>); return; }
+    setView({ k: 'project', slug: slug(p) });
+  }
 
   /* ── content builders (hoisted function declarations) ───────────────── */
   function frow(k: string, v: ReactNode): ReactNode {
     return <div className="frow"><span className="k">{k}</span><span className="v">{v}</span></div>;
   }
-  function neofetchNode(): ReactNode {
+  function homeNode(): ReactNode {
     return (
-      <div className="fetch">
-        <AsciiFace art={FACE} />
-        <div className="info">
-          <div className="hd">akshat@intozi</div>
-          <div className="rl">{'─'.repeat(22)}</div>
-          {frow('Name', 'Akshat Pandey')}
-          {frow('Role', <>{ROLE} @ <span className="cy">Intozi Tech</span></>)}
-          {frow('Uptime', '2 yrs @ Intozi · coding since 2020')}
-          {frow('Stack', 'Python · FastAPI · Django · Postgres')}
-          {frow('Async', 'Celery · RabbitMQ · Redis')}
-          {frow('Focus', 'video AI — streaming, MLOps')}
-          {frow('Base', 'Gurugram, IN · remote-friendly')}
-          {frow('Status', <span className="g">● open to work</span>)}
-          <div className="blocks">{colorBlocks()}</div>
+      <div className="home">
+        <div className="eyebrow">// akshat pandey</div>
+        <h1 className="home-h1"><span className="g">Data&nbsp;Platform</span> Engineer</h1>
+        <p className="home-lead measure">{TAGLINE}</p>
+        <p className="out dim measure">
+          Two years in at <span className="cy">Intozi Tech</span>, a computer-vision &amp; video-analytics
+          product company in Gurugram. I care about the boring-on-purpose stuff: data that arrives
+          intact, pipelines that don't fall over, and models that stay fed.
+        </p>
+        <div className="statusline"><span className="g bold">● open to work</span> <span className="dim">— {AVAILABILITY}. Fastest reply is email.</span></div>
+        <div className="btnrow" style={{ marginTop: 4 }}>
+          <button type="button" className="btn primary" onClick={() => run('projects')}>See projects</button>
+          <button type="button" className="btn" onClick={() => run('experience')}>Experience</button>
+          <button type="button" className="btn" onClick={() => run('resume')}>Résumé</button>
+          <button type="button" className="btn" onClick={() => run('contact')}>Contact</button>
         </div>
-        <aside className="hero-cta">
-          <div className="hc-title">jump in</div>
-          <div className="hc-btns">
-            <button type="button" className="btn primary" onClick={() => go('projects')}>See projects</button>
-            <button type="button" className="btn" onClick={() => go('resume')}>Résumé</button>
-            <button type="button" className="btn" onClick={() => go('experience')}>Experience</button>
-            <button type="button" className="btn" onClick={() => go('contact')}>Contact</button>
-          </div>
-          <div className="faint" style={{ fontSize: 12 }}>…or type a command below ↓</div>
-        </aside>
-      </div>
-    );
-  }
-  function welcomeNode(): ReactNode {
-    return (
-      <div className="out">
-        <span className="gh bold">Welcome.</span>{' '}
-        <span className="dim">This is my résumé, built as a terminal. Not a fan of typing? Every button up top works ↑. Or try </span>
-        {L('projects')}<span className="dim">, </span>{L('resume')}<span className="dim">, or </span>{L('help')}<span className="dim">.</span>
+        <p className="out faint hint-line">
+          Prefer a keyboard? There's a command line in the side panel — try {L('git log', 'git log')}, {L('htop')}, or {L('ssh papyrus', 'ssh papyrus')}.
+        </p>
       </div>
     );
   }
@@ -255,22 +284,23 @@ export function Terminal() {
         <div className="eyebrow">// about</div>
         <div className="two">
           <div className="measure">
-            <p className="out">I'm <span className="g bold">Akshat</span>. I write the backend for a video-AI product at Intozi Tech.</p>
-            <p className="out">That means the Django and FastAPI services, the data models under them, and the Celery pipelines that keep live camera feeds and model inference off the request path. I'm mostly self-taught, with a CS degree from Bhilai Institute of Technology.</p>
-            <p className="out">The frontend I pick up when it needs doing; this terminal is one of those times. When a project needs a tool I haven't used — Ansible, scapy, scikit-learn — I learn it on the way and ship.</p>
+            <p className="out">I'm <span className="g bold">Akshat</span>. I build the data &amp; streaming platform behind a video-AI product at Intozi Tech.</p>
+            <p className="out">Day to day that's the ingest paths, the Celery/RabbitMQ pipelines that keep live camera feeds and model inference off the request path, the Postgres/Redis data layers under them, and an internal MLOps loop that takes raw datasets all the way to a re-trained model. I'm mostly self-taught, with a CS degree from Bhilai Institute of Technology.</p>
+            <p className="out">The frontend I pick up when it needs doing — this terminal is one of those times. When a project needs a tool I haven't used — Ansible, scapy, scikit-learn, ONVIF — I learn it on the way and ship.</p>
+            <p className="out faint">Off the clock I'm a published author (a novelette and two novels) and I shoot &amp; edit short films — same discipline as the backend: structure, revision, and deciding what to cut.</p>
           </div>
           <aside className="panel">
             <div className="kv">
               <span className="k">role</span><span>{ROLE}</span>
               <span className="k">company</span><span>Intozi Tech · 2 yrs</span>
               <span className="k">base</span><span>Gurugram, IN</span>
-              <span className="k">degree</span><span>B.Tech CS · BIT Durg</span>
-              <span className="k">award</span><span className="am">KAVACH'23 — national hackathon, winner</span>
+              <span className="k">degree</span><span>{EDUCATION.degree.replace('B.Tech, ', 'B.Tech ')} · {EDUCATION.note}</span>
+              <span className="k">award</span><span className="am">{AWARD.title} — national hackathon, winner</span>
               <span className="k">status</span><span className="g">● open to work</span>
             </div>
             <div className="btnrow" style={{ marginTop: 16 }}>
-              <button type="button" className="btn primary" onClick={() => go('resume')}>Résumé</button>
-              <button type="button" className="btn" onClick={() => go('contact')}>Contact</button>
+              <button type="button" className="btn primary" onClick={() => run('resume')}>Résumé</button>
+              <button type="button" className="btn" onClick={() => run('contact')}>Contact</button>
             </div>
           </aside>
         </div>
@@ -326,12 +356,12 @@ export function Terminal() {
   function projectCard(p: Project): ReactNode {
     return (
       <div
-        className="card"
+        className={'card' + (p.featured ? ' feat' : '')}
         key={p.title}
         role="button"
         tabIndex={0}
-        onClick={() => go('project ' + slug(p))}
-        onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); go('project ' + slug(p)); } }}
+        onClick={() => run('project ' + slug(p))}
+        onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); run('project ' + slug(p)); } }}
       >
         <div className="lr"><span className="t">{p.title}</span> {p.status ? statusTag(p.status) : null}</div>
         <div className="d">{firstSentence(p.blurb)}</div>
@@ -345,27 +375,25 @@ export function Terminal() {
         <div className="eyebrow">// projects · open source</div>
         <p className="out dim">Click a card to read more. Everything here is on <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub ↗</a>.</p>
         <div className="grid">{PROJECTS.map(projectCard)}</div>
-        <div className="eyebrow" style={{ marginTop: 18 }}>// lab · backend foundations</div>
+        <div className="eyebrow" style={{ marginTop: 18 }}>// lab · foundations</div>
         <div className="grid">{LAB_REPOS.map(projectCard)}</div>
       </>
     );
   }
-  function projectDetailNode(q: string): ReactNode {
-    const key = q.replace(/\.md$/, '').toLowerCase();
-    const p = [...PROJECTS, ...LAB_REPOS].find(
-      (x) => slug(x) === key || x.title.toLowerCase() === key || x.title.toLowerCase().startsWith(key),
-    );
-    if (!p) return <div className="out"><span className="rd">project '{q}' not found.</span> see {L('projects')}</div>;
+  function projectDetailNode(sl: string): ReactNode {
+    const p = [...PROJECTS, ...LAB_REPOS].find((x) => slug(x) === sl);
+    if (!p) return <div className="out"><span className="rd">project not found.</span> see {L('projects')}</div>;
     const isMain = PROJECTS.includes(p);
     return (
       <>
-        <div className="lr"><span className="g bold"># {p.title}</span> <span className="faint">{p.year}</span> {statusTag(p.status)}</div>
+        <button type="button" className="cmd back" onClick={() => run('projects')}>← all projects</button>
+        <div className="lr" style={{ marginTop: 8 }}><span className="g bold"># {p.title}</span> <span className="faint">{p.year}</span> {statusTag(p.status)}</div>
         <p className="out measure" style={{ marginTop: 6 }}>{p.blurb}</p>
-        <div className="lr" style={{ marginTop: 8 }}>{p.tags.map((t) => <span className="chip" key={t}>{t}</span>)}</div>
+        <div className="lr" style={{ marginTop: 10 }}>{p.tags.map((t) => <span className="chip" key={t}>{t}</span>)}</div>
         <div className="btnrow" style={{ marginTop: 12 }}>
           <a className="btn primary" href={p.link} target="_blank" rel="noopener noreferrer">Open repo ↗</a>
         </div>
-        {isMain ? <p className="out faint" style={{ marginTop: 8 }}>developers: it's live — try {L('ssh ' + slug(p), 'ssh ' + slug(p))}</p> : null}
+        {isMain && SSH_LOGS[slug(p)] ? <p className="out faint" style={{ marginTop: 10 }}>developers: it's live — try {L('ssh ' + slug(p), 'ssh ' + slug(p))}</p> : null}
       </>
     );
   }
@@ -395,7 +423,7 @@ export function Terminal() {
         <div className="grid">
           {CONTACT_LINKS.map((c) =>
             c.icon === 'resume' ? (
-              <button type="button" className="card" style={{ textAlign: 'left' }} key={c.label} onClick={() => go('resume')}>
+              <button type="button" className="card" style={{ textAlign: 'left' }} key={c.label} onClick={() => run('resume')}>
                 <div className="t">Résumé</div><div className="d">{c.value}</div>
               </button>
             ) : (
@@ -410,27 +438,57 @@ export function Terminal() {
   }
   function resumeNode(): ReactNode {
     return (
-      <div className="panel" style={{ maxWidth: 580 }}>
-        <div className="lr"><span className="g bold">Akshat-Pandey-Resume.pdf</span> <span className="chip">PDF · one page</span></div>
-        <p className="out dim" style={{ marginTop: 6 }}>Open it in a new tab to read, or download a copy.</p>
-        <div className="btnrow" style={{ marginTop: 12 }}>
-          <a className="btn primary" href={RESUME_FILE} target="_blank" rel="noopener noreferrer">View in browser ↗</a>
-          <a className="btn" href={RESUME_FILE} download={RESUME_DOWNLOAD_NAME}>Download ↓</a>
+      <>
+        <div className="eyebrow">// résumé</div>
+        <div className="panel" style={{ maxWidth: 580 }}>
+          <div className="lr"><span className="g bold">Akshat-Pandey-Resume.pdf</span> <span className="chip">PDF · one page</span></div>
+          <p className="out dim" style={{ marginTop: 6 }}>Open it in a new tab to read, or download a copy.</p>
+          <div className="btnrow" style={{ marginTop: 12 }}>
+            <a className="btn primary" href={RESUME_FILE} target="_blank" rel="noopener noreferrer">View in browser ↗</a>
+            <a className="btn" href={RESUME_FILE} download={RESUME_DOWNLOAD_NAME}>Download ↓</a>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
   function gitlogNode(): ReactNode {
     return (
-      <pre className="out">
-        {COMMITS.map((c, i) => (
-          <span key={c[0]}>
-            <span className="am">* </span><span className="am">{c[0]}</span>{i === 0 ? <span className="am"> (HEAD → main)</span> : null} {c[2]}{'\n'}
-            <span className="faint">{'|             ' + c[1] + ' · Akshat Pandey'}</span>{'\n'}
-            {i < COMMITS.length - 1 ? <><span className="am">|</span>{'\n'}</> : null}
-          </span>
-        ))}
-      </pre>
+      <>
+        <div className="eyebrow">// git log --oneline · career</div>
+        <pre className="out">
+          {COMMITS.map((c, i) => (
+            <span key={c[0]}>
+              <span className="am">* </span><span className="am">{c[0]}</span>{i === 0 ? <span className="am"> (HEAD → main)</span> : null} {c[2]}{'\n'}
+              <span className="faint">{'|             ' + c[1] + ' · Akshat Pandey'}</span>{'\n'}
+              {i < COMMITS.length - 1 ? <><span className="am">|</span>{'\n'}</> : null}
+            </span>
+          ))}
+        </pre>
+      </>
+    );
+  }
+  function neofetchNode(): ReactNode {
+    return (
+      <>
+        <div className="eyebrow">// neofetch</div>
+        <div className="fetch">
+          <AsciiFace art={FACE} />
+          <div className="info">
+            <div className="hd">akshat@intozi</div>
+            <div className="rl">{'─'.repeat(22)}</div>
+            {frow('Name', 'Akshat Pandey')}
+            {frow('Role', <>{ROLE} @ <span className="cy">Intozi Tech</span></>)}
+            {frow('Uptime', '2 yrs @ Intozi · coding since 2020')}
+            {frow('Focus', 'ingest · async pipelines · MLOps')}
+            {frow('Stack', 'Python · FastAPI · Django · Postgres')}
+            {frow('Async', 'Celery · RabbitMQ · Redis · ARQ')}
+            {frow('Stream', 'MediaMTX · WebRTC · ONVIF')}
+            {frow('Base', 'Gurugram, IN · remote-friendly')}
+            {frow('Status', <span className="g">● open to work</span>)}
+            <div className="blocks">{colorBlocks()}</div>
+          </div>
+        </div>
+      </>
     );
   }
   function helpNode(): ReactNode {
@@ -441,7 +499,8 @@ export function Terminal() {
     const curious = ['neofetch', 'git log', 'htop', 'ssh papyrus', 'ls', 'whoami', 'sudo hire-me'];
     return (
       <>
-        <p className="out dim">Click any button up top, or type a command. Here's the menu:</p>
+        <div className="eyebrow">// help</div>
+        <p className="out dim">Click any menu item in the panel, or type a command. Here's the menu:</p>
         <div className="kv" style={{ marginTop: 8 }}>
           {core.map(([c, d]) => (
             <span key={c} style={{ display: 'contents' }}>
@@ -458,15 +517,54 @@ export function Terminal() {
       </>
     );
   }
+  function consoleNode(): ReactNode {
+    if (!consoleLines.length) {
+      return <div className="out faint">// shell — output from ls, cat, whoami, echo, sudo … shows up here. Type {L('help')} for the menu.</div>;
+    }
+    return (
+      <>
+        <div className="eyebrow">// shell</div>
+        <div className="console">{consoleLines}</div>
+      </>
+    );
+  }
+  function sshNode(host: string): ReactNode {
+    return (
+      <>
+        <div className="lr"><span className="g bold">ssh akshat@{host}.prod</span> <span className="st-live">● connected</span></div>
+        <pre className="out g" style={{ marginTop: 8 }}>{`┌${'─'.repeat(40)}┐\n│  ${(host + '.prod').padEnd(20)}  ● all systems nominal │\n└${'─'.repeat(40)}┘`}</pre>
+        <div className="out dim" style={{ marginTop: 6 }}>tailing /var/log/{host}.log — type {L('exit')} to disconnect, or pick a menu item.</div>
+        <div className="console" style={{ marginTop: 8 }}>{sshLines}</div>
+      </>
+    );
+  }
+
+  function renderView(): ReactNode {
+    switch (view.k) {
+      case 'home': return homeNode();
+      case 'about': return aboutNode();
+      case 'experience': return experienceNode();
+      case 'projects': return projectsNode();
+      case 'project': return projectDetailNode(view.slug);
+      case 'skills': return skillsNode();
+      case 'resume': return resumeNode();
+      case 'contact': return contactNode();
+      case 'help': return helpNode();
+      case 'gitlog': return gitlogNode();
+      case 'neofetch': return neofetchNode();
+      case 'console': return consoleNode();
+      case 'ssh': return sshNode(view.host);
+    }
+  }
 
   /* ── mini filesystem (dev delighter) ────────────────────────────────── */
   function lsCmd() {
     if (cwd[0] === 'projects') {
-      push(<div className="out">{PROJECTS.map((p) => <span key={p.title} className="g">{slug(p)}.md&nbsp;&nbsp;</span>)}</div>);
+      pushConsole(<div className="out">{PROJECTS.map((p) => <span key={p.title} className="g">{slug(p)}.md&nbsp;&nbsp;</span>)}</div>);
     } else if (cwd[0] === 'lab') {
-      push(<div className="out">{LAB_REPOS.map((p) => <span key={p.title} className="g">{slug(p)}.md&nbsp;&nbsp;</span>)}</div>);
+      pushConsole(<div className="out">{LAB_REPOS.map((p) => <span key={p.title} className="g">{slug(p)}.md&nbsp;&nbsp;</span>)}</div>);
     } else {
-      push(
+      pushConsole(
         <div className="out">
           <span>about.md&nbsp;&nbsp;experience.md&nbsp;&nbsp;</span>
           <span className="b bold">projects/&nbsp;&nbsp;lab/&nbsp;&nbsp;</span>
@@ -477,48 +575,45 @@ export function Terminal() {
   }
   function cdCmd(arg: string) {
     const a = arg.trim();
-    if (!a || a === '~' || a === '/' || a === '..') { setCwd([]); return; }
-    if (a === 'projects' || a === 'lab') { setCwd([a]); return; }
-    push(<div className="out rd">cd: {a}: no such directory</div>);
+    if (!a || a === '~' || a === '/' || a === '..') { setCwd([]); pushConsole(<div className="out faint">— /home/akshat</div>); return; }
+    if (a === 'projects' || a === 'lab') { setCwd([a]); pushConsole(<div className="out faint">— /home/akshat/{a}</div>); return; }
+    pushConsole(<div className="out rd">cd: {a}: no such directory</div>);
   }
   function catCmd(arg: string) {
     const a = arg.trim().replace(/\.md$/, '').replace(/\.pdf$/, '').toLowerCase();
-    const map: Record<string, string> = { about: 'about', experience: 'experience', skills: 'skills', contact: 'contact', resume: 'resume' };
-    if (map[a]) { exec(map[a]); return; }
-    if ([...PROJECTS, ...LAB_REPOS].some((p) => slug(p) === a)) { exec('project ' + a); return; }
-    push(<div className="out rd">cat: {arg || ''}: no such file</div>);
+    const known = new Set(['about', 'experience', 'skills', 'contact', 'resume']);
+    if (known.has(a)) { exec(a); return; }
+    const p = [...PROJECTS, ...LAB_REPOS].find((x) => slug(x) === a);
+    if (p) { setView({ k: 'project', slug: slug(p) }); return; }
+    pushConsole(<div className="out rd">cat: {arg || ''}: no such file</div>);
   }
   function sudoCmd(rest: string) {
     if (/hire/.test(rest)) {
-      push(<div className="out dim">[sudo] password for recruiter: <span className="faint">••••••••</span></div>);
+      pushConsole(<div className="out dim">[sudo] password for recruiter: <span className="faint">••••••••</span></div>);
       window.setTimeout(() => {
         unlockedRef.current = true;
-        push(<div className="out"><span className="g bold">✓ access granted.</span> Email <a href={`mailto:${EMAIL}`}>{EMAIL}</a> or run {L('contact')}. I reply.</div>);
+        pushConsole(<div className="out"><span className="g bold">✓ access granted.</span> Email <a href={`mailto:${EMAIL}`}>{EMAIL}</a> or run {L('contact')}. I reply.</div>);
       }, 380);
     } else if (/rm\s+-rf/.test(rest)) {
-      push(<div className="out rd">rm: refusing to remove '/' — I need this machine, it's open to work 🙂</div>);
+      pushConsole(<div className="out rd">rm: refusing to remove '/' — I need this machine, it's open to work 🙂</div>);
     } else {
-      push(<div className="out dim">akshat is not in the sudoers file. (kidding — try {L('sudo hire-me', 'sudo hire-me')})</div>);
+      pushConsole(<div className="out dim">akshat is not in the sudoers file. (kidding — try {L('sudo hire-me', 'sudo hire-me')})</div>);
     }
   }
   function openRepo(id: string) {
     const p = [...PROJECTS, ...LAB_REPOS].find((x) => slug(x) === id.toLowerCase());
-    if (!p) { push(projectDetailNode(id)); return; }
-    push(<div className="out">opening <span className="g">{p.title}</span> → <a href={p.link} target="_blank" rel="noopener noreferrer">{p.link.replace('https://', '')} ↗</a></div>);
+    if (!p) { openProject(id); return; }
+    pushConsole(<div className="out">opening <span className="g">{p.title}</span> → <a href={p.link} target="_blank" rel="noopener noreferrer">{p.link.replace('https://', '')} ↗</a></div>);
     window.open(p.link, '_blank', 'noopener');
   }
   function sshCmd(host: string) {
     const h = host.trim().toLowerCase().replace(/.*@/, '');
     if (!SSH_LOGS[h]) {
-      push(<div className="out"><span className="rd">ssh: could not resolve host '{host}'</span>. try: {Object.keys(SSH_LOGS).map((k, i) => <span key={k}>{i ? ' ' : ''}{L('ssh ' + k, k)}</span>)}</div>);
+      pushConsole(<div className="out"><span className="rd">ssh: could not resolve host '{host}'</span>. try: {Object.keys(SSH_LOGS).map((k, i) => <span key={k}>{i ? ' ' : ''}{L('ssh ' + k, k)}</span>)}</div>);
       return;
     }
-    push(<div className="out dim">Connecting to {h}.prod … <span className="g">key accepted</span></div>);
-    push(
-      <pre className="out g">{`┌${'─'.repeat(40)}┐\n│  ${(h + '.prod').padEnd(20)}  ● all systems nominal │\n└${'─'.repeat(40)}┘`}</pre>,
-    );
-    push(<div className="out dim">tailing /var/log/{h}.log — type {L('exit')} to disconnect</div>);
-    setSshHost(h);
+    setSshLines([]);
+    setView({ k: 'ssh', host: h });
   }
   function nearHint(c: string): string {
     return CMDS.find((x) => x.startsWith(c) || c.startsWith(x)) ?? '';
@@ -526,88 +621,85 @@ export function Terminal() {
 
   /* ── input handling ─────────────────────────────────────────────────── */
   function handleKey(e: ReactKeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter') { e.preventDefault(); const v = input; setInput(''); exec(v); }
+    if (e.key === 'Enter') { e.preventDefault(); const v = input; setInput(''); if (v.trim()) run(v, { echo: true }); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); if (histIdxRef.current > 0) { histIdxRef.current--; setInput(histRef.current[histIdxRef.current] ?? ''); } }
     else if (e.key === 'ArrowDown') { e.preventDefault(); if (histIdxRef.current < histRef.current.length) { histIdxRef.current++; setInput(histRef.current[histIdxRef.current] ?? ''); } }
     else if (e.key === 'ArrowRight') {
-      const lc = input.toLowerCase();
-      const m = input && !/\s/.test(input) ? CMDS.find((c) => c.startsWith(lc) && c !== lc) : undefined;
+      const m = input && !/\s/.test(input) ? CMDS.find((c) => c.startsWith(input.toLowerCase()) && c !== input.toLowerCase()) : undefined;
       const el = e.currentTarget;
       if (m && el.selectionStart != null && el.selectionStart >= input.length) { e.preventDefault(); setInput(m); }
     }
     else if (e.key === 'Tab') { e.preventDefault(); complete(); }
-    else if (e.key === 'l' && e.ctrlKey) { e.preventDefault(); setBlocks([]); }
+    else if (e.key === 'l' && e.ctrlKey) { e.preventDefault(); setConsoleLines([]); setView({ k: 'home' }); }
   }
   function complete() {
     const t = input.trim();
     if (!t || /\s/.test(t)) return;
     const hits = CMDS.filter((c) => c.startsWith(t.toLowerCase()));
     if (hits.length === 1) setInput(hits[0] + ' ');
-    else if (hits.length > 1) push(<div className="out dim">{hits.join('  ')}</div>);
+    else if (hits.length > 1) pushConsole(<div className="out dim">{hits.join('  ')}</div>);
   }
 
-  /* ── boot sequence ──────────────────────────────────────────────────── */
+  /* ── boot: a short, skippable splash, then reveal the two panes ──────── */
   useEffect(() => {
-    if (bootedRef.current) return;
-    bootedRef.current = true;
-    const lines: ReactNode[] = [
-      <><span className="faint">[ <span className="g">0.00</span> ] GRUB loading Zorin OS 18 …</span></>,
-      <><span className="faint">[ <span className="g">0.31</span> ] kernel: waking backend engineer</span></>,
-      <><span className="faint">[ <span className="g">0.58</span> ] starting services: postgres redis rabbitmq celery … <span className="g">ok</span></span></>,
-      <><span className="faint">[ <span className="g">0.79</span> ] systemd: reached target <span className="g">open-to-work.service</span></span></>,
-      <><span className="dim">Last login: just now on tty1 — running <span className="g">neofetch</span>…</span></>,
-    ];
-    const finish = () => {
-      push(neofetchNode());
-      push(welcomeNode());
-      const h = decodeURIComponent(location.hash.replace(/^#/, '')).trim().toLowerCase();
-      const first = h.split(/\s+/)[0];
-      if (h && (SECTION.has(first) || CMDS.includes(first))) { exec(h); scrollMode.current = 'top'; }
-      inputRef.current?.focus();
-    };
-    if (RM) { lines.forEach((l) => push(<div className="out">{l}</div>)); finish(); return; }
-    let i = 0;
-    const step = () => {
-      if (i >= lines.length) { finish(); return; }
-      push(<div className="out">{lines[i]}</div>);
-      i += 1;
-      bootTimer.current = window.setTimeout(step, 230);
-    };
-    step();
-    return () => { if (bootTimer.current) window.clearTimeout(bootTimer.current); };
+    if (!booting) return;
+    const t = window.setTimeout(() => setBooting(false), 1500);
+    const skip = () => setBooting(false);
+    window.addEventListener('keydown', skip, { once: true });
+    window.addEventListener('pointerdown', skip, { once: true });
+    return () => { window.clearTimeout(t); window.removeEventListener('keydown', skip); window.removeEventListener('pointerdown', skip); };
+  }, [booting]);
+
+  /* honor a deep link once, after boot (site.com/#projects) */
+  useEffect(() => {
+    if (booting) return;
+    const h = decodeURIComponent(location.hash.replace(/^#/, '')).trim().toLowerCase();
+    const first = h.split(/\s+/)[0];
+    if (h && (SECTION.has(first) || CMDS.includes(first))) exec(h);
+    focusDesktop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [booting]);
 
   /* live log tail while ssh'd in */
   useEffect(() => {
-    if (!sshHost || RM) return;
-    const logs = SSH_LOGS[sshHost] ?? [];
+    if (view.k !== 'ssh' || RM) return;
+    const logs = SSH_LOGS[view.host] ?? [];
     let i = 0;
     const iv = window.setInterval(() => {
-      scrollMode.current = 'bottom';
       const t = new Date().toTimeString().slice(0, 8);
-      push(<div className="out"><span className="faint">{t}</span> <span className="cy">{logs[i % logs.length]}</span></div>);
+      setSshLines((l) => [...l.slice(-40), <div className="out" key={nid()}><span className="faint">{t}</span> <span className="cy">{logs[i % logs.length]}</span></div>]);
       i += 1;
-    }, 1500);
+    }, 1600);
     return () => window.clearInterval(iv);
-  }, [sshHost, push]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view]);
 
-  /* scroll: a run scrolls its command line to the top (read top-down);
-     streaming output (ssh tail, boot) sticks to the bottom */
+  /* swap scrolls the pane to the top; streaming views stick to the bottom */
   useEffect(() => {
-    const el = scrollRef.current;
+    const el = paneRef.current;
     if (!el) return;
-    if (scrollMode.current === 'top') {
-      const cmds = el.querySelectorAll('.cmdline');
-      const last = cmds[cmds.length - 1] as HTMLElement | undefined;
-      if (last) { last.scrollIntoView({ block: 'start', behavior: 'auto' }); return; }
-    }
-    el.scrollTop = el.scrollHeight;
-  }, [blocks]);
+    if (view.k === 'ssh' || view.k === 'console') el.scrollTop = el.scrollHeight;
+    else el.scrollTop = 0;
+  }, [view, consoleLines, sshLines]);
 
   const lc = input.toLowerCase();
   const ghostMatch = input && !/\s/.test(input) ? CMDS.find((c) => c.startsWith(lc) && c !== lc) : undefined;
   const ghost = ghostMatch ? ghostMatch.slice(input.length) : '';
+
+  if (booting) {
+    return (
+      <div className="term boot" role="status" aria-label="booting">
+        <pre className="boot-lines">
+          <span className="faint">[ <span className="g">0.00</span> ] GRUB loading Zorin OS 18 …{'\n'}</span>
+          <span className="faint">[ <span className="g">0.31</span> ] kernel: waking data-platform engineer{'\n'}</span>
+          <span className="faint">[ <span className="g">0.58</span> ] starting: postgres redis rabbitmq celery … <span className="g">ok</span>{'\n'}</span>
+          <span className="faint">[ <span className="g">0.79</span> ] systemd: reached target <span className="g">open-to-work.service</span>{'\n'}</span>
+          <span className="dim">Last login: just now on tty1 — loading akshat@intozi …</span>
+        </pre>
+        <div className="boot-skip faint">press any key to skip</div>
+      </div>
+    );
+  }
 
   return (
     <div className="term">
@@ -615,64 +707,85 @@ export function Terminal() {
 
       <div className="term-top">
         <span className="dots" aria-hidden="true"><span className="dot r" /><span className="dot y" /><span className="dot g" /></span>
-        <span className="term-tab"><b>akshat@intozi</b><span className="tabpath">: {sshHost ? 'ssh:' + sshHost : cwd.length ? '~/' + cwd.join('/') : '~'}</span></span>
+        <span className="term-tab"><b>akshat@intozi</b><span className="tabpath">: {view.k === 'ssh' ? 'ssh:' + view.host : cwd.length ? '~/' + cwd.join('/') : '~'}</span></span>
         <span className="grow" />
         <Clock />
       </div>
 
-      <nav className="term-nav" aria-label="sections">
-        <div className="term-nav-inner">
-          <span className="lead" aria-hidden="true">$</span>
-          {NAV.map((n) => (
-            <button
-              key={n.cmd}
-              type="button"
-              className={'navbtn' + (n.primary ? ' primary' : '')}
-              onClick={() => go(n.cmd)}
-            >
-              <span className="pmt" aria-hidden="true">›</span>{n.label}
-            </button>
-          ))}
-          <button type="button" className="navbtn" onClick={() => go('help')} aria-label="show all commands">
-            <span className="pmt" aria-hidden="true">›</span>help
-          </button>
-          <span className="hint">click a button — or type below ↓</span>
-        </div>
-      </nav>
-
-      <div
-        className="term-screen"
-        ref={scrollRef}
-        onClick={(e) => { if (!(e.target as HTMLElement).closest('button, a, input')) inputRef.current?.focus(); }}
-      >
-        <div className="term-inner">
-          {blocks}
-          <div className="inl" onClick={() => inputRef.current?.focus()}>
-            {promptSpan()}
-            <span className="typed">{input}</span>
-            <span className={focused ? 'blk-caret' : 'blk-caret off'} aria-hidden="true" />
-            {ghost && <span className="ghost" aria-hidden="true">{ghost}</span>}
-            {input === '' && <span className="ph2">type a command like 'help' — or click a button above ↑</span>}
-            <input
-              id="term-input"
-              ref={inputRef}
-              className="cli"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKey}
-              onFocus={() => setFocused(true)}
-              onBlur={() => setFocused(false)}
-              autoComplete="off"
-              autoCapitalize="off"
-              autoCorrect="off"
-              spellCheck={false}
-              aria-label="terminal command input"
-            />
+      <div className="term-main">
+        <main
+          className="pane"
+          ref={paneRef}
+          onClick={(e) => { if (!(e.target as HTMLElement).closest('button, a, input')) focusDesktop(); }}
+        >
+          <div className="pane-inner" key={view.k === 'project' ? 'p-' + view.slug : view.k}>
+            {renderView()}
           </div>
-        </div>
+        </main>
+
+        <aside className="rail" aria-label="profile and navigation">
+          <div className="rail-fetch">
+            <AsciiFace art={FACE} />
+            <div className="rail-id">
+              <button type="button" className="rail-name" onClick={() => run('home')}>akshat@intozi</button>
+              <div className="rl">{'─'.repeat(18)}</div>
+              {frow('Role', ROLE)}
+              {frow('Focus', 'ingest · pipelines · MLOps')}
+              {frow('Data', 'Postgres · Redis · Celery')}
+              {frow('Base', 'Gurugram, IN')}
+              {frow('Status', <span className="g">● open to work</span>)}
+            </div>
+          </div>
+
+          <nav className="rail-nav" aria-label="sections">
+            {NAV.map((n) => {
+              const active = view.k === n.cmd || (n.cmd === 'projects' && view.k === 'project');
+              return (
+                <button
+                  key={n.cmd}
+                  type="button"
+                  className={'navbtn' + (n.primary ? ' primary' : '') + (active ? ' active' : '')}
+                  aria-current={active ? 'page' : undefined}
+                  onClick={() => run(n.cmd)}
+                >
+                  <span className="pmt" aria-hidden="true">›</span>{n.label}
+                </button>
+              );
+            })}
+            <button type="button" className={'navbtn' + (view.k === 'help' ? ' active' : '')} onClick={() => run('help')}>
+              <span className="pmt" aria-hidden="true">›</span>help
+            </button>
+          </nav>
+
+          <div className="rail-cli" onClick={focus}>
+            <div className="cli-line">
+              <span className="ps"><span className="u">$</span> </span>
+              <span className="typed">{input}</span>
+              <span className={focused ? 'blk-caret' : 'blk-caret off'} aria-hidden="true" />
+              {ghost && <span className="ghost" aria-hidden="true">{ghost}</span>}
+              {input === '' && <span className="ph2">type a command…</span>}
+              <input
+                id="term-input"
+                ref={inputRef}
+                className="cli"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKey}
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
+                autoComplete="off"
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck={false}
+                aria-label="terminal command input"
+              />
+            </div>
+            <div className="cli-hint faint">↑ history · Tab completes · {L('help')}</div>
+          </div>
+        </aside>
       </div>
 
-      {overlay === 'htop' && <Htop reducedMotion={RM} onExit={() => { setOverlay(null); inputRef.current?.focus(); }} />}
+      {overlay === 'htop' && <Htop reducedMotion={RM} onExit={() => { setOverlay(null); focus(); }} />}
     </div>
   );
 }

@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # ⚠️ update the domain to your real deployed site
-Sitemap: https://akshatpandey.dev/sitemap.xml
+Sitemap: https://akshat16pandey.netlify.app/sitemap.xml

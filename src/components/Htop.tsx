@@ -10,13 +10,14 @@ type Proc = { pid: number; user: string; name: string; cpu: number; mem: number;
 const BASE: Proc[] = [
   { pid: 1337, user: 'akshat', name: 'ikshana', cpu: 34, mem: 18, note: 'analytics engine (video AI)' },
   { pid: 1401, user: 'akshat', name: 'mediamtx', cpu: 22, mem: 9, note: 'RTSP / WebRTC gateway' },
+  { pid: 1418, user: 'akshat', name: 'onvif-ingest', cpu: 15, mem: 6, note: 'camera discovery + pull' },
   { pid: 1444, user: 'akshat', name: 'gunicorn·fastapi', cpu: 12, mem: 7, note: 'API workers' },
   { pid: 1502, user: 'akshat', name: 'celery·worker', cpu: 28, mem: 11, note: 'off-request pipeline' },
   { pid: 1503, user: 'akshat', name: 'celery·worker', cpu: 19, mem: 10, note: 'off-request pipeline' },
   { pid: 1560, user: 'rabbit', name: 'rabbitmq', cpu: 6, mem: 5, note: 'message broker' },
   { pid: 1590, user: 'postgres', name: 'postgres', cpu: 9, mem: 14, note: 'the source of truth' },
   { pid: 1610, user: 'redis', name: 'redis', cpu: 3, mem: 3, note: 'cache + results' },
-  { pid: 1701, user: 'akshat', name: 'mlops-trainer', cpu: 41, mem: 22, note: 'dataset → retrain loop' },
+  { pid: 1701, user: 'akshat', name: 'mlops-trainer', cpu: 41, mem: 22, note: 'dataset → label → retrain loop' },
   { pid: 2010, user: 'akshat', name: 'vite', cpu: 7, mem: 4, note: 'this website' },
   { pid: 2050, user: 'akshat', name: 'htop', cpu: 2, mem: 1, note: 'you are here' },
 ];
