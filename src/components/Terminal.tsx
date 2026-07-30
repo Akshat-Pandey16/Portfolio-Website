@@ -179,6 +179,7 @@ export function Terminal() {
   const [cwd, setCwd] = useState<string[]>([]);
   const [booting, setBooting] = useState(!RM);
   const [theme, setTheme] = useState<Theme>(initialTheme);
+  const [completions, setCompletions] = useState<string[]>([]);
 
   const idRef = useRef(0);
   const histRef = useRef<string[]>([]);
@@ -336,7 +337,7 @@ export function Terminal() {
             read by screen readers and search engines, seen by nobody */}
         <h1 className="vh">Akshat Pandey — {ROLE} at Intozi Tech</h1>
         <div className="land-fetch" style={{ viewTransitionName: 'ident' }}>
-          <AsciiFace art={FACE} />
+          <AsciiFace art={FACE} invert={theme === 'dark'} />
           <div className="land-info">
             <div className="hd">akshat@intozi</div>
             <div className="rl">{'─'.repeat(30)}</div>
@@ -705,7 +706,7 @@ export function Terminal() {
             ref={inputRef}
             className="cli"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => { setInput(e.target.value); setCompletions([]); }}
             onKeyDown={handleKey}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
@@ -716,6 +717,21 @@ export function Terminal() {
             aria-label="terminal command input"
           />
         </div>
+        {completions.length > 0 && (
+          <div className="cli-comp" role="status">
+            {completions.slice(0, 10).map((c) => (
+              <button
+                key={c}
+                type="button"
+                className="cmd"
+                onClick={() => { setInput(c + ' '); setCompletions([]); focus(); }}
+              >
+                {c}
+              </button>
+            ))}
+            {completions.length > 10 && <span className="faint">+{completions.length - 10} more</span>}
+          </div>
+        )}
         <div className="cli-hint faint">↑ history · Tab completes · {L('help')}</div>
       </>
     );
@@ -813,7 +829,7 @@ export function Terminal() {
 
   /* ── input handling ─────────────────────────────────────────────────── */
   function handleKey(e: ReactKeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter') { e.preventDefault(); const v = input; setInput(''); if (v.trim()) run(v, { echo: true }); }
+    if (e.key === 'Enter') { e.preventDefault(); const v = input; setInput(''); setCompletions([]); if (v.trim()) run(v, { echo: true }); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); if (histIdxRef.current > 0) { histIdxRef.current--; setInput(histRef.current[histIdxRef.current] ?? ''); } }
     else if (e.key === 'ArrowDown') { e.preventDefault(); if (histIdxRef.current < histRef.current.length) { histIdxRef.current++; setInput(histRef.current[histIdxRef.current] ?? ''); } }
     else if (e.key === 'ArrowRight') {
@@ -823,18 +839,30 @@ export function Terminal() {
     }
     else if (e.key === 'Escape') {
       // Esc is the way back out of a section — matches the visible `← home` chip
+      if (completions.length) { setCompletions([]); return; }
       if (input) { setInput(''); return; }
       if (view.k !== 'home') { e.preventDefault(); run('home'); }
     }
     else if (e.key === 'Tab') { e.preventDefault(); complete(); }
     else if (e.key === 'l' && e.ctrlKey) { e.preventDefault(); setConsoleLines([]); setView({ k: 'home' }); }
   }
+  /*
+    Tab used to push the candidate list through pushConsole — which appends a
+    line AND switches the pane to the shell, so completing a command threw you
+    out of whatever you were reading, once per keypress. It now behaves like
+    readline: fill in as far as every candidate agrees, and list the rest
+    in place under the prompt.
+  */
   function complete() {
     const t = input.trim();
     if (!t || /\s/.test(t)) return;
     const hits = CMDS.filter((c) => c.startsWith(t.toLowerCase()));
-    if (hits.length === 1) setInput(hits[0] + ' ');
-    else if (hits.length > 1) pushConsole(<div className="out dim">{hits.join('  ')}</div>);
+    if (!hits.length) { setCompletions([]); return; }
+    if (hits.length === 1) { setInput(hits[0] + ' '); setCompletions([]); return; }
+    let prefix = hits[0];
+    for (const h of hits) while (!h.startsWith(prefix)) prefix = prefix.slice(0, -1);
+    if (prefix.length > t.length) setInput(prefix);
+    setCompletions(hits);
   }
 
   /* ── boot: a short, skippable splash, then reveal the two panes ──────── */
@@ -957,7 +985,8 @@ export function Terminal() {
           title={theme === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme'}
           aria-label={theme === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme'}
         >
-          <span aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span>
+          <span className="ico" aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span>
+          <span className="lbl">{theme === 'dark' ? 'light' : 'dark'}</span>
         </button>
         <Clock />
       </div>
@@ -994,7 +1023,7 @@ export function Terminal() {
         {!onLanding && (
         <aside className="rail" aria-label="profile and navigation">
           <div className="rail-fetch" style={{ viewTransitionName: 'ident' }}>
-            <AsciiFace art={FACE} />
+            <AsciiFace art={FACE} invert={theme === 'dark'} />
             <div className="rail-id">
               <button type="button" className="rail-name" onClick={() => run('home')}>akshat@intozi</button>
               <div className="rl">{'─'.repeat(18)}</div>
