@@ -146,6 +146,22 @@ const FILL: Partial<Record<View['k'], string>> = {
   gitlog: 'pi-center',
 };
 
+/*
+  Resolve a shareable deep link (site.com/#projects, #project onveef) into the
+  opening view. This runs as the state initialiser rather than in an effect: it
+  reads the URL synchronously, so a deep link paints its own section on the
+  first frame instead of flashing the landing and swapping.
+*/
+function initialView(): View {
+  if (typeof location === 'undefined') return { k: 'home' };
+  const h = decodeURIComponent(location.hash.replace(/^#/, '')).trim().toLowerCase();
+  if (!h) return { k: 'home' };
+  const [first, ...rest] = h.split(/\s+/);
+  if (first === 'project' && rest.length) return { k: 'project', slug: rest.join(' ') };
+  if (SECTION.has(first)) return { k: first } as View;
+  return { k: 'home' };
+}
+
 function slug(p: Project): string {
   return (p.link.split('/').pop() ?? p.title).toLowerCase();
 }
@@ -170,7 +186,7 @@ function colorBlocks(): ReactNode {
 }
 
 export function Terminal() {
-  const [view, setView] = useState<View>({ k: 'home' });
+  const [view, setView] = useState<View>(initialView);
   const [consoleLines, setConsoleLines] = useState<ReactNode[]>([]);
   const [sshLines, setSshLines] = useState<ReactNode[]>([]);
   const [input, setInput] = useState('');
@@ -875,15 +891,9 @@ export function Terminal() {
     return () => { window.clearTimeout(t); window.removeEventListener('keydown', skip); window.removeEventListener('pointerdown', skip); };
   }, [booting]);
 
-  /* honor a deep link once, after boot (site.com/#projects) */
-  useEffect(() => {
-    if (booting) return;
-    const h = decodeURIComponent(location.hash.replace(/^#/, '')).trim().toLowerCase();
-    const first = h.split(/\s+/)[0];
-    if (h && (SECTION.has(first) || CMDS.includes(first))) exec(h);
-    focusDesktop();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [booting]);
+  /* the deep link is resolved in the state initialiser above, so all this has
+     left to do is put the caret in the command line once the splash clears */
+  useEffect(() => { if (!booting) focusDesktop(); }, [booting, focusDesktop]);
 
   /* the command line moves between the landing and the rail, so it remounts on
      that boundary — put the caret back afterwards */
@@ -930,7 +940,6 @@ export function Terminal() {
       i += 1;
     }, 1600);
     return () => window.clearInterval(iv);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view]);
 
   /* swap scrolls the pane to the top; streaming views stick to the bottom */
