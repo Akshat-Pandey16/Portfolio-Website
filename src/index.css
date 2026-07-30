@@ -37,8 +37,9 @@
   --bar-h:38px;
   /* ink that sits ON an accent fill, and the two ASCII-portrait tones */
   --on-accent:#04140c; --sel-fg:#eafff4; --sunk:#0f1512;
-  --face-glow:45%; --face-dim:20%; --face-dim-lg:9%;
-  --tone-1:#8ff8cf; --tone-2:#4fe3a6; --tone-3:#27b681; --tone-4:#16704f; --tone-5:#0c3b2a;
+  /* the portrait is always ink on paper — see AsciiFace.tsx. In dark mode it
+     brings its own paper, so these are the same in both themes. */
+  --face-ink:#0b3d27; --face-fill:22%; --face-fill-lg:13%; --paper:#e7ede4;
   color-scheme: dark;
 }
 
@@ -58,32 +59,28 @@
   --on-accent:#f4fbf6; --sel-fg:#0a2418; --sunk:#e9eee7;
   --lift:0 1px 0 color-mix(in srgb, #fff 70%, transparent) inset;
   --shadow:0 10px 26px -14px rgba(20,40,28,.34);
-  /* the portrait is a photo conversion: on paper the bright glyphs must be the
-     darkest ink, the glow has to go, and the filler wants *less* weight, not
-     more — at this glyph size it is the filler that washes the subject out */
-  --face-glow:0%; --face-dim:22%; --face-dim-lg:11%;
-  /* on paper the glyphs' own ink coverage already carries the tonality — which
-     is exactly why this render reads as a photograph — so every tone is the
-     same ink and the ramp does nothing */
-  --tone-1:#0b3d27; --tone-2:#0b3d27; --tone-3:#0b3d27; --tone-4:#0b3d27; --tone-5:#0b3d27;
+  /* the page is already paper here, so the portrait needs none of its own */
+  --paper:transparent;
   color-scheme: light;
 }
+/* ── the ASCII portrait, one definition for every place it appears ──── */
 /*
-  Glyphs a few pixels tall lose most of their body to antialiasing on a light
-  background. JetBrains Mono is monospace at every weight, so leaning on the
+  Glyphs a few pixels tall lose most of their body to antialiasing against a
+  light ground. JetBrains Mono is monospace at every weight, so leaning on the
   variable axis thickens the portrait without shifting a single column of it.
 */
-:root[data-theme='light'] .face span { font-weight: 700; }
+.face span { font-weight: 700; }
+.face .fb { color: var(--face-ink); }
+.face .fd { color: color-mix(in srgb, var(--face-ink) var(--face-fill), transparent); }
 
-/* ── the ASCII portrait, one definition for every place it appears ──── */
-.face .t1 { color: var(--tone-1); }
-.face .t2 { color: var(--tone-2); }
-.face .t3 { color: var(--tone-3); }
-.face .t4 { color: var(--tone-4); }
-.face .t5 { color: var(--tone-5); }
-.face .fd { color: color-mix(in srgb, var(--accent) var(--face-dim), transparent); }
-/* only the highlights bloom — glowing the shadows is what flattened the face */
-.face .t1, .face .t2 { text-shadow: 0 0 6px color-mix(in srgb, var(--accent) var(--face-glow), transparent); }
+/* dark mode: the print, and the paper it is printed on */
+:root[data-theme='dark'] .face {
+  background: var(--paper);
+  border-radius: var(--r-lg);
+  padding: clamp(8px, 1.2vw, 18px) clamp(6px, 1vw, 14px);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent),
+              0 18px 44px -18px rgba(0, 0, 0, .85);
+}
 
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; margin: 0; padding: 0; }
@@ -360,13 +357,15 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
      the portrait stops resolving */
   font-size: clamp(3px, min(0.5vw, 0.82vh), 8.4px);
   /* the art is a full rectangle of filler glyphs — fade the edges so the
-     portrait floats instead of sitting in a visible box */
+     portrait floats instead of sitting in a visible box. Skipped in dark mode,
+     where it would dissolve the paper along with the ink. */
   -webkit-mask-image: radial-gradient(ellipse 68% 74% at 50% 52%, #000 52%, transparent 100%);
   mask-image: radial-gradient(ellipse 68% 74% at 50% 52%, #000 52%, transparent 100%);
 }
 /* much fainter than the rail's: at this size each filler glyph is legible and
    would otherwise drown the subject */
-.land-fetch .face { --face-dim: var(--face-dim-lg); }
+.land-fetch .face { --face-fill: var(--face-fill-lg); }
+:root[data-theme='dark'] .land-fetch .face { -webkit-mask-image: none; mask-image: none; }
 .land-info { font-size: clamp(11.5px, 0.95vw, 15.5px); min-width: 0; }
 .land-info .hd { color: var(--accent); font-weight: 700; font-size: 1.16em; }
 .land-info .rl { color: var(--faint); margin-bottom: 5px; }
