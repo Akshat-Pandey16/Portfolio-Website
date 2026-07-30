@@ -55,15 +55,17 @@ export const EXPERIENCES: Experience[] = [
     description:
       'I own the Python backend at a computer-vision & video-analytics product company — and most of that work is data-platform: the streaming ingest, the async processing pipelines, and the data layers that production AI workloads run on. It is a small team, so I also coordinate delivery and pick up frontend when a feature needs it.',
     highlights: [
+      'Cut a large client\'s production database from ~200 GB to ~80 GB. The system took ~200k rows an hour and the hot table was swallowing the disk, so I range-partitioned it, kept a rolling 90-day window online, and moved older partitions out to a dedicated archive server that still answers historical queries. Done inside an air-gapped deployment — no cloud, no managed service, everything on-prem.',
       'Architected the data & async layer — PostgreSQL, Redis, RabbitMQ, Celery — so video-processing and model-inference jobs run off the request path and the API stays responsive under load.',
       'Built the live-video ingest for a client-facing Video Management System: Django services with MediaMTX wired in for RTSP/WebRTC, streaming camera feeds and AI analytics into the app in real time.',
       'Built an internal MLOps pipeline (Django + React) that runs the full data loop — dataset upload → auto-labeling → human verification → re-training — so new models ship without ever leaving the tool.',
     ],
     stack: ['Python', 'Django', 'FastAPI', 'PostgreSQL', 'Redis', 'RabbitMQ', 'Celery', 'MediaMTX', 'Docker'],
+    /* real numbers from the partitioning work — a recruiter scans this row first */
     metrics: [
-      { label: 'tenure', value: '2 yrs' },
-      { label: 'focus', value: 'data platform' },
-      { label: 'domain', value: 'video AI' },
+      { label: 'peak ingest', value: '200k rows/hr' },
+      { label: 'db footprint', value: '200 → 80 GB' },
+      { label: 'hot window', value: '90 days' },
     ],
   },
 ];

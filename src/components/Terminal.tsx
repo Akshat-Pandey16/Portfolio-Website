@@ -24,13 +24,35 @@ import {
   TAGLINE,
   type Project,
 } from '../lib/data';
+import { FaGithub, FaLinkedin, FaRegFileLines } from 'react-icons/fa6';
 import { FACE } from '../lib/face';
 import { AsciiFace } from './AsciiFace';
 import { Htop } from './Htop';
 
+/* the only pictograms on the site: a recruiter scans the contact list for a
+   logo, not for the word "GitHub" */
+const CONTACT_ICON: Record<string, ReactNode> = {
+  resume: <FaRegFileLines />,
+  github: <FaGithub />,
+  linkedin: <FaLinkedin />,
+};
+
 const RM =
   typeof window !== 'undefined' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/*
+  Theme. The inline script in index.html has already stamped data-theme before
+  first paint, so we read back from the DOM rather than recomputing — that keeps
+  React's first render in step with what's already on screen.
+*/
+type Theme = 'dark' | 'light';
+const THEME_BG: Record<Theme, string> = { dark: '#070b09', light: '#e4eae1' };
+
+function initialTheme(): Theme {
+  if (typeof document === 'undefined') return 'dark';
+  return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+}
 
 /* `home` is the landing: a full-bleed neofetch with the menu under it and no
    rail. Every other view splits the window into content pane + rail, and the
@@ -53,6 +75,7 @@ type View =
 const COMMITS: [string, string, string][] = [
   ['a1f0cc2', 'now', 'feat(mlops): dataset → label → verify → retrain, all in-tool'],
   ['b7e2c19', '2026', 'ship: onveef — zeep-free ONVIF ingest client for IP cameras'],
+  ['4c8be5d', '2025', 'perf(db): partition the hot table — 200GB → 80GB, 90-day hot window'],
   ['7d3e11b', '2025', 'perf(pipeline): move video + inference off the request path'],
   ['3b9a04e', '2025', 'ship: Hoctor — wifi indoor localization (random forest)'],
   ['c04f7aa', '2024', 'feat(ingest): live RTSP/WebRTC via MediaMTX into the VMS'],
@@ -75,8 +98,14 @@ const SSH_LOGS: Record<string, string[]> = {
 const CMDS = [
   'help', 'home', 'about', 'experience', 'projects', 'skills', 'resume', 'contact',
   'neofetch', 'clear', 'ls', 'cd', 'cat', 'pwd', 'whoami', 'uname', 'date',
-  'echo', 'history', 'git', 'htop', 'ssh', 'sudo', 'project',
+  'echo', 'history', 'git', 'htop', 'ssh', 'sudo', 'project', 'theme',
 ];
+
+const VIEW_TITLE: Partial<Record<View['k'], string>> = {
+  about: 'About', experience: 'Experience', projects: 'Projects', project: 'Project',
+  skills: 'Skills', resume: 'Résumé', contact: 'Contact', help: 'Help',
+  gitlog: 'Career log', console: 'Shell', ssh: 'ssh',
+};
 
 /* commands that map to a shareable #hash (deep links: site.com/#projects) */
 const SECTION = new Set(['home', 'about', 'experience', 'projects', 'skills', 'resume', 'contact']);
@@ -94,7 +123,7 @@ const SKILL_GROUPS: { h: string; items: string[] }[] = [
   { h: 'languages', items: ['Python', 'SQL', 'Bash', 'TypeScript'] },
   { h: 'ingest & streaming', items: ['MediaMTX (RTSP/WebRTC)', 'ONVIF', 'WebSockets', 'SSE'] },
   { h: 'pipelines & async', items: ['Celery', 'RabbitMQ', 'Redis', 'ARQ', 'SQS'] },
-  { h: 'stores', items: ['PostgreSQL', 'Redis', 'S3'] },
+  { h: 'stores', items: ['PostgreSQL', 'partitioning & archival', 'Redis', 'S3'] },
   { h: 'cloud', items: ['AWS', 'Lambda', 'SQS', 'S3'] },
   { h: 'frameworks', items: ['FastAPI', 'Django', 'React'] },
   { h: 'ml & data', items: ['scikit-learn', 'scapy', 'NetworkX'] },
@@ -149,6 +178,7 @@ export function Terminal() {
   const [overlay, setOverlay] = useState<'htop' | null>(null);
   const [cwd, setCwd] = useState<string[]>([]);
   const [booting, setBooting] = useState(!RM);
+  const [theme, setTheme] = useState<Theme>(initialTheme);
 
   const idRef = useRef(0);
   const histRef = useRef<string[]>([]);
@@ -234,6 +264,7 @@ export function Terminal() {
       case 'date': pushConsole(<div className="out dim">{new Date().toString()}</div>); break;
       case 'echo': pushConsole(<div className="out">{rest}</div>); break;
       case 'history': pushConsole(<pre className="out">{histRef.current.map((h, i) => `${String(i + 1).padStart(3)}  ${h}`).join('\n')}</pre>); break;
+      case 'theme': themeCmd(rest); break;
       case 'sudo': sudoCmd(rest); break;
       case 'exit': case 'logout': pushConsole(<div className="out dim">There's no exit — this is the whole site. Try {L('help')}.</div>); break;
       case 'open': openRepo(rest); break;
@@ -300,6 +331,10 @@ export function Terminal() {
   function landingNode(): ReactNode {
     return (
       <div className="land">
+        {/* the visible identity is a neofetch readout, which is the wrong shape
+            for a document heading — so the page's one h1 is a real sentence,
+            read by screen readers and search engines, seen by nobody */}
+        <h1 className="vh">Akshat Pandey — {ROLE} at Intozi Tech</h1>
         <div className="land-fetch" style={{ viewTransitionName: 'ident' }}>
           <AsciiFace art={FACE} />
           <div className="land-info">
@@ -309,6 +344,7 @@ export function Terminal() {
             {frow('Role', <>{ROLE} @ <span className="cy">Intozi Tech</span></>)}
             {frow('Uptime', '2 yrs @ Intozi · coding since 2020')}
             {frow('Focus', 'ingest · async pipelines · MLOps')}
+            {frow('Scale', <>200k rows/hr · <span className="am">200 → 80 GB</span> · air-gapped</>)}
             {frow('Stack', 'Python · FastAPI · Django · Postgres')}
             {frow('Async', 'Celery · RabbitMQ · Redis · ARQ · SQS')}
             {frow('Stream', 'MediaMTX · WebRTC · ONVIF')}
@@ -350,11 +386,12 @@ export function Terminal() {
   function aboutNode(): ReactNode {
     return (
       <>
-        <div className="eyebrow">// about</div>
+        <h2 className="eyebrow">// about</h2>
         <div className="two two-stretch">
           <div className="measure">
-            <p className="out">I'm <span className="g bold">Akshat</span>. I build the data &amp; streaming platform behind a video-AI product at Intozi Tech.</p>
+            <p className="out lead">I'm <span className="g bold">Akshat</span>. I build the data &amp; streaming platform behind a video-AI product at Intozi Tech.</p>
             <p className="out">Day to day that's the ingest paths, the Celery/RabbitMQ pipelines that keep live camera feeds and model inference off the request path, the Postgres/Redis data layers under them, and an internal MLOps loop that takes raw datasets all the way to a re-trained model. I'm mostly self-taught, with a CS degree from Bhilai Institute of Technology.</p>
+            <p className="out">The work I'm proudest of is the least glamorous: a client's database was taking ~200k rows an hour and heading past 200&nbsp;GB, so I partitioned the hot table, kept 90 days online and archived the rest to its own server — <span className="am">200&nbsp;GB down to 80</span>, in an air-gapped environment where there's no managed service to fall back on.</p>
             <p className="out">The frontend I pick up when it needs doing — this terminal is one of those times. When a project needs a tool I haven't used — Ansible, scapy, scikit-learn, ONVIF — I learn it on the way and ship.</p>
           </div>
           <aside className="panel">
@@ -368,7 +405,7 @@ export function Terminal() {
             </div>
             {/* moved out of the prose column so both columns reach the same depth */}
             <div className="side-note">
-              <div className="eyebrow">// off the clock</div>
+              <h3 className="eyebrow">// off the clock</h3>
               <p className="out faint">A published author (a novelette and two novels), and I shoot &amp; edit short films — same discipline as the backend: structure, revision, and deciding what to cut.</p>
             </div>
             <div className="btnrow">
@@ -384,7 +421,7 @@ export function Terminal() {
     const e = EXPERIENCES[0];
     return (
       <>
-        <div className="eyebrow">// experience</div>
+        <h2 className="eyebrow">// experience</h2>
         <div className="two two-stretch">
           <div>
             <div className="lr"><span className="g bold">{e.organization}</span> <span className="dim">{e.role}</span> {statusTag(e.status)}</div>
@@ -414,7 +451,7 @@ export function Terminal() {
           </aside>
         </div>
         <p className="out faint" style={{ marginTop: 12 }}>the full timeline → {L('git log', 'git log')}</p>
-        <div className="eyebrow" style={{ marginTop: 18 }}>// earlier</div>
+        <h3 className="eyebrow" style={{ marginTop: 18 }}>// earlier</h3>
         {PAST_ROLES.map((p) => (
           <div className="lr" key={p.org} style={{ marginTop: 5 }}>
             <span className="dim bold">{p.org}</span>
@@ -438,17 +475,20 @@ export function Terminal() {
       >
         <div className="lr"><span className="t">{p.title}</span> {p.status ? statusTag(p.status) : null}</div>
         <div className="d">{firstSentence(p.blurb)}</div>
-        <div className="m"><span className="faint">{p.year}</span><span className="g">{p.tags.join(' · ')}</span></div>
+        <div className="m">
+          <span className="faint">{p.year}</span>
+          {p.tags.map((t) => <span className="tg" key={t}>{t}</span>)}
+        </div>
       </div>
     );
   }
   function projectsNode(): ReactNode {
     return (
       <>
-        <div className="eyebrow">// projects · open source</div>
+        <h2 className="eyebrow">// projects · open source</h2>
         <p className="out dim">Click a card to read more. Everything here is on <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub ↗</a>.</p>
         <div className="grid">{PROJECTS.map(projectCard)}</div>
-        <div className="eyebrow" style={{ marginTop: 18 }}>// lab · foundations</div>
+        <h3 className="eyebrow" style={{ marginTop: 18 }}>// lab · foundations</h3>
         <div className="grid">{LAB_REPOS.map(projectCard)}</div>
       </>
     );
@@ -485,7 +525,7 @@ export function Terminal() {
   function skillsNode(): ReactNode {
     return (
       <>
-        <div className="eyebrow">// skills · what I reach for</div>
+        <h2 className="eyebrow">// skills · what I reach for</h2>
         <div className="skill-grid">
           {SKILL_GROUPS.map((g) => (
             <div className="panel" key={g.h}>
@@ -503,7 +543,7 @@ export function Terminal() {
   function contactNode(): ReactNode {
     return (
       <>
-        <div className="eyebrow">// contact</div>
+        <h2 className="eyebrow">// contact</h2>
         <div className="ct-two">
           <div className="ct-main">
             {/* email is the one action worth making unmissable */}
@@ -512,18 +552,24 @@ export function Terminal() {
               <span className="ct-mail">{EMAIL}</span>
               <span className="ct-sub">Email me — I read everything, and I reply.</span>
             </a>
-            <div className="grid">
-              {CONTACT_LINKS.filter((c) => c.icon !== 'email').map((c) =>
-                c.icon === 'resume' ? (
-                  <button type="button" className="card" style={{ textAlign: 'left' }} key={c.label} onClick={() => run('resume')}>
-                    <div className="t">Résumé</div><div className="d">{c.value}</div>
-                  </button>
+            <div className="ct-links">
+              {CONTACT_LINKS.filter((c) => c.icon !== 'email').map((c) => {
+                const inner = (
+                  <>
+                    <span className="ic" aria-hidden="true">{CONTACT_ICON[c.icon]}</span>
+                    <span className="tx">
+                      <span className="lb">{c.icon === 'resume' ? 'Résumé' : c.label}</span>
+                      <span className="vl">{c.value}</span>
+                    </span>
+                    <span className="go" aria-hidden="true">{c.icon === 'resume' ? '→' : '↗'}</span>
+                  </>
+                );
+                return c.icon === 'resume' ? (
+                  <button type="button" className="ct-link" key={c.label} onClick={() => run('resume')}>{inner}</button>
                 ) : (
-                  <a className="card" key={c.label} href={c.href} target="_blank" rel="noopener noreferrer">
-                    <div className="t">{c.label}</div><div className="d">{c.value}</div>
-                  </a>
-                ),
-              )}
+                  <a className="ct-link" key={c.label} href={c.href} target="_blank" rel="noopener noreferrer">{inner}</a>
+                );
+              })}
             </div>
           </div>
 
@@ -551,7 +597,7 @@ export function Terminal() {
   function resumeNode(): ReactNode {
     return (
       <>
-        <div className="eyebrow">// résumé</div>
+        <h2 className="eyebrow">// résumé</h2>
         <div className="res-bar">
           <span className="g bold">Akshat-Pandey-Resume.pdf</span>
           <span className="chip">PDF · one page</span>
@@ -583,7 +629,7 @@ export function Terminal() {
   function gitlogNode(): ReactNode {
     return (
       <>
-        <div className="eyebrow">// git log --oneline · career</div>
+        <h2 className="eyebrow">// git log --oneline · career</h2>
         <pre className="out">
           {COMMITS.map((c, i) => (
             <span key={c[0]}>
@@ -601,10 +647,10 @@ export function Terminal() {
       ['about', 'who I am'], ['experience', 'what I do at Intozi'], ['projects', 'open-source work'],
       ['skills', 'the stack I use'], ['resume', 'view / download the PDF'], ['contact', 'ways to reach me'],
     ];
-    const curious = ['neofetch', 'git log', 'htop', 'ssh papyrus', 'ls', 'whoami', 'sudo hire-me'];
+    const curious = ['neofetch', 'git log', 'htop', 'ssh papyrus', 'ls', 'whoami', 'theme', 'sudo hire-me'];
     return (
       <>
-        <div className="eyebrow">// help</div>
+        <h2 className="eyebrow">// help</h2>
         <p className="out dim">Click any menu item in the panel, or type a command. Here's the menu:</p>
         <div className="kv" style={{ marginTop: 8 }}>
           {core.map(([c, d]) => (
@@ -628,8 +674,8 @@ export function Terminal() {
     }
     return (
       <>
-        <div className="eyebrow">// shell</div>
-        <div className="console">{consoleLines}</div>
+        <h2 className="eyebrow">// shell</h2>
+        <div className="console" role="log" aria-live="polite">{consoleLines}</div>
       </>
     );
   }
@@ -722,6 +768,17 @@ export function Terminal() {
     if (p) { setView({ k: 'project', slug: slug(p) }); return; }
     pushConsole(<div className="out rd">cat: {arg || ''}: no such file</div>);
   }
+  /* `theme` with no argument flips; `theme light|dark` sets it outright */
+  function themeCmd(rest: string) {
+    const want = rest.trim().toLowerCase();
+    if (want && want !== 'light' && want !== 'dark') {
+      pushConsole(<div className="out"><span className="rd">theme: unknown theme '{want}'</span> — try {L('theme light', 'theme light')} or {L('theme dark', 'theme dark')}</div>);
+      return;
+    }
+    const next: Theme = want ? (want as Theme) : theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    pushConsole(<div className="out">theme → <span className="g">{next}</span> <span className="faint">(remembered on this device)</span></div>);
+  }
   function sudoCmd(rest: string) {
     if (/hire/.test(rest)) {
       pushConsole(<div className="out dim">[sudo] password for recruiter: <span className="faint">••••••••</span></div>);
@@ -804,12 +861,30 @@ export function Terminal() {
      that boundary — put the caret back afterwards */
   useEffect(() => { focusDesktop(); }, [view.k, focusDesktop]);
 
-  /* On a short window the menu is the one zone allowed to give way. Measure it
-     so a clipped list gets a fade instead of an edge that looks like the end. */
+  /* persist the choice and keep the browser chrome (address bar / form controls)
+     in step with the palette */
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_BG[theme]);
+    try { localStorage.setItem('theme', theme); } catch { /* private mode — session only */ }
+  }, [theme]);
+
+  /* name the tab after the view, so back/forward and a wall of open tabs both
+     say something more useful than the same title nine times */
+  useEffect(() => {
+    document.title = view.k === 'home'
+      ? `Akshat Pandey — ${ROLE}`
+      : `${VIEW_TITLE[view.k] ?? view.k} · Akshat Pandey`;
+  }, [view]);
+
+  /* The menu is the one zone allowed to give way — vertically on a short
+     window, horizontally in the phone bar. Either way, measure it so a clipped
+     list gets a fade instead of an edge that looks like the end of the list. */
   useEffect(() => {
     const el = navRef.current;
     if (!el) { setNavScrolls(false); return; }
-    const check = () => setNavScrolls(el.scrollHeight - el.clientHeight > 2);
+    const check = () =>
+      setNavScrolls(el.scrollHeight - el.clientHeight > 2 || el.scrollWidth - el.clientWidth > 2);
     check();
     const ro = new ResizeObserver(check);
     ro.observe(el);
@@ -875,6 +950,15 @@ export function Terminal() {
         <a className="top-status" href={`mailto:${EMAIL}`}>
           <span className="status-dot" aria-hidden="true" />open to work
         </a>
+        <button
+          type="button"
+          className="themebtn"
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          title={theme === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme'}
+          aria-label={theme === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme'}
+        >
+          <span aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span>
+        </button>
         <Clock />
       </div>
 
@@ -914,11 +998,21 @@ export function Terminal() {
             <div className="rail-id">
               <button type="button" className="rail-name" onClick={() => run('home')}>akshat@intozi</button>
               <div className="rl">{'─'.repeat(18)}</div>
-              {frow('Role', ROLE)}
-              {frow('Focus', 'ingest · pipelines · MLOps')}
-              {frow('Data', 'Postgres · Redis · Celery')}
-              {frow('Base', 'Gurugram, IN')}
-              {frow('Status', <span className="g">● open to work</span>)}
+              <div className="rail-rows">
+                {frow('Role', ROLE)}
+                {frow('Focus', 'ingest · pipelines · MLOps')}
+                {frow('Data', 'Postgres · Redis · Celery')}
+                {frow('Base', 'Gurugram, IN')}
+                {frow('Status', <span className="g">● open to work</span>)}
+              </div>
+              {/* the phone bar's one-line stand-in for the readout above — and
+                  the only always-visible CTA once the hire card is gone. The
+                  window tab already says akshat@intozi, so this line spends its
+                  width on the role instead of repeating the name. */}
+              <a className="rail-mini" href={`mailto:${EMAIL}`}>
+                <span className="rm-role">{ROLE}</span>
+                <span className="g">● open to work</span>
+              </a>
             </div>
           </div>
 

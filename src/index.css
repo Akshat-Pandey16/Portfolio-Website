@@ -14,19 +14,61 @@
 
 /*
   ════════════════════════════════════════════════════════════════════
-  TERMINAL — ZorinGreen-Dark. A single, deliberate dark world.
+  TERMINAL — ZorinGreen. Dark is the default world; a paper-light one
+  lives under [data-theme='light'] below. Everything downstream reads
+  the palette through variables, so a theme is a token swap, not a
+  second stylesheet.
   Two panes: a left content pane that swaps in place, and a right rail
   that holds the neofetch identity, the menu, and the command line.
   ════════════════════════════════════════════════════════════════════
 */
 :root {
   --bg:#070b09; --term:#0b110e; --bar:#090e0c; --fg:#d3ddd4; --dim:#7c8d81;
-  --faint:#5c6f61; --accent:#2bd68a; --accent-hi:#5cebab; --accent-dim:#1f9c67;
+  /* was #5c6f61 — 3.5:1, under WCAG AA, and it carries real copy (card meta,
+     eyebrows, hints). #708577 clears 4.8:1 and still recedes. */
+  --faint:#708577; --accent:#2bd68a; --accent-hi:#5cebab; --accent-dim:#1f9c67;
   --link:#63b6ea; --amber:#e3b341; --cyan:#48c8bd; --red:#ef7a6d; --violet:#b48ce8;
   --border:#18251e; --border-hi:#26402f; --sel:#1f5a41;
   --mono:'JetBrains Mono Variable','JetBrains Mono',ui-monospace,'SF Mono','Cascadia Code',Menlo,Consolas,monospace;
+  /* one radius + one elevation scale, so every surface reads as the same system */
+  --r-sm:7px; --r-md:11px; --r-lg:14px;
+  --lift:0 1px 0 color-mix(in srgb, #fff 3%, transparent) inset;
+  --shadow:0 10px 30px -12px rgba(0,0,0,.7);
+  --bar-h:38px;
+  /* ink that sits ON an accent fill, and the two ASCII-portrait tones */
+  --on-accent:#04140c; --sel-fg:#eafff4; --sunk:#0f1512;
+  --face-bright:var(--accent-hi); --face-glow:45%; --face-dim:20%; --face-dim-lg:9%;
   color-scheme: dark;
 }
+
+/*
+  ── light theme ───────────────────────────────────────────────────────
+  A paper terminal, not an inverted one: the greens go dark enough to be read
+  ON paper rather than glowing off it. Dark stays the default identity — the
+  inline script in index.html stamps data-theme before first paint, so there is
+  no flash and no need to duplicate this block into a prefers-color-scheme
+  query (no-JS visitors simply get the dark default).
+*/
+:root[data-theme='light'] {
+  --bg:#e4eae1; --term:#f4f7f2; --bar:#e9eee7; --fg:#16241b; --dim:#4c5d51;
+  --faint:#5d6f60; --accent:#0d7a4c; --accent-hi:#0a5e3a; --accent-dim:#5fb891;
+  --link:#1257a0; --amber:#8a6216; --cyan:#0d6f68; --red:#b03a2b; --violet:#6b3fa8;
+  --border:#d3ddcf; --border-hi:#aec2a8; --sel:#b6e7cf;
+  --on-accent:#f4fbf6; --sel-fg:#0a2418; --sunk:#e9eee7;
+  --lift:0 1px 0 color-mix(in srgb, #fff 70%, transparent) inset;
+  --shadow:0 10px 26px -14px rgba(20,40,28,.34);
+  /* the portrait is a photo conversion: on paper the bright glyphs must be the
+     darkest ink, the glow has to go, and the filler wants *less* weight, not
+     more — at this glyph size it is the filler that washes the subject out */
+  --face-bright:#0b3d27; --face-glow:0%; --face-dim:22%; --face-dim-lg:11%;
+  color-scheme: light;
+}
+/*
+  Glyphs a few pixels tall lose most of their body to antialiasing on a light
+  background. JetBrains Mono is monospace at every weight, so leaning on the
+  variable axis thickens the portrait without shifting a single column of it.
+*/
+:root[data-theme='light'] .face .fb { font-weight: 700; }
 
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; margin: 0; padding: 0; }
@@ -42,7 +84,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
 }
-::selection { background: var(--sel); color: #eafff4; }
+::selection { background: var(--sel); color: var(--sel-fg); }
 a { color: var(--link); text-decoration: none; }
 a:hover { color: var(--accent-hi); text-decoration: underline; text-underline-offset: 3px; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
@@ -55,7 +97,18 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .bold{font-weight:700;} .tnum{font-variant-numeric:tabular-nums;}
 
 /* ── window shell (full-bleed) ─────────────────────────────────────── */
-.term { position: fixed; inset: 0; display: flex; flex-direction: column; background: var(--term); }
+/*
+  The surface used to be one flat fill, which read as empty rather than deep.
+  Two static gradients (no JS, no repaint) give the phosphor a source: a soft
+  accent bloom top-left and a cooler one bottom-right, over the base.
+*/
+.term {
+  position: fixed; inset: 0; display: flex; flex-direction: column;
+  background:
+    radial-gradient(120% 90% at 8% 0%, color-mix(in srgb, var(--accent) 7%, transparent) 0%, transparent 58%),
+    radial-gradient(90% 70% at 100% 100%, color-mix(in srgb, var(--link) 5%, transparent) 0%, transparent 62%),
+    var(--term);
+}
 
 .term-top {
   flex: none; display: flex; align-items: center; gap: 10px; height: 38px;
@@ -94,11 +147,31 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border: 1px solid var(--accent-dim); border-radius: 99px; padding: 3px 12px;
   background: color-mix(in srgb, var(--accent) 9%, transparent);
 }
-.top-status:hover { color: #04140c; background: var(--accent); border-color: var(--accent); text-decoration: none; }
+.top-status:hover { color: var(--on-accent); background: var(--accent); border-color: var(--accent); text-decoration: none; }
 .top-status .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
+/* theme switch — same weight as the other chrome controls, never a feature */
+.themebtn {
+  display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 7px;
+  color: var(--dim); font-size: 14px; line-height: 1; transition: .14s;
+  border: 1px solid transparent;
+}
+.themebtn:hover, .themebtn:focus-visible {
+  color: var(--accent-hi); border-color: var(--border-hi);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
 @media (max-width: 560px) { .term-tab .tabpath { display: none; } }
-@media (max-width: 1080px) { .top-meters { display: none; } }
+/*
+  The meters don't fit a narrow bar, but hiding the whole control also hid the
+  only tap-target for `htop` — on a phone it was reachable by typing alone.
+  The meters go; the button stays.
+*/
+@media (max-width: 1080px) {
+  .top-meters .hmeter { display: none; }
+  .top-meters { padding: 3px 11px; border: 1px solid var(--border); border-radius: 99px; }
+  .top-meters .mtag { color: var(--dim); font-size: 12px; }
+}
 @media (max-width: 700px) { .top-status { display: none; } }
 
 /* ── two-pane body ─────────────────────────────────────────────────── */
@@ -123,9 +196,13 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   padding: clamp(20px, 3vw, 44px) clamp(18px, 3.4vw, 56px);
   animation: rise .2s ease both;
   flex: 1 0 auto; display: flex; flex-direction: column; min-height: 0;
+  /* on a wide monitor the pane would otherwise sprawl to 1500px and every
+     section would read as a thin ribbon of text in a lot of nothing */
+  width: 100%; max-width: 1180px; margin-inline: auto;
 }
 .pane-inner.pi-center { justify-content: center; }
 .pane-inner > .grow { flex: 1 1 auto; min-height: 0; }
+.pane { scrollbar-width: thin; scrollbar-color: var(--border-hi) transparent; }
 .pane::-webkit-scrollbar { width: 11px; }
 .pane::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 99px; border: 3px solid var(--term); }
 .pane:hover::-webkit-scrollbar-thumb { background: var(--accent-dim); }
@@ -160,13 +237,14 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 .rail-fetch { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .rail-fetch .face { margin: 0; line-height: 1.0; font-size: clamp(2.8px, 0.72vw, 4.7px); white-space: pre; align-self: center; }
-.rail-fetch .face .fb { color: var(--accent-hi); text-shadow: 0 0 5px color-mix(in srgb, var(--accent) 45%, transparent); }
-.rail-fetch .face .fd { color: color-mix(in srgb, var(--accent) 20%, transparent); }
+.rail-fetch .face .fb { color: var(--face-bright); text-shadow: 0 0 5px color-mix(in srgb, var(--accent) var(--face-glow), transparent); }
+.rail-fetch .face .fd { color: color-mix(in srgb, var(--accent) var(--face-dim), transparent); }
 .rail-id { width: 100%; }
 .rail-name { color: var(--accent); font-weight: 700; font-size: 1.02em; }
 .rail-name:hover { color: var(--accent-hi); }
 .rail-id .rl { color: var(--faint); margin: 2px 0 6px; }
 .rail .frow .k { width: 52px; }
+.rail-mini { display: none; }   /* phone-bar only — see the ≤880 block */
 
 /* rail navigation — vertical, plain-English, click-first */
 .rail-nav { display: flex; flex-direction: column; gap: 5px; }
@@ -180,9 +258,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .navbtn:hover, .navbtn:focus-visible { color: var(--accent-hi); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 9%, transparent); }
 .navbtn.active { color: var(--accent-hi); border-color: var(--border-hi); background: color-mix(in srgb, var(--accent) 12%, transparent); }
 .navbtn.active .pmt { opacity: 1; }
-.navbtn.primary { color: #04140c; background: var(--accent); border-color: var(--accent); font-weight: 700; }
-.navbtn.primary .pmt { color: #04140c; opacity: .8; }
-.navbtn.primary:hover { background: var(--accent-hi); color: #04140c; }
+.navbtn.primary { color: var(--on-accent); background: var(--accent); border-color: var(--accent); font-weight: 700; }
+.navbtn.primary .pmt { color: var(--on-accent); opacity: .8; }
+.navbtn.primary:hover { background: var(--accent-hi); color: var(--on-accent); }
 .navbtn.primary.active { background: var(--accent-hi); }
 /* the way back, sitting where people already look for navigation */
 .navbtn.navhome { color: var(--dim); background: none; border-color: transparent; margin-bottom: 4px; }
@@ -262,10 +340,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   -webkit-mask-image: radial-gradient(ellipse 68% 74% at 50% 52%, #000 52%, transparent 100%);
   mask-image: radial-gradient(ellipse 68% 74% at 50% 52%, #000 52%, transparent 100%);
 }
-.land-fetch .face .fb { color: var(--accent-hi); text-shadow: 0 0 8px color-mix(in srgb, var(--accent) 55%, transparent); }
+.land-fetch .face .fb { color: var(--face-bright); text-shadow: 0 0 8px color-mix(in srgb, var(--accent) var(--face-glow), transparent); }
 /* much fainter than the rail's: at this size each filler glyph is legible and
    would otherwise drown the subject */
-.land-fetch .face .fd { color: color-mix(in srgb, var(--accent) 9%, transparent); }
+.land-fetch .face .fd { color: color-mix(in srgb, var(--accent) var(--face-dim-lg), transparent); }
 .land-info { font-size: clamp(11.5px, 0.95vw, 15.5px); min-width: 0; }
 .land-info .hd { color: var(--accent); font-weight: 700; font-size: 1.16em; }
 .land-info .rl { color: var(--faint); margin-bottom: 5px; }
@@ -286,9 +364,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   color: var(--accent-hi); border-color: var(--accent); transform: translateY(-1px);
   background: color-mix(in srgb, var(--accent) 10%, transparent);
 }
-.landbtn.primary { background: var(--accent); color: #04140c; border-color: var(--accent); font-weight: 700; }
-.landbtn.primary .pmt { color: #04140c; opacity: .8; }
-.landbtn.primary:hover { background: var(--accent-hi); color: #04140c; }
+.landbtn.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 700; }
+.landbtn.primary .pmt { color: var(--on-accent); opacity: .8; }
+.landbtn.primary:hover { background: var(--accent-hi); color: var(--on-accent); }
 
 .land-hint { margin: 0; font-size: 13px; }
 .land-cli {
@@ -298,7 +376,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .land-cli .cli-hint { margin-top: 6px; }
 
 /* the way back out of a section */
-.backbar { flex: none; padding: clamp(14px, 2vw, 22px) clamp(18px, 3.4vw, 56px) 0; }
+.backbar {
+  flex: none; padding: clamp(14px, 2vw, 22px) clamp(18px, 3.4vw, 56px) 0;
+  width: 100%; max-width: 1180px; margin-inline: auto;  /* stays on the content grid */
+}
 .backbar + .pane-inner { padding-top: clamp(12px, 1.6vw, 20px); }
 .backhome {
   display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--accent);
@@ -310,9 +391,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   font-size: 10px; color: var(--faint); font-family: inherit;
 }
 .backhome:hover, .backhome:focus-visible {
-  color: #04140c; background: var(--accent); border-color: var(--accent);
+  color: var(--on-accent); background: var(--accent); border-color: var(--accent);
 }
-.backhome:hover kbd { color: #04140c; border-color: color-mix(in srgb, #04140c 30%, transparent); }
+.backhome:hover kbd { color: var(--on-accent); border-color: color-mix(in srgb, var(--on-accent) 30%, transparent); }
 
 /* the identity block is one element moving between the landing and the rail */
 ::view-transition-old(ident), ::view-transition-new(ident) {
@@ -326,7 +407,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .res-bar .sp { flex: 1; }
 .res-frame {
   border: 1px solid var(--border-hi); border-radius: 12px; overflow: hidden;
-  background: #0f1512; min-height: 340px;
+  background: var(--sunk); min-height: 340px;
 }
 .res-frame object, .res-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
 .res-frame .res-fb { display: grid; place-content: center; height: 100%; padding: 28px; text-align: center; }
@@ -348,15 +429,46 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .ct-primary:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 13%, transparent); text-decoration: none; }
 .ct-primary .ct-mail { display: block; color: var(--accent-hi); font-weight: 700; font-size: clamp(1.05rem, 2vw, 1.5rem); margin: 4px 0 6px; word-break: break-all; }
 .ct-primary .ct-sub { color: var(--dim); font-size: 13px; }
-.ct-main .grid { flex: 1; align-content: start; margin-top: 0; }
 .ct-side { display: flex; flex-direction: column; }
+
+/*
+  The secondary links used to be project-sized cards, one per row — three
+  near-empty rectangles under the email panel. They're two lines of text each,
+  so they're laid out as compact rows that pack two-up.
+*/
+.ct-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-content: start; }
+/* an odd last row fills its line instead of leaving a half-width stub */
+.ct-links > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+@media (max-width: 600px) { .ct-links { grid-template-columns: 1fr; } }
+.ct-link {
+  display: flex; align-items: center; gap: 11px; text-align: left; width: 100%;
+  border: 1px solid var(--border-hi); border-radius: var(--r-md); padding: 11px 14px;
+  background: color-mix(in srgb, var(--fg) 3%, transparent); box-shadow: var(--lift); transition: .15s;
+}
+.ct-link:hover, .ct-link:focus-visible {
+  border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent);
+  transform: translateY(-1px); text-decoration: none;
+}
+.ct-link:active { transform: translateY(0); }
+.ct-link .ic { flex: none; display: grid; place-items: center; width: 20px; height: 20px; color: var(--accent); font-size: 17px; }
+.ct-link:hover .ic { color: var(--accent-hi); }
+.ct-link .tx { min-width: 0; }
+.ct-link .lb { display: block; color: var(--fg); font-weight: 600; font-size: 13.5px; }
+.ct-link:hover .lb { color: var(--accent-hi); }
+.ct-link .vl { display: block; color: var(--dim); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ct-link .go { margin-left: auto; color: var(--faint); flex: none; }
+.ct-link:hover .go { color: var(--accent); }
 .ct-side .kv { margin-top: 10px; row-gap: 6px; }
 .ct-side .btnrow { margin-top: auto; padding-top: 16px; }
 
 /* ── skills view ───────────────────────────────────────────────────── */
-.skill-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; margin-top: 8px; align-content: start; }
-.skill-grid .panel { display: flex; flex-direction: column; gap: 9px; }
+/* `align-items: start` so each panel hugs its own chips: a stretched row left
+   the two-chip groups with an inch of empty floor. */
+.skill-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(262px, 1fr)); gap: 12px; margin-top: 8px; align-content: start; align-items: start; }
+.skill-grid .panel { display: flex; flex-direction: column; gap: 10px; }
+.skill-grid .panel .g.bold { font-size: .96em; letter-spacing: .01em; }
 .skill-chips { gap: 6px; align-items: flex-start; }
+.skill-chips .chip { border-color: color-mix(in srgb, var(--accent) 20%, var(--border-hi)); color: var(--fg); }
 
 /* about / experience: let the aside run the full height of the text column */
 .two.two-stretch { align-items: stretch; }
@@ -371,8 +483,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* ── neofetch view (spreads across the pane) ───────────────────────── */
 .fetch { display: flex; gap: clamp(18px, 4vw, 56px); align-items: center; flex-wrap: wrap; }
 .fetch .face { margin: 0; line-height: 1.0; font-size: clamp(4.4px, 1vw, 7.4px); white-space: pre; }
-.fetch .face .fb { color: var(--accent-hi); text-shadow: 0 0 6px color-mix(in srgb, var(--accent) 45%, transparent); }
-.fetch .face .fd { color: color-mix(in srgb, var(--accent) 22%, transparent); }
+.fetch .face .fb { color: var(--face-bright); text-shadow: 0 0 6px color-mix(in srgb, var(--accent) var(--face-glow), transparent); }
+.fetch .face .fd { color: color-mix(in srgb, var(--accent) var(--face-dim), transparent); }
 .fetch .info { flex: 1 1 320px; min-width: min(320px, 100%); }
 .fetch .info .hd { color: var(--accent); font-weight: 700; }
 .fetch .info .rl { color: var(--faint); }
@@ -387,29 +499,77 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .lr { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
 .eyebrow { color: var(--faint); font-size: 12px; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 8px; }
 
-.panel { border: 1px solid var(--border-hi); border-radius: 12px; padding: 16px 18px; background: color-mix(in srgb, var(--fg) 3%, transparent); }
-.chip { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 6px; font-size: 12px; color: var(--dim); border: 1px solid var(--border-hi); background: color-mix(in srgb, var(--fg) 4%, transparent); }
+.panel {
+  border: 1px solid var(--border-hi); border-radius: var(--r-lg); padding: 16px 18px;
+  background: color-mix(in srgb, var(--fg) 3%, transparent); box-shadow: var(--lift);
+}
+.chip { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: var(--r-sm); font-size: 12px; color: var(--dim); border: 1px solid var(--border-hi); background: color-mix(in srgb, var(--fg) 4%, transparent); transition: .14s; }
+.chip:hover { color: var(--accent-hi); border-color: var(--accent-dim); }
 .st-live{color:var(--accent);} .st-active{color:var(--amber);} .st-shipped{color:var(--dim);}
 
 /* project / contact cards — auto grid */
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(clamp(230px, 26vw, 330px), 1fr)); gap: 12px; margin-top: 8px; }
-.card { border: 1px solid var(--border-hi); border-radius: 11px; padding: 14px 16px; background: color-mix(in srgb, var(--fg) 3%, transparent); cursor: pointer; transition: .15s; }
-.card:hover { border-color: var(--accent); transform: translateY(-2px); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(clamp(230px, 21vw, 302px), 1fr)); gap: 12px; margin-top: 8px; }
+.card {
+  position: relative; display: flex; flex-direction: column;
+  border: 1px solid var(--border-hi); border-radius: var(--r-md); padding: 14px 16px;
+  background: color-mix(in srgb, var(--fg) 3%, transparent); box-shadow: var(--lift);
+  cursor: pointer; transition: transform .16s cubic-bezier(.3,.8,.3,1), border-color .16s, background .16s, box-shadow .16s;
+}
+.card:hover, .card:focus-visible { border-color: var(--accent); transform: translateY(-2px); background: color-mix(in srgb, var(--accent) 6%, transparent); box-shadow: var(--lift), var(--shadow); }
+.card:active { transform: translateY(0); }
 .card.feat { border-color: var(--accent-dim); background: color-mix(in srgb, var(--accent) 7%, transparent); }
 .card .t { color: var(--fg); font-weight: 700; } .card:hover .t { color: var(--accent-hi); }
-.card .d { color: var(--dim); font-size: .93em; margin-top: 6px; line-height: 1.55; }
-.card .m { color: var(--faint); font-size: .84em; margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+/* clamped so a long blurb can't make one card three times the height of its
+   neighbour — the row stretches to the tallest card either way */
+.card .d {
+  color: var(--dim); font-size: .93em; margin-top: 6px; line-height: 1.55;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+/* pinned to the floor of the card, so a short blurb leaves the gap above the
+   tags rather than a hole under them */
+/* each tag is its own item so the row wraps between tags — as one string it
+   broke mid-word ("scikit-⏎learn") once the cards went three-up */
+.card .m { color: var(--faint); font-size: .84em; margin-top: auto; padding-top: 12px; display: flex; gap: 3px 9px; flex-wrap: wrap; align-items: center; }
+.card .m .tg { color: var(--accent); white-space: nowrap; }
+/* separator trails its tag, so a wrapped line never opens with a stray "·" */
+.card .m .tg:not(:last-child)::after { content: ' ·'; color: var(--faint); }
+/* the "this opens" affordance the cards were missing */
+.card > .lr:first-child { padding-right: 20px; }
+.card::after {
+  content: '→'; position: absolute; top: 13px; right: 14px; color: var(--accent);
+  opacity: 0; transform: translateX(-4px); transition: .16s;
+}
+.card:hover::after, .card:focus-visible::after { opacity: .95; transform: none; }
 
 /* buttons */
 .btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 9px; font-size: 13px; font-weight: 600; border: 1px solid var(--border-hi); color: var(--fg); background: color-mix(in srgb, var(--fg) 4%, transparent); transition: .14s; }
 .btn:hover { border-color: var(--accent); color: var(--accent-hi); text-decoration: none; background: color-mix(in srgb, var(--accent) 9%, transparent); }
-.btn.primary { background: var(--accent); color: #04140c; border-color: var(--accent); }
-.btn.primary:hover { background: var(--accent-hi); color: #04140c; }
+.btn.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.btn.primary:hover { background: var(--accent-hi); color: var(--on-accent); }
 .btnrow { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+/* every pressable thing acknowledges the press */
+.btn:active, .landbtn:active, .navbtn:active, .backhome:active, .ct-primary:active { transform: translateY(1px); }
+
+/* the opening line of a section, one step up from body copy — the views used
+   to start at exactly the same weight and size as everything under them */
+.lead { font-size: 1.12em; color: var(--fg); line-height: 1.55; }
+
+/*
+  Grid items arrive in sequence rather than all at once. `backwards` (not
+  `both`) matters: `both` would pin transform:none after the run and kill the
+  card's own hover lift.
+*/
+.grid > *, .skill-grid > * { animation: rise .3s cubic-bezier(.3,.8,.3,1) backwards; }
+.grid > *:nth-child(2), .skill-grid > *:nth-child(2) { animation-delay: .035s; }
+.grid > *:nth-child(3), .skill-grid > *:nth-child(3) { animation-delay: .07s; }
+.grid > *:nth-child(4), .skill-grid > *:nth-child(4) { animation-delay: .105s; }
+.grid > *:nth-child(5), .skill-grid > *:nth-child(5) { animation-delay: .14s; }
+.grid > *:nth-child(6), .skill-grid > *:nth-child(6) { animation-delay: .175s; }
+.grid > *:nth-child(n+7), .skill-grid > *:nth-child(n+7) { animation-delay: .21s; }
 
 /* ── htop overlay (a hidden delighter for tech visitors) ───────────── */
 .ov { position: fixed; inset: 0; z-index: 60; background: var(--term); display: flex; flex-direction: column; }
-.ov-head { flex: none; padding: 7px clamp(12px, 3vw, 26px); background: var(--accent); color: #04140c; font-weight: 700; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+.ov-head { flex: none; padding: 7px clamp(12px, 3vw, 26px); background: var(--accent); color: var(--on-accent); font-weight: 700; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
 .ov-body { flex: 1; min-height: 0; overflow: auto; padding: 12px clamp(12px, 3vw, 26px); }
 .ov-foot { flex: none; padding: 6px clamp(12px, 3vw, 26px); background: var(--bar); border-top: 1px solid var(--border); color: var(--dim); font-size: 12px; }
 .hmeter { display: flex; align-items: center; gap: 8px; font-size: 12.5px; margin: 1px 0; }
@@ -419,36 +579,91 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .hbar.mem i { background: linear-gradient(90deg, var(--link), var(--violet)); }
 .hpct { width: 54px; text-align: right; color: var(--dim); flex: none; font-variant-numeric: tabular-nums; }
 .htab { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 12px; }
-.htab th { text-align: left; color: #04140c; background: var(--accent); padding: 3px 9px; font-weight: 700; position: sticky; top: 0; }
+.htab th { text-align: left; color: var(--on-accent); background: var(--accent); padding: 3px 9px; font-weight: 700; position: sticky; top: 0; }
 .htab td { padding: 2px 9px; color: var(--fg); border-bottom: 1px solid color-mix(in srgb, var(--fg) 5%, transparent); font-variant-numeric: tabular-nums; }
 .htab td.cc { color: var(--accent-hi); } .htab tr:hover td { background: color-mix(in srgb, var(--accent) 8%, transparent); }
 
+/* available to assistive tech, absent on screen */
+.vh {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
 /* skip link */
 .skip { position: absolute; left: -9999px; }
-.skip:focus { left: 12px; top: 8px; z-index: 80; background: var(--accent); color: #04140c; padding: 6px 12px; border-radius: 8px; font-weight: 700; }
+.skip:focus { left: 12px; top: 8px; z-index: 80; background: var(--accent); color: var(--on-accent); padding: 6px 12px; border-radius: 8px; font-weight: 700; }
 
-/* ── responsive: stack the rail on top, let the whole thing scroll ─── */
+/* ── responsive ─────────────────────────────────────────────────────
+   On a phone the rail used to stack on top as a block: portrait art, a wrapped
+   button field and the prompt — roughly a full screen of chrome before a single
+   word of the section you tapped. It becomes an app bar instead: one identity
+   line, one horizontally-scrolling nav strip, and the prompt docked to the
+   bottom of the window where a shell keyboard belongs.
+   ─────────────────────────────────────────────────────────────────── */
 @media (max-width: 880px) {
   body { overflow: auto; }
-  .term-main { flex-direction: column; overflow-y: auto; }
+  .term-main { flex-direction: column; overflow-y: auto; overscroll-behavior-y: contain; }
+
   .rail {
     order: -1; width: auto; border-left: 0; border-bottom: 1px solid var(--border);
-    display: grid; grid-template-columns: auto 1fr; grid-template-areas: 'fetch nav' 'cli cli'; gap: 14px 18px; align-items: center;
+    display: flex; flex-direction: column; gap: 8px; padding: 9px clamp(14px, 4vw, 22px) 7px;
+    position: sticky; top: 0; z-index: 20; overflow: visible;
+    background: transparent;
   }
-  .rail-fetch { grid-area: fetch; flex-direction: column; }
-  .rail-fetch .face { font-size: 3px; }
-  .rail-id { display: none; }
-  .rail-nav { grid-area: nav; flex-direction: row; flex-wrap: wrap; }
-  .navbtn { width: auto; }
-  .rail-cli { grid-area: cli; margin-top: 0; }
-  /* the rail collapses to a header here — the hire card and meters would only
-     push the actual content below the fold, and home/contact already carry it */
+  /*
+    The frosted backing is a pseudo-element, not the bar itself: `backdrop-filter`
+    on .rail would make it the containing block for its own `position: fixed`
+    children, and the docked prompt below would snap back inside the bar.
+  */
+  .rail::before {
+    content: ''; position: absolute; inset: 0; z-index: -1;
+    background: color-mix(in srgb, var(--bar) 93%, transparent);
+    -webkit-backdrop-filter: saturate(140%) blur(10px);
+    backdrop-filter: saturate(140%) blur(10px);
+  }
+  /* the art is the landing's job — here it is 200px of scroll before content */
+  .rail-fetch { flex-direction: row; align-items: center; gap: 10px; }
+  .rail-fetch .face, .rail-id .rl, .rail-rows, .rail-name { display: none; }
+  .rail-id { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
+  .rail-mini { display: inline-flex; align-items: baseline; gap: 9px; font-size: 12.5px; }
+  .rail-mini .rm-role { color: var(--fg); font-weight: 600; }
+  .rail-mini:hover { text-decoration: none; }
+  .rail-mini:hover .rm-role { color: var(--accent-hi); }
+
+  /* one row, swipeable, never wrapping into a button field */
+  .rail-nav {
+    flex: none; flex-direction: row; flex-wrap: nowrap; gap: 7px; overflow-x: auto; overflow-y: hidden;
+    margin-inline: calc(-1 * clamp(14px, 4vw, 22px)); padding-inline: clamp(14px, 4vw, 22px);
+    padding-bottom: 2px; scrollbar-width: none; scroll-snap-type: x proximity;
+  }
+  .rail-nav::-webkit-scrollbar { display: none; }
+  .rail-nav.is-scrollable {
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 26px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 26px), transparent);
+  }
+  .navbtn { width: auto; flex: none; padding: 6px 13px; font-size: 13px; scroll-snap-align: start; }
+  .navbtn.navhome { margin-bottom: 0; padding-inline: 9px 11px; }
+
+  /* the prompt docks to the window: reachable, and out of the content's way */
+  .rail-cli {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; margin: 0;
+    border-top: 1px solid var(--border); border-radius: 0;
+    padding: 9px clamp(14px, 4vw, 22px) calc(9px + env(safe-area-inset-bottom, 0px));
+    background: color-mix(in srgb, var(--bar) 95%, transparent);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  }
+  .rail-cli .cli-hint { margin-top: 4px; font-size: 11px; }
+  .pane { padding-bottom: 78px; }   /* clear of the docked prompt */
+
+  /* the nav strip already starts with `← home`; the back chip repeated it */
+  .backbar { display: none; }
+  /* the hire card would push content down — its CTA lives in the bar instead */
   .rail-hire { display: none; }
-  .rail { overflow: visible; }
-  .rail-nav { overflow: visible; flex: none; }
-  .pane { overflow: visible; }
+  .rail-nav, .pane { overflow-y: visible; }
+  .rail-nav { overflow-x: auto; }
   /* no fixed canvas to centre against once the page scrolls normally */
   .pane-inner.pi-center { justify-content: flex-start; }
+
   /* landing: neofetch stacks the way the real tool does on a narrow terminal */
   .land { gap: 20px; }
   .land-fetch { flex-direction: column; align-items: flex-start; gap: 16px; }
@@ -456,9 +671,13 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   .land-info .frow .k { width: 72px; }
   .landbtn { padding: 9px 16px; font-size: 13.5px; }
 }
-@media (max-width: 480px) {
-  .rail { grid-template-columns: 1fr; grid-template-areas: 'fetch' 'nav' 'cli'; }
-  .rail-fetch .face { font-size: 4px; }
+@media (max-width: 560px) {
+  /* an even two-up field instead of 3/3/1 with `help` orphaned on its own row */
+  .land-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .landbtn { justify-content: center; }
+  .landbtn.primary { grid-column: 1 / -1; }
+  .land-fetch .face { font-size: 4px; }
+  .card .d { -webkit-line-clamp: 4; }
 }
 
 /*

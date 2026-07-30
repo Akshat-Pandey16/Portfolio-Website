@@ -1,7 +1,32 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
+
+    <!--
+      Resolve the theme before first paint. React mounts too late to avoid a
+      flash of the wrong world, so this runs first and stamps data-theme;
+      src/index.css keys the light palette off it.
+
+      Deliberately dark-FIRST rather than system-first: the dark terminal is the
+      site's identity, and most machines report light, which would mean most
+      visitors never see it. An explicit choice always wins — ?theme=light in
+      the URL, or the toggle in the window chrome (remembered per device).
+      To follow the OS instead, drop the `|| 'dark'` and use:
+        matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+    -->
+    <script>
+      (function () {
+        var ok = function (v) { return v === 'light' || v === 'dark' ? v : null; };
+        var t = null;
+        try {
+          t = ok(new URLSearchParams(location.search).get('theme'));
+          if (t) localStorage.setItem('theme', t);
+          else t = ok(localStorage.getItem('theme'));
+        } catch (e) { /* private mode / no storage — fall through to the default */ }
+        document.documentElement.dataset.theme = t || 'dark';
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" href="/favicon-192.png" sizes="192x192" />
@@ -17,13 +42,14 @@
       crossorigin="anonymous"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- kept in sync with the active theme by the toggle in the window chrome -->
     <meta name="theme-color" content="#070b09" />
     <meta
       name="description"
       content="Akshat Pandey — data platform engineer for computer-vision & video analytics at Intozi Tech. Python, FastAPI, Django; streaming ingest, async pipelines (Celery/RabbitMQ/Redis) and the MLOps loop that keeps production models fed. My résumé, built as an interactive terminal. Open to work — remote or relocation."
     />
     <meta name="author" content="Akshat Pandey" />
-    <meta name="color-scheme" content="dark" />
+    <meta name="color-scheme" content="dark light" />
     <meta name="robots" content="index, follow" />
     <!-- ⚠️ update the domain in these absolute URLs to your real deployed site -->
     <link rel="canonical" href="https://akshat16pandey.netlify.app/" />
@@ -77,6 +103,8 @@
           "Data Platform Engineering",
           "Data Pipelines",
           "Streaming Ingestion",
+          "Database Partitioning",
+          "Data Retention and Archival",
           "MLOps",
           "Python",
           "FastAPI",
@@ -117,7 +145,7 @@
         </p>
         <h2>Experience</h2>
         <ul>
-          <li>Intozi Tech — Data Platform Engineer (Jun 2024 — present): live-video ingest, async processing pipelines, internal MLOps platform.</li>
+          <li>Intozi Tech — Data Platform Engineer (Jun 2024 — present): live-video ingest, async processing pipelines, internal MLOps platform. Partitioned a client's ~200&nbsp;GB PostgreSQL database taking ~200k rows/hour down to ~80&nbsp;GB — a rolling 90-day hot window with older partitions archived to a dedicated server, in an air-gapped deployment.</li>
           <li>Steel Authority of India — Flutter Developer Intern (2023).</li>
           <li>DRDO — Research &amp; Development Intern (2022): geospatial terrain analysis.</li>
         </ul>

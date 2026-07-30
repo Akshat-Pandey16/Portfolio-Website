@@ -1,0 +1,111 @@
+<!--
+  Source for public/og.png — the 1200x630 link-preview card.
+  Regenerate after any change to name / role / stack / domain:
+
+    python3 -m http.server 8765            # from the repo root
+    chrome --headless --window-size=1200,630 \
+           --screenshot=public/og.png http://localhost:8765/scripts/og-card.html
+
+  Then quantise it (it is flat colour — this roughly thirds the file):
+    python3 -c "from PIL import Image; Image.open('public/og.png').convert('RGB')\
+      .quantize(colors=256).save('public/og.png', optimize=True)"
+
+  Keep the text in sync with ROLE / SITE_URL in src/lib/data.ts.
+-->
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  @font-face { font-family:'JBM'; src:url('../public/fonts/jetbrains-mono-latin.woff2') format('woff2-variations');
+               font-weight:100 800; font-display:block; }
+  * { box-sizing:border-box; margin:0; }
+  html,body { width:1200px; height:630px; }
+  body {
+    font-family:'JBM',monospace; color:#d3ddd4; overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 8% 0%, rgba(43,214,138,.11) 0%, transparent 58%),
+      radial-gradient(90% 70% at 100% 100%, rgba(99,182,234,.07) 0%, transparent 62%),
+      #0b110e;
+  }
+  .bar { height:46px; display:flex; align-items:center; gap:10px; padding:0 18px;
+          background:#090e0c; border-bottom:1px solid #18251e; }
+  .dot { width:13px; height:13px; border-radius:50%; }
+  .tab { margin-left:6px; font-size:16px; color:#7c8d81; }
+  .tab b { color:#2bd68a; font-weight:600; }
+  .wrap { display:flex; align-items:center; gap:30px; padding:0 44px; height:584px; }
+  pre.face { margin:0; line-height:1; white-space:pre; font-size:8.6px; flex:none;
+    -webkit-mask-image:radial-gradient(ellipse 72% 78% at 50% 52%, #000 56%, transparent 100%);
+            mask-image:radial-gradient(ellipse 72% 78% at 50% 52%, #000 56%, transparent 100%); }
+  .fb { color:#5cebab; text-shadow:0 0 8px rgba(43,214,138,.5); }
+  .fd { color:rgba(43,214,138,.09); }
+  .info { min-width:0; }
+  h1 { font-size:66px; font-weight:700; letter-spacing:-2.4px; color:#eaf6ee; line-height:1.05; }
+  .role { font-size:23px; margin-top:14px; color:#d3ddd4; }
+  .role .cy { color:#48c8bd; }
+  .cmd { font-size:21px; margin-top:27px; color:#2bd68a; }
+  .cmd .p { color:#63b6ea; } .cmd .c { color:#d3ddd4; }
+  .stack { font-size:19px; margin-top:15px; color:#2bd68a; line-height:1.5; }
+  .stack .d { color:#7c8d81; }
+  .status { font-size:22px; margin-top:22px; color:#2bd68a; }
+  .foot { font-size:18px; margin-top:22px; color:#708577; }
+  .foot b { color:#2bd68a; font-weight:400; }
+</style></head>
+<body>
+  <div class="bar">
+    <span class="dot" style="background:#ef6f60"></span>
+    <span class="dot" style="background:#e5b23c"></span>
+    <span class="dot" style="background:#33d17a"></span>
+    <span class="tab"><b>akshat@intozi</b>: ~</span>
+  </div>
+  <div class="wrap">
+    <pre class="face"><span class="fd">-======-===--======-==--=================-===</span><span class="fb">+****#*#****</span><span class="fd">=========================================
+=========-===-================-====-</span><span class="fb">+*++***##+*%%%%%%%%##*#*</span><span class="fd">======================================
+-=========================-==-=====</span><span class="fb">+**###***%%%####%#%%%#%%%#*+</span><span class="fd">===================================
+=-===================-==========-=</span><span class="fb">*##%%**###%#####%@@@%%%%%#%%**</span><span class="fd">==================================
+=====-===========-=========-=======</span><span class="fb">@@@@@@@@@@@@@%%%%%%%@@@@@#%%#*+</span><span class="fd">================================
+==========-=-=====================</span><span class="fb">+%@@@%##*******##%%%%%%%%@%%@@##+</span><span class="fd">===============================
+=================================</span><span class="fb">*#%*%#</span><span class="fd">=-------==</span><span class="fb">++**%%%####%%%%@#*+</span><span class="fd">==============================
+================================</span><span class="fb">+####%+</span><span class="fd">:::-----====</span><span class="fb">+++*#*****#*%@%*+</span><span class="fd">==============================
+================================</span><span class="fb">+*####+</span><span class="fd">-::-------===</span><span class="fb">++</span><span class="fd">=</span><span class="fb">+++++</span><span class="fd">==-=</span><span class="fb">%@#++</span><span class="fd">=============================
+=================================</span><span class="fb">*####*</span><span class="fd">=-----------===----=====-</span><span class="fb">*%#+</span><span class="fd">==============================
+=================================</span><span class="fb">*##*#+</span><span class="fd">-----::::---------===--=-</span><span class="fb">+%#+</span><span class="fd">==============================
+=================================</span><span class="fb">*##*</span><span class="fd">=---::-</span><span class="fb">+##****+</span><span class="fd">===</span><span class="fb">+**####*</span><span class="fd">==</span><span class="fb">***</span><span class="fd">==============================
+=================================</span><span class="fb">*##*</span><span class="fd">:::=</span><span class="fb">*</span><span class="fd">====</span><span class="fb">+*##*+*+*####*++++</span><span class="fd">-</span><span class="fb">+*+</span><span class="fd">==============================
+==================================</span><span class="fb">%##</span><span class="fd">---=</span><span class="fb">**#%#%%*@#++</span><span class="fd">-</span><span class="fb">*%%#@%+%#*</span><span class="fd">=</span><span class="fb">+*+</span><span class="fd">==============================
+================================</span><span class="fb">+#</span><span class="fd">=-=::--</span><span class="fb">+</span><span class="fd">==</span><span class="fb">+*###+</span><span class="fd">=</span><span class="fb">+</span><span class="fd">::-</span><span class="fb">++*##**++</span><span class="fd">=</span><span class="fb">+++</span><span class="fd">==============================
+================================</span><span class="fb">++</span><span class="fd">:=-:::::=:---==-</span><span class="fb">+</span><span class="fd">:::--=======-=-</span><span class="fb">++</span><span class="fd">==============================
+===================================</span><span class="fb">#</span><span class="fd">--:::::::--</span><span class="fb">+*</span><span class="fd">::---===-</span><span class="fb">*</span><span class="fd">=------</span><span class="fb">++</span><span class="fd">==============================
+==================================--=--::::--=</span><span class="fb">+#++#**+**#***</span><span class="fd">===--=</span><span class="fb">++</span><span class="fd">==============================
+==================================-:-=-----=</span><span class="fb">+*#*++##%#%%%#***++</span><span class="fd">==</span><span class="fb">++</span><span class="fd">===============================
+======================================----=</span><span class="fb">+*##%++*******</span><span class="fd">=</span><span class="fb">%@#*++</span><span class="fd">=</span><span class="fb">++</span><span class="fd">======</span><span class="fb">+</span><span class="fd">========================
+=======================================----==</span><span class="fb">+#%@*</span><span class="fd">--:--=</span><span class="fb">+@@%%++</span><span class="fd">==</span><span class="fb">*+</span><span class="fd">==============================</span><span class="fb">+</span><span class="fd">
+=====================================-=</span><span class="fb">+</span><span class="fd">===</span><span class="fb">+</span><span class="fd">=</span><span class="fb">++</span><span class="fd">==------===</span><span class="fb">++*++</span><span class="fd">=</span><span class="fb">+++</span><span class="fd">==========================</span><span class="fb">+</span><span class="fd">=</span><span class="fb">+</span><span class="fd">==
+=====================================--</span><span class="fb">*+++++</span><span class="fd">==-==-</span><span class="fb">+****+++</span><span class="fd">=</span><span class="fb">++++*+</span><span class="fd">================================
+=====================================--=</span><span class="fb">*#*++</span><span class="fd">=------=</span><span class="fb">++</span><span class="fd">=====</span><span class="fb">++**+</span><span class="fd">============================</span><span class="fb">+</span><span class="fd">====
+=====================================---=</span><span class="fb">*#*#+</span><span class="fd">=--::-==----==</span><span class="fb">+*++</span><span class="fd">=============</span><span class="fb">+</span><span class="fd">===</span><span class="fb">+</span><span class="fd">====</span><span class="fb">+</span><span class="fd">====</span><span class="fb">+</span><span class="fd">======
+=====================================:---=</span><span class="fb">+#%###*+++++++***#**+</span><span class="fd">==</span><span class="fb">+</span><span class="fd">================================
+===================================-:----==</span><span class="fb">+**#%%%@@%%%%@@#+*+</span><span class="fd">==================</span><span class="fb">+</span><span class="fd">=================
+================================</span><span class="fb">*##</span><span class="fd">------===</span><span class="fb">++*#%%%%%%%@%*+</span><span class="fd">=</span><span class="fb">++</span><span class="fd">============================</span><span class="fb">+</span><span class="fd">=</span><span class="fb">+</span><span class="fd">=====
+============================</span><span class="fb">+*%%##%%%</span><span class="fd">-----===</span><span class="fb">+++*#####***+</span><span class="fd">==</span><span class="fb">#*</span><span class="fd">==============================</span><span class="fb">+</span><span class="fd">=</span><span class="fb">+</span><span class="fd">=</span><span class="fb">+</span><span class="fd">=
+==========</span><span class="fb">+</span><span class="fd">==============</span><span class="fb">+##%#%%#%%%@%#</span><span class="fd">--=====</span><span class="fb">+++++****++</span><span class="fd">===-</span><span class="fb">%##*</span><span class="fd">=====================</span><span class="fb">+</span><span class="fd">===========
+===</span><span class="fb">+</span><span class="fd">==================</span><span class="fb">+#%##%%%%%#%@%%%@@#</span><span class="fd">=====</span><span class="fb">++++++++++</span><span class="fd">====-</span><span class="fb">%%%%%##*</span><span class="fd">======================</span><span class="fb">+</span><span class="fd">====</span><span class="fb">+</span><span class="fd">=
+========</span><span class="fb">+</span><span class="fd">===========</span><span class="fb">#*#%%##%@%%%##%@%%%@@@@</span><span class="fd">====</span><span class="fb">++++++++</span><span class="fd">=====</span><span class="fb">*%@%%@#%%%*#+</span><span class="fd">===</span><span class="fb">+</span><span class="fd">=====</span><span class="fb">+</span><span class="fd">==============</span><span class="fb">+</span><span class="fd">
+========</span><span class="fb">+</span><span class="fd">========</span><span class="fb">**#**#%%###%@%%%#%@%%%@%@@@@%++++</span><span class="fd">=</span><span class="fb">++++</span><span class="fd">====</span><span class="fb">+%@%@%%@%#%%%#%%*</span><span class="fd">===</span><span class="fb">+</span><span class="fd">===========</span><span class="fb">+</span><span class="fd">====</span><span class="fb">+</span><span class="fd">=
+============</span><span class="fb">*#%#**####%#####%@%%%%%%@%%%@%%@@@@@@%*</span><span class="fd">====</span><span class="fb">+</span><span class="fd">=</span><span class="fb">+%@@%%%@%#%%#%@%%%####*</span><span class="fd">==========</span><span class="fb">+</span><span class="fd">====</span><span class="fb">++</span><span class="fd">=
+==========</span><span class="fb">+*#####%###%%##%%%#@%%%%%%%%%%%%%%%%@@@@@@@@@@@@@%%%@%@@%%%%##%@%%%%%%##++</span><span class="fd">=</span><span class="fb">+</span><span class="fd">===</span><span class="fb">+</span><span class="fd">======</span><span class="fb">+</span><span class="fd">=
+========</span><span class="fb">+*#####%%%%%%%%%%%%%#@%%%%%#%%%%%%%%%%%%%%%@@@@@%%%%@%@%%@@%%%%#%#%@%%%%%%%#+</span><span class="fd">=============
+=======</span><span class="fb">*####%%%%%%%%@%%%%%%%%@%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@%%%%%##%%%@#%%%%%#++</span><span class="fd">=======</span><span class="fb">+</span><span class="fd">===
+=====</span><span class="fb">*#####%%%%%%%%@%@%%@%%%%@%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#%@%%%%%%#+</span><span class="fd">==</span><span class="fb">+</span><span class="fd">==</span><span class="fb">+</span><span class="fd">===</span><span class="fb">+</span><span class="fd">=
+===</span><span class="fb">######%%%%%%%%%%@%%@%%@@@%@@%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#@@%@#%%#+</span><span class="fd">==</span><span class="fb">+</span><span class="fd">===</span><span class="fb">+</span><span class="fd">===
+==</span><span class="fb">*####%%%%%%%%%%%%@@@@@@@@@%@@%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@%@%*+</span><span class="fd">=</span><span class="fb">+</span><span class="fd">==</span><span class="fb">+</span><span class="fd">==</span><span class="fb">+</span><span class="fd">=
+</span><span class="fb">++*###%%%%%%%%%%%@%@@@@@@@@@@@%%@%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@%@@@@%#*+</span><span class="fd">==</span><span class="fb">+</span><span class="fd">=</span><span class="fb">++</span><span class="fd">==
+=</span><span class="fb">####%%%%%%%%%@%@%@@@@@@@@@@@%@@%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#%#%@@@@%%*+</span><span class="fd">=</span><span class="fb">+</span><span class="fd">=</span><span class="fb">++</span><span class="fd">===</span></pre>
+    <div class="info">
+      <h1>Akshat Pandey</h1>
+      <div class="role">Data Platform Engineer @ <span class="cy">Intozi Tech</span></div>
+      <div class="cmd">akshat@intozi<span class="c">:</span><span class="p">~</span><span class="c">$</span> whoami</div>
+      <div class="stack">Python <span class="d">·</span> FastAPI <span class="d">·</span> Django <span class="d">·</span> Celery <span class="d">·</span> Postgres<br><span class="d">streaming ingest · async pipelines · MLOps</span></div>
+      <div class="status">● open to work — remote or relocation</div>
+      <div class="foot">Gurugram, IN <span>·</span> <b>akshat16pandey.netlify.app</b></div>
+    </div>
+  </div>
+</body></html>
