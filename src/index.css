@@ -37,9 +37,9 @@
   --bar-h:38px;
   /* ink that sits ON an accent fill, and the two ASCII-portrait tones */
   --on-accent:#04140c; --sel-fg:#eafff4; --sunk:#0f1512;
-  /* the portrait is always ink on paper — see AsciiFace.tsx. In dark mode it
-     brings its own paper, so these are the same in both themes. */
-  --face-ink:#0b3d27; --face-fill:22%; --face-fill-lg:13%; --paper:#e7ede4;
+  /* portrait tones, brightest → deepest shadow (see AsciiFace.tsx) */
+  --face-ink:#5cebab; --face-fill:20%; --face-fill-lg:8%;
+  --t1:#a9ffdd; --t2:#5cebab; --t3:#2bd68a; --t4:#1a8a5e; --t5:transparent;
   color-scheme: dark;
 }
 
@@ -59,8 +59,10 @@
   --on-accent:#f4fbf6; --sel-fg:#0a2418; --sunk:#e9eee7;
   --lift:0 1px 0 color-mix(in srgb, #fff 70%, transparent) inset;
   --shadow:0 10px 26px -14px rgba(20,40,28,.34);
-  /* the page is already paper here, so the portrait needs none of its own */
-  --paper:transparent;
+  /* on paper the art needs no re-mapping at all: the glyphs' own ink coverage
+     already carries the photo's tonality, which is what makes it read as a
+     photograph. One flat ink, every tone. */
+  --face-ink:#0b3d27; --face-fill:24%; --face-fill-lg:13%;
   color-scheme: light;
 }
 /* ── the ASCII portrait, one definition for every place it appears ──── */
@@ -73,14 +75,12 @@
 .face .fb { color: var(--face-ink); }
 .face .fd { color: color-mix(in srgb, var(--face-ink) var(--face-fill), transparent); }
 
-/* dark mode: the print, and the paper it is printed on */
-:root[data-theme='dark'] .face {
-  background: var(--paper);
-  border-radius: var(--r-lg);
-  padding: clamp(8px, 1.2vw, 18px) clamp(6px, 1vw, 14px);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent),
-              0 18px 44px -18px rgba(0, 0, 0, .85);
-}
+/* dark: tone follows the photo, so highlights advance and shadows fall away */
+.face .t1 { color: var(--t1); text-shadow: 0 0 6px color-mix(in srgb, var(--accent) 40%, transparent); }
+.face .t2 { color: var(--t2); }
+.face .t3 { color: var(--t3); }
+.face .t4 { color: var(--t4); }
+.face .t5 { color: var(--t5); }
 
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; margin: 0; padding: 0; }
@@ -357,15 +357,13 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
      the portrait stops resolving */
   font-size: clamp(3px, min(0.5vw, 0.82vh), 8.4px);
   /* the art is a full rectangle of filler glyphs — fade the edges so the
-     portrait floats instead of sitting in a visible box. Skipped in dark mode,
-     where it would dissolve the paper along with the ink. */
+     portrait floats instead of sitting in a visible box */
   -webkit-mask-image: radial-gradient(ellipse 68% 74% at 50% 52%, #000 52%, transparent 100%);
   mask-image: radial-gradient(ellipse 68% 74% at 50% 52%, #000 52%, transparent 100%);
 }
 /* much fainter than the rail's: at this size each filler glyph is legible and
    would otherwise drown the subject */
 .land-fetch .face { --face-fill: var(--face-fill-lg); }
-:root[data-theme='dark'] .land-fetch .face { -webkit-mask-image: none; mask-image: none; }
 .land-info { font-size: clamp(11.5px, 0.95vw, 15.5px); min-width: 0; }
 .land-info .hd { color: var(--accent); font-weight: 700; font-size: 1.16em; }
 .land-info .rl { color: var(--faint); margin-bottom: 5px; }

@@ -337,7 +337,7 @@ export function Terminal() {
             read by screen readers and search engines, seen by nobody */}
         <h1 className="vh">Akshat Pandey — {ROLE} at Intozi Tech</h1>
         <div className="land-fetch" style={{ viewTransitionName: 'ident' }}>
-          <AsciiFace art={FACE} />
+          <AsciiFace art={FACE} dark={theme === 'dark'} />
           <div className="land-info">
             <div className="hd">akshat@intozi</div>
             <div className="rl">{'─'.repeat(30)}</div>
@@ -1023,7 +1023,7 @@ export function Terminal() {
         {!onLanding && (
         <aside className="rail" aria-label="profile and navigation">
           <div className="rail-fetch" style={{ viewTransitionName: 'ident' }}>
-            <AsciiFace art={FACE} />
+            <AsciiFace art={FACE} dark={theme === 'dark'} />
             <div className="rail-id">
               <button type="button" className="rail-name" onClick={() => run('home')}>akshat@intozi</button>
               <div className="rl">{'─'.repeat(18)}</div>
