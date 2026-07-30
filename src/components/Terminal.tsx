@@ -6,6 +6,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
 } from 'react';
+import { flushSync } from 'react-dom';
 import {
   AVAILABILITY,
   AWARD,
@@ -31,8 +32,9 @@ const RM =
   typeof window !== 'undefined' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* the left pane shows exactly ONE of these at a time — click a menu item or
-   type a command and the content swaps in place, so the page never scrolls */
+/* `home` is the landing: a full-bleed neofetch with the menu under it and no
+   rail. Every other view splits the window into content pane + rail, and the
+   identity block flies from the centre of the screen into that rail. */
 type View =
   | { k: 'home' }
   | { k: 'about' }
@@ -44,7 +46,6 @@ type View =
   | { k: 'contact' }
   | { k: 'help' }
   | { k: 'gitlog' }
-  | { k: 'neofetch' }
   | { k: 'ssh'; host: string }
   | { k: 'console' };
 
@@ -89,15 +90,32 @@ const NAV: { cmd: string; label: string; primary?: boolean }[] = [
   { cmd: 'contact', label: 'Contact' },
 ];
 
-const SKILL_GROUPS: { h: string; items: string }[] = [
-  { h: 'languages', items: 'Python · SQL · Bash · TypeScript' },
-  { h: 'ingest & streaming', items: 'MediaMTX (RTSP/WebRTC) · ONVIF · WebSockets · SSE' },
-  { h: 'pipelines & async', items: 'Celery · RabbitMQ · Redis · ARQ' },
-  { h: 'stores', items: 'PostgreSQL · Redis · S3' },
-  { h: 'frameworks', items: 'FastAPI · Django · React' },
-  { h: 'ml & data', items: 'scikit-learn · scapy · NetworkX' },
-  { h: 'infra', items: 'Docker · Kubernetes · Nginx · AWS · Linux · Git' },
+const SKILL_GROUPS: { h: string; items: string[] }[] = [
+  { h: 'languages', items: ['Python', 'SQL', 'Bash', 'TypeScript'] },
+  { h: 'ingest & streaming', items: ['MediaMTX (RTSP/WebRTC)', 'ONVIF', 'WebSockets', 'SSE'] },
+  { h: 'pipelines & async', items: ['Celery', 'RabbitMQ', 'Redis', 'ARQ', 'SQS'] },
+  { h: 'stores', items: ['PostgreSQL', 'Redis', 'S3'] },
+  { h: 'cloud', items: ['AWS', 'Lambda', 'SQS', 'S3'] },
+  { h: 'frameworks', items: ['FastAPI', 'Django', 'React'] },
+  { h: 'ml & data', items: ['scikit-learn', 'scapy', 'NetworkX'] },
+  { h: 'infra', items: ['Docker', 'Kubernetes', 'Nginx', 'Linux', 'Git'] },
 ];
+
+/*
+  Views whose content is genuinely shorter than the canvas sit centred rather
+  than stacking at the top over a hole. The rest either flow and scroll
+  (projects, experience, console, ssh) or hand a child `.grow` to absorb the
+  leftover height (home, about, résumé, contact).
+*/
+const FILL: Partial<Record<View['k'], string>> = {
+  home: 'pi-center',
+  about: 'pi-center',
+  skills: 'pi-center',
+  contact: 'pi-center',
+  project: 'pi-center',
+  help: 'pi-center',
+  gitlog: 'pi-center',
+};
 
 function slug(p: Project): string {
   return (p.link.split('/').pop() ?? p.title).toLowerCase();
@@ -137,6 +155,8 @@ export function Terminal() {
   const histIdxRef = useRef(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const paneRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLElement>(null);
+  const [navScrolls, setNavScrolls] = useState(false);
   const unlockedRef = useRef(false);
 
   const nid = () => idRef.current++;
@@ -198,7 +218,8 @@ export function Terminal() {
       case 'resume': case 'cv': setView({ k: 'resume' }); break;
       case 'contact': setView({ k: 'contact' }); break;
       case 'help': case '?': setView({ k: 'help' }); break;
-      case 'neofetch': case 'fetch': setView({ k: 'neofetch' }); break;
+      /* the landing IS the neofetch screen — the command takes you back to it */
+      case 'neofetch': case 'fetch': setView({ k: 'home' }); break;
       case 'git': setView({ k: 'gitlog' }); break;
       case 'htop': case 'top': setOverlay('htop'); break;
       case 'ssh': sshCmd(rest); break;
@@ -223,17 +244,33 @@ export function Terminal() {
 
   /* run + echo (typed commands) and keep deep-links in sync */
   const run = (cmd: string, opts?: { echo?: boolean }) => {
-    if (opts?.echo && view.k === 'ssh') {
-      setSshLines((l) => [...l, <div key={nid()}>{echo(cmd)}</div>]);
-    } else if (opts?.echo) {
-      // typed commands that stay on the console show their prompt echo
-      const first = cmd.trim().split(/\s+/)[0].toLowerCase();
-      const isConsoley = !['home', 'about', 'experience', 'work', 'projects', 'project', 'skills', 'stack', 'resume', 'cv', 'contact', 'help', 'neofetch', 'fetch', 'git', 'htop', 'top', 'ssh', 'clear', 'cls'].includes(first);
-      if (isConsoley) setConsoleLines((l) => [...l, <div key={nid()}>{echo(cmd)}</div>]);
+    const apply = () => {
+      if (opts?.echo && view.k === 'ssh') {
+        setSshLines((l) => [...l, <div key={nid()}>{echo(cmd)}</div>]);
+      } else if (opts?.echo) {
+        // typed commands that stay on the console show their prompt echo
+        const first = cmd.trim().split(/\s+/)[0].toLowerCase();
+        const isConsoley = !['home', 'about', 'experience', 'work', 'projects', 'project', 'skills', 'stack', 'resume', 'cv', 'contact', 'help', 'neofetch', 'fetch', 'git', 'htop', 'top', 'ssh', 'clear', 'cls'].includes(first);
+        if (isConsoley) setConsoleLines((l) => [...l, <div key={nid()}>{echo(cmd)}</div>]);
+      }
+      exec(cmd);
+      const base = cmd.split(' ')[0].toLowerCase();
+      if (SECTION.has(base)) { try { history.replaceState(null, '', base === 'home' ? location.pathname : `#${base}`); } catch { /* ignore */ } }
+    };
+
+    /*
+      Animate only the landing⇄app boundary — that's the one swap where an
+      element genuinely moves (the identity block, from screen centre into the
+      rail). Everything else stays instant, and browsers without view
+      transitions just get the plain swap.
+    */
+    const crossesLanding = view.k === 'home' || ['home', 'neofetch', 'fetch', 'clear', 'cls'].includes(cmd.trim().split(/\s+/)[0].toLowerCase());
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown };
+    if (crossesLanding && !RM && typeof doc.startViewTransition === 'function') {
+      doc.startViewTransition(() => flushSync(apply));
+    } else {
+      apply();
     }
-    exec(cmd);
-    const base = cmd.split(' ')[0].toLowerCase();
-    if (SECTION.has(base)) { try { history.replaceState(null, '', base === 'home' ? location.pathname : `#${base}`); } catch { /* ignore */ } }
   };
 
   /* a clickable inline command token */
@@ -254,27 +291,59 @@ export function Terminal() {
   function frow(k: string, v: ReactNode): ReactNode {
     return <div className="frow"><span className="k">{k}</span><span className="v">{v}</span></div>;
   }
-  function homeNode(): ReactNode {
+  /*
+    The landing: what you'd actually see on opening a terminal. The identity
+    block carries `view-transition-name: ident`, and the rail's copy carries the
+    same name — so navigating animates this one element from here into the rail
+    instead of cross-fading two unrelated boxes.
+  */
+  function landingNode(): ReactNode {
     return (
-      <div className="home">
-        <div className="eyebrow">// akshat pandey</div>
-        <h1 className="home-h1"><span className="g">Data&nbsp;Platform</span> Engineer</h1>
-        <p className="home-lead measure">{TAGLINE}</p>
-        <p className="out dim measure">
-          Two years in at <span className="cy">Intozi Tech</span>, a computer-vision &amp; video-analytics
-          product company in Gurugram. I care about the boring-on-purpose stuff: data that arrives
-          intact, pipelines that don't fall over, and models that stay fed.
-        </p>
-        <div className="statusline"><span className="g bold">● open to work</span> <span className="dim">— {AVAILABILITY}. Fastest reply is email.</span></div>
-        <div className="btnrow" style={{ marginTop: 4 }}>
-          <button type="button" className="btn primary" onClick={() => run('projects')}>See projects</button>
-          <button type="button" className="btn" onClick={() => run('experience')}>Experience</button>
-          <button type="button" className="btn" onClick={() => run('resume')}>Résumé</button>
-          <button type="button" className="btn" onClick={() => run('contact')}>Contact</button>
+      <div className="land">
+        <div className="land-fetch" style={{ viewTransitionName: 'ident' }}>
+          <AsciiFace art={FACE} />
+          <div className="land-info">
+            <div className="hd">akshat@intozi</div>
+            <div className="rl">{'─'.repeat(30)}</div>
+            {frow('Name', 'Akshat Pandey')}
+            {frow('Role', <>{ROLE} @ <span className="cy">Intozi Tech</span></>)}
+            {frow('Uptime', '2 yrs @ Intozi · coding since 2020')}
+            {frow('Focus', 'ingest · async pipelines · MLOps')}
+            {frow('Stack', 'Python · FastAPI · Django · Postgres')}
+            {frow('Async', 'Celery · RabbitMQ · Redis · ARQ · SQS')}
+            {frow('Stream', 'MediaMTX · WebRTC · ONVIF')}
+            {frow('Cloud', 'AWS — Lambda · SQS · S3 · Docker · K8s')}
+            {frow('Shipped', <>{PROJECTS.length + LAB_REPOS.length} repos — {L('projects', 'open source ↗')}</>)}
+            {frow('Base', 'Gurugram, IN · remote-friendly')}
+            {frow('Status', <span className="g">● open to work — {AVAILABILITY}</span>)}
+            <div className="blocks">{colorBlocks()}</div>
+          </div>
         </div>
-        <p className="out faint hint-line">
-          Prefer a keyboard? There's a command line in the side panel — try {L('git log', 'git log')}, {L('htop')}, or {L('ssh papyrus', 'ssh papyrus')}.
+
+        {/* the pitch — neofetch gives identity, this gives the reason to read on */}
+        <p className="land-lead">{TAGLINE}</p>
+
+        <nav className="land-nav" aria-label="sections">
+          {NAV.map((n) => (
+            <button
+              key={n.cmd}
+              type="button"
+              className={'landbtn' + (n.primary ? ' primary' : '')}
+              onClick={() => run(n.cmd)}
+            >
+              <span className="pmt" aria-hidden="true">›</span>{n.label}
+            </button>
+          ))}
+          <button type="button" className="landbtn" onClick={() => run('help')}>
+            <span className="pmt" aria-hidden="true">›</span>help
+          </button>
+        </nav>
+
+        <p className="land-hint faint">
+          …or just type. Try {L('git log', 'git log')}, {L('htop')}, {L('ssh papyrus', 'ssh papyrus')} or {L('sudo hire-me', 'sudo hire-me')}.
         </p>
+
+        <div className="land-cli" onClick={focus}>{cliBlock()}</div>
       </div>
     );
   }
@@ -282,12 +351,11 @@ export function Terminal() {
     return (
       <>
         <div className="eyebrow">// about</div>
-        <div className="two">
+        <div className="two two-stretch">
           <div className="measure">
             <p className="out">I'm <span className="g bold">Akshat</span>. I build the data &amp; streaming platform behind a video-AI product at Intozi Tech.</p>
             <p className="out">Day to day that's the ingest paths, the Celery/RabbitMQ pipelines that keep live camera feeds and model inference off the request path, the Postgres/Redis data layers under them, and an internal MLOps loop that takes raw datasets all the way to a re-trained model. I'm mostly self-taught, with a CS degree from Bhilai Institute of Technology.</p>
             <p className="out">The frontend I pick up when it needs doing — this terminal is one of those times. When a project needs a tool I haven't used — Ansible, scapy, scikit-learn, ONVIF — I learn it on the way and ship.</p>
-            <p className="out faint">Off the clock I'm a published author (a novelette and two novels) and I shoot &amp; edit short films — same discipline as the backend: structure, revision, and deciding what to cut.</p>
           </div>
           <aside className="panel">
             <div className="kv">
@@ -298,7 +366,12 @@ export function Terminal() {
               <span className="k">award</span><span className="am">{AWARD.title} — national hackathon, winner</span>
               <span className="k">status</span><span className="g">● open to work</span>
             </div>
-            <div className="btnrow" style={{ marginTop: 16 }}>
+            {/* moved out of the prose column so both columns reach the same depth */}
+            <div className="side-note">
+              <div className="eyebrow">// off the clock</div>
+              <p className="out faint">A published author (a novelette and two novels), and I shoot &amp; edit short films — same discipline as the backend: structure, revision, and deciding what to cut.</p>
+            </div>
+            <div className="btnrow">
               <button type="button" className="btn primary" onClick={() => run('resume')}>Résumé</button>
               <button type="button" className="btn" onClick={() => run('contact')}>Contact</button>
             </div>
@@ -312,7 +385,7 @@ export function Terminal() {
     return (
       <>
         <div className="eyebrow">// experience</div>
-        <div className="two">
+        <div className="two two-stretch">
           <div>
             <div className="lr"><span className="g bold">{e.organization}</span> <span className="dim">{e.role}</span> {statusTag(e.status)}</div>
             <p className="out dim measure" style={{ marginTop: 6 }}>{e.description}</p>
@@ -387,13 +460,25 @@ export function Terminal() {
     return (
       <>
         <button type="button" className="cmd back" onClick={() => run('projects')}>← all projects</button>
-        <div className="lr" style={{ marginTop: 8 }}><span className="g bold"># {p.title}</span> <span className="faint">{p.year}</span> {statusTag(p.status)}</div>
-        <p className="out measure" style={{ marginTop: 6 }}>{p.blurb}</p>
-        <div className="lr" style={{ marginTop: 10 }}>{p.tags.map((t) => <span className="chip" key={t}>{t}</span>)}</div>
-        <div className="btnrow" style={{ marginTop: 12 }}>
-          <a className="btn primary" href={p.link} target="_blank" rel="noopener noreferrer">Open repo ↗</a>
+        <div className="two two-stretch" style={{ marginTop: 10 }}>
+          <div>
+            <div className="lr"><span className="g bold"># {p.title}</span> <span className="faint">{p.year}</span> {statusTag(p.status)}</div>
+            <p className="out measure" style={{ marginTop: 8 }}>{p.blurb}</p>
+            {isMain && SSH_LOGS[slug(p)] ? <p className="out faint" style={{ marginTop: 12 }}>developers: it's live — try {L('ssh ' + slug(p), 'ssh ' + slug(p))}</p> : null}
+          </div>
+          <aside className="panel">
+            <div className="kv">
+              <span className="k">year</span><span>{p.year}</span>
+              <span className="k">status</span><span>{statusTag(p.status)}</span>
+              <span className="k">shelf</span><span>{isMain ? 'projects' : 'lab · foundations'}</span>
+            </div>
+            <div className="eyebrow" style={{ marginTop: 14 }}>stack</div>
+            <div className="lr">{p.tags.map((t) => <span className="chip" key={t}>{t}</span>)}</div>
+            <div className="btnrow">
+              <a className="btn primary" href={p.link} target="_blank" rel="noopener noreferrer">Open repo ↗</a>
+            </div>
+          </aside>
         </div>
-        {isMain && SSH_LOGS[slug(p)] ? <p className="out faint" style={{ marginTop: 10 }}>developers: it's live — try {L('ssh ' + slug(p), 'ssh ' + slug(p))}</p> : null}
       </>
     );
   }
@@ -401,11 +486,13 @@ export function Terminal() {
     return (
       <>
         <div className="eyebrow">// skills · what I reach for</div>
-        <div className="grid">
+        <div className="skill-grid">
           {SKILL_GROUPS.map((g) => (
             <div className="panel" key={g.h}>
               <div className="g bold">{g.h}</div>
-              <div className="out dim" style={{ marginTop: 6 }}>{g.items}</div>
+              <div className="lr skill-chips">
+                {g.items.map((i) => <span className="chip" key={i}>{i}</span>)}
+              </div>
             </div>
           ))}
         </div>
@@ -417,21 +504,46 @@ export function Terminal() {
     return (
       <>
         <div className="eyebrow">// contact</div>
-        <div className="panel" style={{ marginBottom: 12 }}>
-          <span className="g bold">● open to work</span> <span className="dim">— {AVAILABILITY}. Fastest way to reach me is email; I read everything.</span>
-        </div>
-        <div className="grid">
-          {CONTACT_LINKS.map((c) =>
-            c.icon === 'resume' ? (
-              <button type="button" className="card" style={{ textAlign: 'left' }} key={c.label} onClick={() => run('resume')}>
-                <div className="t">Résumé</div><div className="d">{c.value}</div>
-              </button>
-            ) : (
-              <a className="card" key={c.label} href={c.href} target={c.icon === 'email' ? undefined : '_blank'} rel="noopener noreferrer">
-                <div className="t">{c.label}</div><div className="d">{c.value}</div>
-              </a>
-            ),
-          )}
+        <div className="ct-two">
+          <div className="ct-main">
+            {/* email is the one action worth making unmissable */}
+            <a className="ct-primary" href={`mailto:${EMAIL}`}>
+              <span className="eyebrow">fastest reply</span>
+              <span className="ct-mail">{EMAIL}</span>
+              <span className="ct-sub">Email me — I read everything, and I reply.</span>
+            </a>
+            <div className="grid">
+              {CONTACT_LINKS.filter((c) => c.icon !== 'email').map((c) =>
+                c.icon === 'resume' ? (
+                  <button type="button" className="card" style={{ textAlign: 'left' }} key={c.label} onClick={() => run('resume')}>
+                    <div className="t">Résumé</div><div className="d">{c.value}</div>
+                  </button>
+                ) : (
+                  <a className="card" key={c.label} href={c.href} target="_blank" rel="noopener noreferrer">
+                    <div className="t">{c.label}</div><div className="d">{c.value}</div>
+                  </a>
+                ),
+              )}
+            </div>
+          </div>
+
+          {/* the details a recruiter has to ask for otherwise */}
+          <aside className="panel ct-side">
+            <div className="g bold">● open to work</div>
+            <p className="out dim" style={{ marginTop: 4, fontSize: 13 }}>{AVAILABILITY}.</p>
+            <div className="kv">
+              <span className="k">looking for</span><span>{ROLE} · backend</span>
+              <span className="k">setup</span><span>{AVAILABILITY}</span>
+              <span className="k">based</span><span>Gurugram, IN</span>
+              <span className="k">timezone</span><span>IST · UTC+05:30</span>
+              <span className="k">stack</span><span>Python · Django · FastAPI · Postgres · Celery</span>
+              <span className="k">domain</span><span>video AI · streaming · MLOps</span>
+            </div>
+            <div className="btnrow">
+              <button type="button" className="btn primary" onClick={() => run('resume')}>Résumé</button>
+              <button type="button" className="btn" onClick={() => run('projects')}>Projects</button>
+            </div>
+          </aside>
         </div>
       </>
     );
@@ -440,7 +552,24 @@ export function Terminal() {
     return (
       <>
         <div className="eyebrow">// résumé</div>
-        <div className="panel" style={{ maxWidth: 580 }}>
+        <div className="res-bar">
+          <span className="g bold">Akshat-Pandey-Resume.pdf</span>
+          <span className="chip">PDF · one page</span>
+          <span className="sp" />
+          <a className="btn" href={RESUME_FILE} target="_blank" rel="noopener noreferrer">Open in a new tab ↗</a>
+          <a className="btn primary" href={RESUME_FILE} download={RESUME_DOWNLOAD_NAME}>Download ↓</a>
+        </div>
+        {/* read it here — a recruiter shouldn't have to leave the page for it.
+            <object> renders its children when the browser can't show a PDF. */}
+        <div className="res-frame grow">
+          <object data={`${RESUME_FILE}#view=FitH&toolbar=0&navpanes=0`} type="application/pdf" aria-label="Akshat Pandey — résumé">
+            <div className="res-fb">
+              <p className="out dim">Your browser can't show the PDF inline.</p>
+              <p className="out"><a href={RESUME_FILE} target="_blank" rel="noopener noreferrer">Open it in a new tab ↗</a></p>
+            </div>
+          </object>
+        </div>
+        <div className="panel res-card">
           <div className="lr"><span className="g bold">Akshat-Pandey-Resume.pdf</span> <span className="chip">PDF · one page</span></div>
           <p className="out dim" style={{ marginTop: 6 }}>Open it in a new tab to read, or download a copy.</p>
           <div className="btnrow" style={{ marginTop: 12 }}>
@@ -464,30 +593,6 @@ export function Terminal() {
             </span>
           ))}
         </pre>
-      </>
-    );
-  }
-  function neofetchNode(): ReactNode {
-    return (
-      <>
-        <div className="eyebrow">// neofetch</div>
-        <div className="fetch">
-          <AsciiFace art={FACE} />
-          <div className="info">
-            <div className="hd">akshat@intozi</div>
-            <div className="rl">{'─'.repeat(22)}</div>
-            {frow('Name', 'Akshat Pandey')}
-            {frow('Role', <>{ROLE} @ <span className="cy">Intozi Tech</span></>)}
-            {frow('Uptime', '2 yrs @ Intozi · coding since 2020')}
-            {frow('Focus', 'ingest · async pipelines · MLOps')}
-            {frow('Stack', 'Python · FastAPI · Django · Postgres')}
-            {frow('Async', 'Celery · RabbitMQ · Redis · ARQ')}
-            {frow('Stream', 'MediaMTX · WebRTC · ONVIF')}
-            {frow('Base', 'Gurugram, IN · remote-friendly')}
-            {frow('Status', <span className="g">● open to work</span>)}
-            <div className="blocks">{colorBlocks()}</div>
-          </div>
-        </div>
       </>
     );
   }
@@ -539,9 +644,40 @@ export function Terminal() {
     );
   }
 
+  /* one command line, rendered either in the landing or in the rail */
+  function cliBlock(): ReactNode {
+    return (
+      <>
+        <div className="cli-line">
+          <span className="ps"><span className="u">$</span> </span>
+          <span className="typed">{input}</span>
+          <span className={focused ? 'blk-caret' : 'blk-caret off'} aria-hidden="true" />
+          {ghost && <span className="ghost" aria-hidden="true">{ghost}</span>}
+          {input === '' && <span className="ph2">type a command…</span>}
+          <input
+            id="term-input"
+            ref={inputRef}
+            className="cli"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKey}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            autoComplete="off"
+            autoCapitalize="off"
+            autoCorrect="off"
+            spellCheck={false}
+            aria-label="terminal command input"
+          />
+        </div>
+        <div className="cli-hint faint">↑ history · Tab completes · {L('help')}</div>
+      </>
+    );
+  }
+
   function renderView(): ReactNode {
     switch (view.k) {
-      case 'home': return homeNode();
+      case 'home': return landingNode();
       case 'about': return aboutNode();
       case 'experience': return experienceNode();
       case 'projects': return projectsNode();
@@ -551,7 +687,6 @@ export function Terminal() {
       case 'contact': return contactNode();
       case 'help': return helpNode();
       case 'gitlog': return gitlogNode();
-      case 'neofetch': return neofetchNode();
       case 'console': return consoleNode();
       case 'ssh': return sshNode(view.host);
     }
@@ -629,6 +764,11 @@ export function Terminal() {
       const el = e.currentTarget;
       if (m && el.selectionStart != null && el.selectionStart >= input.length) { e.preventDefault(); setInput(m); }
     }
+    else if (e.key === 'Escape') {
+      // Esc is the way back out of a section — matches the visible `← home` chip
+      if (input) { setInput(''); return; }
+      if (view.k !== 'home') { e.preventDefault(); run('home'); }
+    }
     else if (e.key === 'Tab') { e.preventDefault(); complete(); }
     else if (e.key === 'l' && e.ctrlKey) { e.preventDefault(); setConsoleLines([]); setView({ k: 'home' }); }
   }
@@ -660,6 +800,22 @@ export function Terminal() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [booting]);
 
+  /* the command line moves between the landing and the rail, so it remounts on
+     that boundary — put the caret back afterwards */
+  useEffect(() => { focusDesktop(); }, [view.k, focusDesktop]);
+
+  /* On a short window the menu is the one zone allowed to give way. Measure it
+     so a clipped list gets a fade instead of an edge that looks like the end. */
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) { setNavScrolls(false); return; }
+    const check = () => setNavScrolls(el.scrollHeight - el.clientHeight > 2);
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [view.k]);
+
   /* live log tail while ssh'd in */
   useEffect(() => {
     if (view.k !== 'ssh' || RM) return;
@@ -682,6 +838,7 @@ export function Terminal() {
     else el.scrollTop = 0;
   }, [view, consoleLines, sshLines]);
 
+  const onLanding = view.k === 'home';
   const lc = input.toLowerCase();
   const ghostMatch = input && !/\s/.test(input) ? CMDS.find((c) => c.startsWith(lc) && c !== lc) : undefined;
   const ghost = ghostMatch ? ghostMatch.slice(input.length) : '';
@@ -709,22 +866,50 @@ export function Terminal() {
         <span className="dots" aria-hidden="true"><span className="dot r" /><span className="dot y" /><span className="dot g" /></span>
         <span className="term-tab"><b>akshat@intozi</b><span className="tabpath">: {view.k === 'ssh' ? 'ssh:' + view.host : cwd.length ? '~/' + cwd.join('/') : '~'}</span></span>
         <span className="grow" />
+        {/* the status line lives in the window chrome: always on screen, on
+            every view, and never something you have to scroll a panel to find */}
+        <button type="button" className="top-meters" onClick={() => setOverlay('htop')} title="open htop">
+          <MiniMeters reducedMotion={RM} />
+          <span className="mtag">htop</span>
+        </button>
+        <a className="top-status" href={`mailto:${EMAIL}`}>
+          <span className="status-dot" aria-hidden="true" />open to work
+        </a>
         <Clock />
       </div>
 
-      <div className="term-main">
+      <div className={'term-main' + (onLanding ? ' is-landing' : '')}>
         <main
           className="pane"
           ref={paneRef}
           onClick={(e) => { if (!(e.target as HTMLElement).closest('button, a, input')) focusDesktop(); }}
         >
-          <div className="pane-inner" key={view.k === 'project' ? 'p-' + view.slug : view.k}>
+          {/* the way back, in the one place people look for it */}
+          {!onLanding && (
+            <div className="backbar">
+              <button
+                type="button"
+                className="backhome"
+                onClick={() => run('home')}
+                title="back to the start (Esc)"
+              >
+                <span aria-hidden="true">←</span> home
+                <kbd aria-hidden="true">Esc</kbd>
+              </button>
+            </div>
+          )}
+          <div
+            className={'pane-inner' + (FILL[view.k] ? ' ' + FILL[view.k] : '')}
+            key={view.k === 'project' ? 'p-' + view.slug : view.k}
+          >
             {renderView()}
           </div>
         </main>
 
+        {/* no rail on the landing — it flies in with the first navigation */}
+        {!onLanding && (
         <aside className="rail" aria-label="profile and navigation">
-          <div className="rail-fetch">
+          <div className="rail-fetch" style={{ viewTransitionName: 'ident' }}>
             <AsciiFace art={FACE} />
             <div className="rail-id">
               <button type="button" className="rail-name" onClick={() => run('home')}>akshat@intozi</button>
@@ -737,7 +922,15 @@ export function Terminal() {
             </div>
           </div>
 
-          <nav className="rail-nav" aria-label="sections">
+          <nav
+            className={'rail-nav' + (navScrolls ? ' is-scrollable' : '')}
+            ref={navRef}
+            aria-label="sections"
+          >
+            {/* home as a destination in the list people already navigate with */}
+            <button type="button" className="navbtn navhome" onClick={() => run('home')}>
+              <span className="pmt" aria-hidden="true">←</span>home
+            </button>
             {NAV.map((n) => {
               const active = view.k === n.cmd || (n.cmd === 'projects' && view.k === 'project');
               return (
@@ -757,36 +950,51 @@ export function Terminal() {
             </button>
           </nav>
 
-          <div className="rail-cli" onClick={focus}>
-            <div className="cli-line">
-              <span className="ps"><span className="u">$</span> </span>
-              <span className="typed">{input}</span>
-              <span className={focused ? 'blk-caret' : 'blk-caret off'} aria-hidden="true" />
-              {ghost && <span className="ghost" aria-hidden="true">{ghost}</span>}
-              {input === '' && <span className="ph2">type a command…</span>}
-              <input
-                id="term-input"
-                ref={inputRef}
-                className="cli"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKey}
-                onFocus={() => setFocused(true)}
-                onBlur={() => setFocused(false)}
-                autoComplete="off"
-                autoCapitalize="off"
-                autoCorrect="off"
-                spellCheck={false}
-                aria-label="terminal command input"
-              />
-            </div>
-            <div className="cli-hint faint">↑ history · Tab completes · {L('help')}</div>
+          {/* the rail's own dead zone — the highest-value action goes in it */}
+          <div className="rail-hire">
+            <div className="eyebrow">// status</div>
+            <div><span className="g bold">● open to work</span></div>
+            <div className="out dim rail-hire-d">{AVAILABILITY}</div>
+            <a className="btn primary" href={`mailto:${EMAIL}`}>Email me →</a>
           </div>
+
+          <div className="rail-cli" onClick={focus}>{cliBlock()}</div>
         </aside>
+        )}
       </div>
 
       {overlay === 'htop' && <Htop reducedMotion={RM} onExit={() => { setOverlay(null); focus(); }} />}
     </div>
+  );
+}
+
+/*
+  Three quiet meters that bridge the rail's dead zone and hint that `htop` is
+  real. Deliberately unlabelled numbers — decoration, not a claimed metric.
+*/
+function MiniMeters({ reducedMotion }: { reducedMotion: boolean }) {
+  const [v, setV] = useState<number[]>([38, 54, 21]);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const drift = (n: number, by: number) => Math.max(6, Math.min(94, n + (Math.random() - 0.5) * by));
+    const iv = window.setInterval(() => {
+      setV(([a, b, c]) => [drift(a, 18), drift(b, 8), drift(c, 26)]);
+    }, 2200);
+    return () => window.clearInterval(iv);
+  }, [reducedMotion]);
+
+  const rows: [string, number, boolean][] = [['cpu', v[0], false], ['mem', v[1], true], ['net', v[2], false]];
+  return (
+    <>
+      {rows.map(([lab, val, mem]) => (
+        <span className="hmeter" key={lab}>
+          <span className="lab">{lab}</span>
+          <span className={'hbar' + (mem ? ' mem' : '')}><i style={{ width: `${val.toFixed(0)}%` }} /></span>
+          <span className="hpct">{val.toFixed(0)}%</span>
+        </span>
+      ))}
+    </>
   );
 }
 
